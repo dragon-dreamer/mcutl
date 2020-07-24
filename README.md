@@ -40,3 +40,51 @@ This will:
 * Check all the prerequisites and display a readable compile-time error if it's not possible to configure MCU clocks in a way requested. For example, if it's not possible to configure the core to run with 72 MHz frequency with SPI1 from 100 to 200 KHz frequency and USB peripheral enabled at the same time, you'll know this when compiling.
 * Compile the code to perform actions exactly required to achieve the configuration requested. No excessive checks, no code that's not needed. You don't need to generate the configuration code using STM32CubeMX, you just get what you see.
 * Bonus: if you later wish to change your 16 MHz crystal to a 12 MHz one, you just change a single character in your configuration and recompile the code!
+
+This code takes 124 bytes after compilation with `-Os` switch or 144 bytes with `-O3`. It operates directly on registers required and doesn't do anything that can be done at compile time.
+
+This is roughly the equivalent C code you could write to achive the same thing (and this is the actual code which is generated for the C++ code above):
+```c
+auto cfgr = RCC->CFGR;
+RCC->CR |= RCC_CR_HSEON;
+while (!(RCC->CR & RCC_CR_HSERDY)) {}
+
+cfgr &= ~(RCC_CFGR_PPRE1 | RCC_CFGR_PPRE2 | RCC_CFGR_ADCPRE | RCC_CFGR_HPRE | RCC_CFGR_SW
+	| RCC_CFGR_PLLMULL | RCC_CFGR_PLLXTPRE_HSE_DIV2 | RCC_CFGR_PLLSRC | RCC_CFGR_USBPRE);
+cfgr |= RCC_CFGR_PPRE1_DIV2 | RCC_CFGR_PPRE2_DIV2 | RCC_CFGR_ADCPRE_DIV4 | RCC_CFGR_PLLMULL9
+	| RCC_CFGR_PLLXTPRE_HSE_DIV2 | RCC_CFGR_PLLSRC;
+RCC->CFGR = cfgr;
+
+RCC->CR |= RCC_CR_PLLON;
+while (!(RCC->CR & RCC_CR_PLLRDY)) {}
+
+auto flash_acr = FLASH->ACR;
+flash_acr &= ~FLASH_ACR_LATENCY;
+flash_acr |= FLASH_ACR_LATENCY_1;
+FLASH->ACR = flash_acr;
+
+cfgr = RCC->CFGR;
+cfgr &= ~RCC_CFGR_SW;
+cfgr |= RCC_CFGR_SW_PLL;
+RCC->CFGR = cfgr;
+while ((RCC->CFGR & RCC_CFGR_SWS) == RCC_CFGR_SWS_HSI) {}
+
+RCC->CR &= ~RCC_CR_HSION;
+```
+
+## MCU support
+<table>
+	<tr>
+		<th>MCU \\ Feature</th>
+		<th>Peripheral config</th><th>Clock config</th>
+	</tr>
+	<tr>
+		<td>STM32F101, STM32F102, STM32F103</td>
+		<td rowspan="2">Full (enable, disable, reset, clear reset)</td>
+		<td>Yes, except Clock Security System (CSS), clock-out capability, RTC and Watchdog clocks</td>
+	</tr>
+	<tr>
+		<td>STM32F105, STM32F107</td>
+		<td>No</td>
+	</tr>
+</table>

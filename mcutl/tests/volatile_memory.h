@@ -323,10 +323,23 @@ template<auto Reg, uintptr_t RegStructBase, auto BitMask>
 		get_register_bits<Reg>(volatile_memory<class_t, RegStructBase>()) & unsigned_bitmask);
 }
 
+template<auto BitMask, auto Reg, typename RegStruct>
+[[nodiscard]] inline auto get_register_bits(const volatile RegStruct* ptr)
+{
+	constexpr auto unsigned_bitmask = static_cast<std::make_unsigned_t<decltype(BitMask)>>(BitMask);
+	return static_cast<types::type_of_member_pointer_t<Reg>>(get_register_bits<Reg>(ptr) & unsigned_bitmask);
+}
+
 template<auto Reg, uintptr_t RegStructBase, auto BitMask>
 [[nodiscard]] inline bool get_register_flag()
 {
 	return static_cast<bool>(get_register_bits<Reg, RegStructBase, BitMask>());
+}
+
+template<auto BitMask, auto Reg, typename RegStruct>
+[[nodiscard]] inline bool get_register_flag(const volatile RegStruct* ptr)
+{
+	return static_cast<bool>(get_register_bits<BitMask, Reg>(ptr));
 }
 
 template<auto Value, auto Reg, typename RegStruct>

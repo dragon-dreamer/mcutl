@@ -33,6 +33,9 @@ struct set_lowest_possible_frequencies {};
 
 struct base_configuration_is_currently_present {};
 
+template<typename Requirement>
+struct remove_requirement {};
+
 namespace detail
 {
 
@@ -52,19 +55,19 @@ struct frequency_limits
 	{
 		return exact_frequency || min_frequency || max_frequency;
 	}
+	
+	constexpr void clear() noexcept
+	{
+		exact_frequency = 0;
+		min_frequency = 0;
+		max_frequency = 0;
+	}
 };
 
 struct base_clock_option_processor
 {
 	template<typename ClockOptions>
 	static constexpr auto process(ClockOptions) noexcept
-	{
-		static_assert(types::always_false<ClockOptions>::value, "Unknown clock configuration option");
-		return false;
-	}
-	
-	template<typename ClockOptions>
-	static constexpr auto reset_duplicate_flag(ClockOptions) noexcept
 	{
 		static_assert(types::always_false<ClockOptions>::value, "Unknown clock configuration option");
 		return false;
@@ -86,14 +89,6 @@ struct clock_option_processor : base_clock_option_processor
 template<typename FrequencyOption>
 struct base_frequency_requirements_processor : base_clock_option_processor
 {
-	template<typename ClockOptionsLambda>
-	static constexpr auto reset_duplicate_flag(ClockOptionsLambda clock_opts_lambda) noexcept
-	{
-		auto clock_opts = clock_opts_lambda();
-		clock_opts.frequency_reqs_explicitly_set = false;
-		return clock_opts;
-	}
-	
 	template<typename... ResultOptions, typename ClockOptions>
 	static constexpr auto override_options([[maybe_unused]] config<ResultOptions...> result,
 		ClockOptions overridden_options) noexcept
@@ -241,14 +236,6 @@ struct clock_option_processor<base_configuration_is_currently_present, Limits> :
 		auto clock_opts_modified = clock_opts;
 		clock_opts_modified.base_configuration_is_present = true;
 		return clock_opts_modified;
-	}
-	
-	template<typename ClockOptions>
-	static constexpr auto reset_duplicate_flag(ClockOptions clock_opts_lambda) noexcept
-	{
-		static_assert(types::always_false<ClockOptions>::value,
-			"Unable to override base_configuration_is_currently_present value, it has no meaning when overriding clock options");
-		return clock_opts_lambda();
 	}
 	
 	template<typename... ResultOptions, typename ClockOptions>

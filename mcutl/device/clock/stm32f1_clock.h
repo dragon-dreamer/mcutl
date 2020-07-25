@@ -793,7 +793,7 @@ constexpr device_clock_options get_clock_options(
 	if constexpr (pll_config.is_used())
 	{
 		result.pll_used = true;
-		constexpr auto pll_parent = best_clock_tree.get_source_parent(device_source_id::pll);
+		constexpr auto pll_parent = best_clock_tree.get_node_parent(device_source_id::pll);
 		constexpr uint32_t pllmul_bits = get_pllmul_bits<pll_config.get_prescaler_value()>();
 		constexpr uint32_t pllxtpre_bits = pll_parent == device_source_id::hse_prediv
 				&& best_clock_tree.get_config_by_id(device_source_id::hse_prediv).get_prescaler_value() == 2u
@@ -816,11 +816,11 @@ constexpr device_clock_options get_clock_options(
 			"When using USB, APB1 frequency must be at least 13 MHz");
 	}
 	
-	if constexpr (best_clock_tree.get_source_parent(device_source_id::sys) == device_source_id::hsi)
+	if constexpr (best_clock_tree.get_node_parent(device_source_id::sys) == device_source_id::hsi)
 		result.sys_source = device_source_id::hsi;
-	else if constexpr (best_clock_tree.get_source_parent(device_source_id::sys) == device_source_id::hse)
+	else if constexpr (best_clock_tree.get_node_parent(device_source_id::sys) == device_source_id::hse)
 		result.sys_source = device_source_id::hse;
-	else if constexpr (best_clock_tree.get_source_parent(device_source_id::sys) == device_source_id::pll)
+	else if constexpr (best_clock_tree.get_node_parent(device_source_id::sys) == device_source_id::pll)
 		result.sys_source = device_source_id::pll;
 	
 	constexpr auto spi1_config = best_clock_tree.get_config_by_id(device_source_id::spi1);

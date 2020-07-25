@@ -1,6 +1,6 @@
 #pragma once
 
-#ifdef MCUTL_TEST //TODO: document this define
+#ifdef MCUTL_TEST
 #	include "mcutl/tests/volatile_memory.h"
 #else //MCUTL_TEST
 #	include "mcutl/device/memory/device_memory.h"
@@ -98,10 +98,22 @@ template<auto Reg, uintptr_t RegStructBase, auto BitMask>
 	return mcutl::device::memory::get_register_bits<Reg, RegStructBase, BitMask>();
 }
 
+template<auto BitMask, auto Reg, typename RegStruct>
+[[nodiscard]] inline auto get_register_bits(const volatile RegStruct* ptr) MCUTL_NOEXCEPT
+{
+	return mcutl::device::memory::get_register_bits<BitMask, Reg>(ptr);
+}
+
 template<auto Reg, uintptr_t RegStructBase, auto BitMask>
 [[nodiscard]] inline bool get_register_flag() MCUTL_NOEXCEPT
 {
 	return mcutl::device::memory::get_register_flag<Reg, RegStructBase, BitMask>();
+}
+
+template<auto BitMask, auto Reg, typename RegStruct>
+[[nodiscard]] inline bool get_register_flag(const volatile RegStruct* ptr) MCUTL_NOEXCEPT
+{
+	return mcutl::device::memory::get_register_flag<BitMask, Reg>(ptr);
 }
 
 } //namespace mcutl::memory

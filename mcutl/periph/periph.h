@@ -23,13 +23,25 @@ constexpr auto get_config() noexcept
 	(..., process_peripheral_config<PeripheralConfig>(config));
 	return config;
 }
-	
+
 template<typename... PeripheralConfig>
-constexpr auto get_and_validate_config() noexcept
+struct config_helper
 {
-	device::periph::validate_config([] () constexpr { return get_config<PeripheralConfig...>(); });
-	return get_config<PeripheralConfig...>();
-}
+	static constexpr auto get_and_validate_config() noexcept
+	{
+		device::periph::validate_config([] () constexpr { return get_config<PeripheralConfig...>(); });
+		return get_config<PeripheralConfig...>();
+	}
+};
+
+template<typename... PeripheralConfig>
+struct config_helper<config<PeripheralConfig...>>
+{
+	static constexpr auto get_and_validate_config() noexcept
+	{
+		return config_helper<PeripheralConfig...>::get_and_validate_config();
+	}
+};
 
 } //namespace detail
 
@@ -37,7 +49,7 @@ template<typename... PeripheralConfig>
 void configure_peripheral() MCUTL_NOEXCEPT
 {
 	device::periph::configure_peripheral(
-		[] () constexpr { return detail::get_and_validate_config<PeripheralConfig...>(); });
+		[] () constexpr { return detail::config_helper<PeripheralConfig...>::get_and_validate_config(); });
 }
 
 } //namespace mcutl::periph

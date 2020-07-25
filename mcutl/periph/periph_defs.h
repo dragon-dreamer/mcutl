@@ -78,4 +78,7 @@ struct reset : detail::peripheral_configuration<Peripheral, detail::reset> {};
 template<typename Peripheral>
 struct undo_reset : detail::peripheral_configuration<Peripheral, detail::undo_reset> {};
 
+template<typename... Options>
+struct config {};
+
 } //namespace mcutl::periph

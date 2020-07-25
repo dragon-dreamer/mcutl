@@ -39,7 +39,7 @@ constexpr bool bit_band_available() noexcept
 {
 #ifndef SRAM_BB_BASE
 	return false;
-#elif defined MCUTL_CORTEX_M3_BITBAND_DISABLE //TODO: document this define
+#elif defined MCUTL_CORTEX_M3_BITBAND_DISABLE
 	return false;
 #else //SRAM_BB_BASE
 	if constexpr (math::set_bits_count(BitMask) != 1)

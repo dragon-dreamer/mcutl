@@ -56,37 +56,37 @@ TYPED_TEST(min_req_clock_test_fixture_templated, MinimumRequirementsFromBaseConf
 	EXPECT_TRUE(best_tree.get_config_by_id(clock_id::sys).is_used());
 	EXPECT_EQ(best_tree.get_config_by_id(clock_id::sys).get_exact_frequency(), 64_MHz);
 	
-	auto sys_parent_id = best_tree.get_source_parent(clock_id::sys);
+	auto sys_parent_id = best_tree.get_node_parent(clock_id::sys);
 	EXPECT_EQ(sys_parent_id, clock_id::pll);
 	EXPECT_TRUE(best_tree.get_config_by_id(sys_parent_id).is_used());
 	EXPECT_EQ(best_tree.get_config_by_id(sys_parent_id).get_exact_frequency(), 64_MHz);
 	EXPECT_EQ(best_tree.get_config_by_id(sys_parent_id).get_prescaler_value(), 16u);
-	EXPECT_EQ(best_tree.get_config_by_id(sys_parent_id).get_reverse_prescaler(), 1u);
+	EXPECT_EQ(best_tree.get_config_by_id(sys_parent_id).get_prescaler_divider(), 1u);
 	
 	EXPECT_TRUE(best_tree.get_config_by_id(clock_id::apb1).is_used());
 	EXPECT_EQ(best_tree.get_config_by_id(clock_id::apb1).get_exact_frequency(), 32_MHz);
 	EXPECT_EQ(best_tree.get_config_by_id(clock_id::apb1).get_prescaler_value(), 2u);
-	EXPECT_EQ(best_tree.get_config_by_id(clock_id::apb1).get_reverse_prescaler(), 1u);
+	EXPECT_EQ(best_tree.get_config_by_id(clock_id::apb1).get_prescaler_divider(), 1u);
 	
 	EXPECT_TRUE(best_tree.get_config_by_id(clock_id::apb2).is_used());
 	EXPECT_EQ(best_tree.get_config_by_id(clock_id::apb2).get_exact_frequency(), 64_MHz);
 	EXPECT_EQ(best_tree.get_config_by_id(clock_id::apb2).get_prescaler_value(), 1u);
-	EXPECT_EQ(best_tree.get_config_by_id(clock_id::apb2).get_reverse_prescaler(), 1u);
+	EXPECT_EQ(best_tree.get_config_by_id(clock_id::apb2).get_prescaler_divider(), 1u);
 	
 	EXPECT_TRUE(best_tree.get_config_by_id(clock_id::ahb).is_used());
 	EXPECT_EQ(best_tree.get_config_by_id(clock_id::ahb).get_exact_frequency(), 64_MHz);
 	EXPECT_EQ(best_tree.get_config_by_id(clock_id::ahb).get_prescaler_value(), 1u);
-	EXPECT_EQ(best_tree.get_config_by_id(clock_id::ahb).get_reverse_prescaler(), 1u);
+	EXPECT_EQ(best_tree.get_config_by_id(clock_id::ahb).get_prescaler_divider(), 1u);
 	
 	EXPECT_TRUE(best_tree.get_config_by_id(clock_id::adc).is_used());
 	EXPECT_EQ(best_tree.get_config_by_id(clock_id::adc).get_exact_frequency(), 10'666'666u);
 	EXPECT_EQ(best_tree.get_config_by_id(clock_id::adc).get_prescaler_value(), 6u);
-	EXPECT_EQ(best_tree.get_config_by_id(clock_id::adc).get_reverse_prescaler(), 1u);
+	EXPECT_EQ(best_tree.get_config_by_id(clock_id::adc).get_prescaler_divider(), 1u);
 	
-	EXPECT_EQ(best_tree.get_source_parent(clock_id::adc), clock_id::apb2);
-	EXPECT_EQ(best_tree.get_source_parent(clock_id::apb2), clock_id::ahb);
-	EXPECT_EQ(best_tree.get_source_parent(clock_id::apb1), clock_id::ahb);
-	EXPECT_EQ(best_tree.get_source_parent(clock_id::ahb), clock_id::sys);
+	EXPECT_EQ(best_tree.get_node_parent(clock_id::adc), clock_id::apb2);
+	EXPECT_EQ(best_tree.get_node_parent(clock_id::apb2), clock_id::ahb);
+	EXPECT_EQ(best_tree.get_node_parent(clock_id::apb1), clock_id::ahb);
+	EXPECT_EQ(best_tree.get_node_parent(clock_id::ahb), clock_id::sys);
 	
 	EXPECT_FALSE(best_tree.get_config_by_id(clock_id::usb).is_used());
 	EXPECT_FALSE(best_tree.get_config_by_id(clock_id::timer2_3_4_5_6_7_12_13_14).is_used());
@@ -124,40 +124,40 @@ TEST_F(clock_test_fixture, InternalOscillatorWithUsbTree)
 	EXPECT_TRUE(best_tree.get_config_by_id(clock_id::sys).is_used());
 	EXPECT_EQ(best_tree.get_config_by_id(clock_id::sys).get_exact_frequency(), 48_MHz);
 	
-	auto sys_parent_id = best_tree.get_source_parent(clock_id::sys);
+	auto sys_parent_id = best_tree.get_node_parent(clock_id::sys);
 	EXPECT_EQ(sys_parent_id, clock_id::pll);
 	EXPECT_TRUE(best_tree.get_config_by_id(sys_parent_id).is_used());
 	EXPECT_EQ(best_tree.get_config_by_id(sys_parent_id).get_exact_frequency(), 48_MHz);
 	EXPECT_EQ(best_tree.get_config_by_id(sys_parent_id).get_prescaler_value(), 12u);
-	EXPECT_EQ(best_tree.get_config_by_id(sys_parent_id).get_reverse_prescaler(), 1u);
+	EXPECT_EQ(best_tree.get_config_by_id(sys_parent_id).get_prescaler_divider(), 1u);
 	
 	EXPECT_TRUE(best_tree.get_config_by_id(clock_id::apb1).is_used());
 	EXPECT_EQ(best_tree.get_config_by_id(clock_id::apb1).get_exact_frequency(), 24_MHz);
 	EXPECT_EQ(best_tree.get_config_by_id(clock_id::apb1).get_prescaler_value(), 2u);
-	EXPECT_EQ(best_tree.get_config_by_id(clock_id::apb1).get_reverse_prescaler(), 1u);
+	EXPECT_EQ(best_tree.get_config_by_id(clock_id::apb1).get_prescaler_divider(), 1u);
 	
 	EXPECT_TRUE(best_tree.get_config_by_id(clock_id::apb2).is_used());
 	EXPECT_EQ(best_tree.get_config_by_id(clock_id::apb2).get_exact_frequency(), 48_MHz);
 	EXPECT_EQ(best_tree.get_config_by_id(clock_id::apb2).get_prescaler_value(), 1u);
-	EXPECT_EQ(best_tree.get_config_by_id(clock_id::apb2).get_reverse_prescaler(), 1u);
+	EXPECT_EQ(best_tree.get_config_by_id(clock_id::apb2).get_prescaler_divider(), 1u);
 	
 	EXPECT_TRUE(best_tree.get_config_by_id(clock_id::ahb).is_used());
 	EXPECT_EQ(best_tree.get_config_by_id(clock_id::ahb).get_exact_frequency(), 48_MHz);
 	EXPECT_EQ(best_tree.get_config_by_id(clock_id::ahb).get_prescaler_value(), 1u);
-	EXPECT_EQ(best_tree.get_config_by_id(clock_id::ahb).get_reverse_prescaler(), 1u);
+	EXPECT_EQ(best_tree.get_config_by_id(clock_id::ahb).get_prescaler_divider(), 1u);
 	
 	EXPECT_TRUE(best_tree.get_config_by_id(clock_id::adc).is_used());
 	EXPECT_EQ(best_tree.get_config_by_id(clock_id::adc).get_exact_frequency(), 12_MHz);
 	EXPECT_EQ(best_tree.get_config_by_id(clock_id::adc).get_prescaler_value(), 4u);
-	EXPECT_EQ(best_tree.get_config_by_id(clock_id::adc).get_reverse_prescaler(), 1u);
+	EXPECT_EQ(best_tree.get_config_by_id(clock_id::adc).get_prescaler_divider(), 1u);
 	
-	EXPECT_EQ(best_tree.get_source_parent(clock_id::adc), clock_id::apb2);
-	EXPECT_EQ(best_tree.get_source_parent(clock_id::apb2), clock_id::ahb);
-	EXPECT_EQ(best_tree.get_source_parent(clock_id::apb1), clock_id::ahb);
-	EXPECT_EQ(best_tree.get_source_parent(clock_id::ahb), clock_id::sys);
+	EXPECT_EQ(best_tree.get_node_parent(clock_id::adc), clock_id::apb2);
+	EXPECT_EQ(best_tree.get_node_parent(clock_id::apb2), clock_id::ahb);
+	EXPECT_EQ(best_tree.get_node_parent(clock_id::apb1), clock_id::ahb);
+	EXPECT_EQ(best_tree.get_node_parent(clock_id::ahb), clock_id::sys);
 	
 	EXPECT_TRUE(best_tree.get_config_by_id(clock_id::usb).is_used());
-	EXPECT_EQ(best_tree.get_source_parent(clock_id::usb), clock_id::pll);
+	EXPECT_EQ(best_tree.get_node_parent(clock_id::usb), clock_id::pll);
 	EXPECT_FALSE(best_tree.get_config_by_id(clock_id::timer2_3_4_5_6_7_12_13_14).is_used());
 	EXPECT_FALSE(best_tree.get_config_by_id(clock_id::timer1_8_9_10_11).is_used());
 	EXPECT_FALSE(best_tree.get_config_by_id(clock_id::timer2_3_4_5_6_7_12_13_14_multiplier).is_used());
@@ -212,44 +212,44 @@ TYPED_TEST(external_oscillator_with_usb_test_fixture_templated, ExternalOscillat
 	EXPECT_TRUE(best_tree.get_config_by_id(clock_id::sys).is_used());
 	EXPECT_EQ(best_tree.get_config_by_id(clock_id::sys).get_exact_frequency(), 72_MHz);
 	
-	auto sys_parent_id = best_tree.get_source_parent(clock_id::sys);
+	auto sys_parent_id = best_tree.get_node_parent(clock_id::sys);
 	EXPECT_EQ(sys_parent_id, clock_id::pll);
 	EXPECT_TRUE(best_tree.get_config_by_id(sys_parent_id).is_used());
 	EXPECT_EQ(best_tree.get_config_by_id(sys_parent_id).get_exact_frequency(), 72_MHz);
 	EXPECT_EQ(best_tree.get_config_by_id(sys_parent_id).get_prescaler_value(), 9u);
-	EXPECT_EQ(best_tree.get_config_by_id(sys_parent_id).get_reverse_prescaler(), 1u);
+	EXPECT_EQ(best_tree.get_config_by_id(sys_parent_id).get_prescaler_divider(), 1u);
 	
 	EXPECT_TRUE(best_tree.get_config_by_id(clock_id::hse_prediv).is_used());
 	EXPECT_EQ(best_tree.get_config_by_id(clock_id::hse_prediv).get_exact_frequency(), 8_MHz);
-	EXPECT_EQ(best_tree.get_source_parent(clock_id::pll), clock_id::hse_prediv);
+	EXPECT_EQ(best_tree.get_node_parent(clock_id::pll), clock_id::hse_prediv);
 	
 	EXPECT_TRUE(best_tree.get_config_by_id(clock_id::apb1).is_used());
 	EXPECT_EQ(best_tree.get_config_by_id(clock_id::apb1).get_exact_frequency(), 36_MHz);
 	EXPECT_EQ(best_tree.get_config_by_id(clock_id::apb1).get_prescaler_value(), 2u);
-	EXPECT_EQ(best_tree.get_config_by_id(clock_id::apb1).get_reverse_prescaler(), 1u);
+	EXPECT_EQ(best_tree.get_config_by_id(clock_id::apb1).get_prescaler_divider(), 1u);
 	
 	EXPECT_TRUE(best_tree.get_config_by_id(clock_id::apb2).is_used());
 	EXPECT_EQ(best_tree.get_config_by_id(clock_id::apb2).get_exact_frequency(), 72_MHz);
 	EXPECT_EQ(best_tree.get_config_by_id(clock_id::apb2).get_prescaler_value(), 1u);
-	EXPECT_EQ(best_tree.get_config_by_id(clock_id::apb2).get_reverse_prescaler(), 1u);
+	EXPECT_EQ(best_tree.get_config_by_id(clock_id::apb2).get_prescaler_divider(), 1u);
 	
 	EXPECT_TRUE(best_tree.get_config_by_id(clock_id::ahb).is_used());
 	EXPECT_EQ(best_tree.get_config_by_id(clock_id::ahb).get_exact_frequency(), 72_MHz);
 	EXPECT_EQ(best_tree.get_config_by_id(clock_id::ahb).get_prescaler_value(), 1u);
-	EXPECT_EQ(best_tree.get_config_by_id(clock_id::ahb).get_reverse_prescaler(), 1u);
+	EXPECT_EQ(best_tree.get_config_by_id(clock_id::ahb).get_prescaler_divider(), 1u);
 	
 	EXPECT_TRUE(best_tree.get_config_by_id(clock_id::adc).is_used());
 	EXPECT_EQ(best_tree.get_config_by_id(clock_id::adc).get_exact_frequency(), 12_MHz);
 	EXPECT_EQ(best_tree.get_config_by_id(clock_id::adc).get_prescaler_value(), 6u);
-	EXPECT_EQ(best_tree.get_config_by_id(clock_id::adc).get_reverse_prescaler(), 1u);
+	EXPECT_EQ(best_tree.get_config_by_id(clock_id::adc).get_prescaler_divider(), 1u);
 	
-	EXPECT_EQ(best_tree.get_source_parent(clock_id::adc), clock_id::apb2);
-	EXPECT_EQ(best_tree.get_source_parent(clock_id::apb2), clock_id::ahb);
-	EXPECT_EQ(best_tree.get_source_parent(clock_id::apb1), clock_id::ahb);
-	EXPECT_EQ(best_tree.get_source_parent(clock_id::ahb), clock_id::sys);
+	EXPECT_EQ(best_tree.get_node_parent(clock_id::adc), clock_id::apb2);
+	EXPECT_EQ(best_tree.get_node_parent(clock_id::apb2), clock_id::ahb);
+	EXPECT_EQ(best_tree.get_node_parent(clock_id::apb1), clock_id::ahb);
+	EXPECT_EQ(best_tree.get_node_parent(clock_id::ahb), clock_id::sys);
 	
 	EXPECT_TRUE(best_tree.get_config_by_id(clock_id::usb).is_used());
-	EXPECT_EQ(best_tree.get_source_parent(clock_id::usb), clock_id::pll);
+	EXPECT_EQ(best_tree.get_node_parent(clock_id::usb), clock_id::pll);
 	EXPECT_FALSE(best_tree.get_config_by_id(clock_id::timer2_3_4_5_6_7_12_13_14).is_used());
 	EXPECT_FALSE(best_tree.get_config_by_id(clock_id::timer1_8_9_10_11).is_used());
 	EXPECT_FALSE(best_tree.get_config_by_id(clock_id::timer2_3_4_5_6_7_12_13_14_multiplier).is_used());
@@ -310,9 +310,67 @@ TEST_F(clock_test_fixture, NoPllWithCore)
 	EXPECT_TRUE(best_tree.get_config_by_id(clock_id::sys).is_used());
 	EXPECT_EQ(best_tree.get_config_by_id(clock_id::sys).get_exact_frequency(), 16_MHz);
 	EXPECT_FALSE(best_tree.get_config_by_id(clock_id::pll).is_used());
-	EXPECT_EQ(best_tree.get_source_parent(clock_id::sys), clock_id::hse);
+	EXPECT_EQ(best_tree.get_node_parent(clock_id::sys), clock_id::hse);
 	
 	mcutl::clock::configure_clocks<no_pll_with_core_config>();
+}
+
+using timer1_config_apb2_prescaler1 = mcutl::clock::config<
+	mcutl::clock::external_high_speed_crystal<16_MHz>,
+	mcutl::clock::base_configuration_is_currently_present,
+	mcutl::clock::apb2<mcutl::clock::required_frequency<72_MHz>>,
+	mcutl::clock::timer1_8_9_10_11<>
+>;
+
+TEST_F(clock_test_fixture, Timer1ConfigWithApb2Prescaler1)
+{
+	InSequence seq;
+	
+	constexpr auto cfgr_values = RCC_CFGR_PPRE1_DIV2
+		| RCC_CFGR_ADCPRE_DIV6 | RCC_CFGR_PLLMULL9 | RCC_CFGR_PLLXTPRE_HSE_DIV2
+		| RCC_CFGR_PLLSRC;
+	expect_hse_on_and_wait_ready(RCC_CR_HSEON);
+	expect_reg_bits_set(addr(&RCC->CFGR),
+		get_cfgr_mask_with_pll(), cfgr_values);
+	expect_pll_on_and_wait_ready();
+	expect_flash_latency_change(FLASH_ACR_LATENCY_1);
+	expect_set_pll_as_system_and_wait();
+	expect_disable_hsi();
+	
+	mcutl::clock::configure_clocks<timer1_config_apb2_prescaler1>();
+	
+	constexpr auto timer1_info = mcutl::clock::get_clock_info<timer1_config_apb2_prescaler1,
+		mcutl::clock::clock_id::timer1_8_9_10_11>();
+	EXPECT_EQ(timer1_info.get_exact_frequency(), 72_MHz);
+}
+
+using timer1_config_apb2_prescaler4 = mcutl::clock::config<
+	mcutl::clock::external_high_speed_crystal<16_MHz>,
+	mcutl::clock::base_configuration_is_currently_present,
+	mcutl::clock::apb2<mcutl::clock::required_frequency<18_MHz>>,
+	mcutl::clock::timer1_8_9_10_11<>
+>;
+
+TEST_F(clock_test_fixture, Timer1ConfigWithApb2Prescaler4)
+{
+	InSequence seq;
+	
+	constexpr auto cfgr_values = RCC_CFGR_PPRE1_DIV2 | RCC_CFGR_PPRE2_DIV4
+		| RCC_CFGR_ADCPRE_DIV2 | RCC_CFGR_PLLMULL9 | RCC_CFGR_PLLXTPRE_HSE_DIV2
+		| RCC_CFGR_PLLSRC;
+	expect_hse_on_and_wait_ready(RCC_CR_HSEON);
+	expect_reg_bits_set(addr(&RCC->CFGR),
+		get_cfgr_mask_with_pll(), cfgr_values);
+	expect_pll_on_and_wait_ready();
+	expect_flash_latency_change(FLASH_ACR_LATENCY_1);
+	expect_set_pll_as_system_and_wait();
+	expect_disable_hsi();
+	
+	mcutl::clock::configure_clocks<timer1_config_apb2_prescaler4>();
+	
+	constexpr auto timer1_info = mcutl::clock::get_clock_info<timer1_config_apb2_prescaler4,
+		mcutl::clock::clock_id::timer1_8_9_10_11>();
+	EXPECT_EQ(timer1_info.get_exact_frequency(), 36_MHz);
 }
 
 template<template<typename...> typename Spi>

@@ -1,2 +1,5 @@
 # Test build folder
 build/
+
+# Temp files
+*.TMP

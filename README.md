@@ -3,7 +3,10 @@
 ## What's this?
 This is a modern C++17 header-only template library for microcontrollers. The basic idea is to provide access to microcontroller features and peripherals via a uniform interface and precompute as much as possible during compilation. Bonus: it supports unit-testing!
 
-As this is my hobby project, it currently supports some features of Cortex-M3 STM32F101, STM32F102, STM32F103 and partially STM32F104 and STM32F105 controllers only, but I may add more in the future.
+As this is my hobby project, it currently supports some features of Cortex-M3 STM32F101, STM32F102, STM32F103 and partially STM32F104 and STM32F105 controllers only, but I may add more in the future. The library does not guarantee stability of its interface, as I'm currently working on it. However, there are already some remarkable pieces of code, so you may want to use them anyway.
+
+## Full documentation
+[Can be found here](doc/README.md).
 
 ## MCUTL features compared to any other MCU library
 **MCUTL** | Any other MCU library
@@ -15,6 +18,8 @@ As this is my hobby project, it currently supports some features of Cortex-M3 ST
 **Unit-testable on the host PC, provides mocks for memory reads and writes and MCU-specific instructions. You can test both the library and the code which utilizes it** | Well, no, you have to mock everything yourself
 Heavily relies on compiler optimizations, debug builds may be huge | **Doesn't depend on compiler optimizations that much**
 Requires C++17 | **Nope**
+
+The MCUTL library is a thin layer over hardware with testing support. The library does not account for any RTOS and does not lock any mutexes or resources. You have to do this yourself when writing some shared memory or registers.
 
 ## Compiler support
 Currently supported and tested compilers are **G++ 8.4 and newer** and **Clang 7.0 and newer**.

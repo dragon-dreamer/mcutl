@@ -58,17 +58,17 @@ public:
 public:
 	constexpr prescaler(prescaler_type type,
 		const prescaler_list_t& prescaler_list,
-		uint64_t reverse_prescaler = 1) noexcept
+		uint64_t prescaler_divider = 1) noexcept
 		: type_(type)
 		, prescaler_list_(prescaler_list)
-		, reverse_prescaler_(reverse_prescaler)
+		, prescaler_divider_(prescaler_divider)
 	{
 	}
 
 	constexpr prescaler(prescaler_type type, uint64_t value) noexcept
 		: type_(type)
 		, prescaler_list_{ {value} }
-		, reverse_prescaler_(1)
+		, prescaler_divider_(1)
 	{
 	}
 
@@ -92,17 +92,17 @@ public:
 		return prescaler_list_;
 	}
 
-	constexpr uint64_t get_reverse_prescaler() const noexcept
+	constexpr uint64_t get_prescaler_divider() const noexcept
 	{
-		return reverse_prescaler_;
+		return prescaler_divider_;
 	}
 
 	constexpr uint64_t calc_child_frequency(uint64_t frequency, size_t prescaler_index) const noexcept
 	{
 		if (type_ == prescaler_type::multiplier)
-			return (frequency / reverse_prescaler_) * prescaler_list_[prescaler_index];
+			return (frequency / prescaler_divider_) * prescaler_list_[prescaler_index];
 
-		return (frequency * reverse_prescaler_) / prescaler_list_[prescaler_index];
+		return (frequency * prescaler_divider_) / prescaler_list_[prescaler_index];
 	}
 
 	constexpr size_t count() const noexcept
@@ -122,13 +122,13 @@ public:
 private:
 	prescaler_type type_;
 	prescaler_list_t prescaler_list_;
-	uint64_t reverse_prescaler_;
+	uint64_t prescaler_divider_;
 };
 
 constexpr prescaler multiplier(const prescaler::prescaler_list_t& prescaler_list,
-	uint64_t reverse_prescaler = 1) noexcept
+	uint64_t prescaler_divider = 1) noexcept
 {
-	return prescaler(prescaler_type::multiplier, prescaler_list, reverse_prescaler);
+	return prescaler(prescaler_type::multiplier, prescaler_list, prescaler_divider);
 }
 
 constexpr prescaler multiplier(uint64_t value) noexcept
@@ -137,9 +137,9 @@ constexpr prescaler multiplier(uint64_t value) noexcept
 }
 
 constexpr prescaler divider(const prescaler::prescaler_list_t& prescaler_list,
-	uint64_t reverse_prescaler = 1) noexcept
+	uint64_t prescaler_divider = 1) noexcept
 {
-	return prescaler(prescaler_type::divider, prescaler_list, reverse_prescaler);
+	return prescaler(prescaler_type::divider, prescaler_list, prescaler_divider);
 }
 
 constexpr prescaler divider(uint64_t value) noexcept
@@ -295,7 +295,7 @@ public:
 		: exact_frequency_(config.get_exact_frequency())
 		, prescaler_type_(config.get_prescaler().get_type())
 		, prescaler_value_(config.get_prescaler().get_prescaler_list()[0])
-		, reverse_prescaler_(config.get_prescaler().get_reverse_prescaler())
+		, prescaler_divider_(config.get_prescaler().get_prescaler_divider())
 		, used_(config.is_used())
 	{
 	}
@@ -315,9 +315,9 @@ public:
 		return prescaler_value_;
 	}
 
-	constexpr uint64_t get_reverse_prescaler() const noexcept
+	constexpr uint64_t get_prescaler_divider() const noexcept
 	{
-		return reverse_prescaler_;
+		return prescaler_divider_;
 	}
 
 	constexpr bool is_used() const noexcept
@@ -329,7 +329,7 @@ private:
 	uint64_t exact_frequency_ = 0u;
 	prescaler_type prescaler_type_ = prescaler_type::multiplier;
 	uint64_t prescaler_value_ = 0u;
-	uint64_t reverse_prescaler_ = 0u;
+	uint64_t prescaler_divider_ = 0u;
 	bool used_ = false;
 };
 
@@ -575,7 +575,7 @@ public:
 		return best_source_configs_[index];
 	}
 
-	constexpr SourceId get_source_parent(SourceId id, SourceId default_value = {}) const noexcept
+	constexpr SourceId get_node_parent(SourceId id, SourceId default_value = {}) const noexcept
 	{
 		const auto index = source_id_to_index_[static_cast<size_t>(id)];
 		if (index == unused_source_id)

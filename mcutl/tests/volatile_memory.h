@@ -186,7 +186,7 @@ static memory_address_t addr(const Pointer* pointer) noexcept
 	return reinterpret_cast<memory_address_t>(pointer);
 }
 
-class test_fixture_base : public ::testing::Test
+class test_fixture_base : virtual public::testing::Test
 {
 public:
 	virtual void SetUp() override

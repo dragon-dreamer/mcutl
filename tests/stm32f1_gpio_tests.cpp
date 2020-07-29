@@ -8,7 +8,7 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
-using gpio_strict_test_fixture = mcutl::tests::strict_test_fixture_base;
+using gpio_strict_test_fixture = mcutl::tests::memory::strict_test_fixture_base;
 
 TEST_F(gpio_strict_test_fixture, ComplexGpioConfig)
 {

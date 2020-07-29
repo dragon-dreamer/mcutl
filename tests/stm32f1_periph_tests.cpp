@@ -47,22 +47,22 @@ struct periph_test_data
 			mcutl::periph::undo_reset<periph_config>>();
 	}
 	
-	static mcutl::tests::memory_address_t enr_addr() noexcept
+	static mcutl::tests::memory::memory_address_t enr_addr() noexcept
 	{
 		if constexpr (Bus == bus::ahb)
-			return mcutl::tests::addr(&(RCC->AHBENR));
+			return mcutl::tests::memory::addr(&(RCC->AHBENR));
 		else if constexpr (Bus == bus::apb1)
-			return mcutl::tests::addr(&(RCC->APB1ENR));
+			return mcutl::tests::memory::addr(&(RCC->APB1ENR));
 		else
-			return mcutl::tests::addr(&(RCC->APB2ENR));
+			return mcutl::tests::memory::addr(&(RCC->APB2ENR));
 	}
 	
-	static mcutl::tests::memory_address_t rstr_addr() noexcept
+	static mcutl::tests::memory::memory_address_t rstr_addr() noexcept
 	{
 		if constexpr (Bus == bus::apb1)
-			return mcutl::tests::addr(&(RCC->APB1RSTR));
+			return mcutl::tests::memory::addr(&(RCC->APB1RSTR));
 		else if (Bus == bus::apb2)
-			return mcutl::tests::addr(&(RCC->APB2RSTR));
+			return mcutl::tests::memory::addr(&(RCC->APB2RSTR));
 		else
 			return 0;
 	}
@@ -73,7 +73,7 @@ class periph_enable_disable_combine_test {};
 
 template<typename... PeriphTestData>
 class periph_enable_disable_combine_test<mcutl::types::list<PeriphTestData...>>
-	: public mcutl::tests::strict_test_fixture_base
+	: public mcutl::tests::memory::strict_test_fixture_base
 {
 public:
 	void enable()
@@ -120,7 +120,7 @@ class periph_reset_combine_test {};
 
 template<typename... PeriphTestData>
 class periph_reset_combine_test<mcutl::types::list<PeriphTestData...>>
-	: public mcutl::tests::strict_test_fixture_base
+	: public mcutl::tests::memory::strict_test_fixture_base
 {
 public:
 	void reset()

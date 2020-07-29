@@ -46,7 +46,7 @@ class reconfigure_to_same_test_fixture : public clock_test_fixture
 public:
 	virtual void SetUp() override
 	{
-		mcutl::tests::strict_test_fixture_base::SetUp();
+		mcutl::tests::memory::strict_test_fixture_base::SetUp();
 	}
 	
 	static void reconfigure_clocks() noexcept
@@ -353,7 +353,7 @@ TYPED_TEST_SUITE(reconfigure_spi_test_fixture, spi_configurations);
 
 TYPED_TEST(reconfigure_spi_test_fixture, SpiOnly)
 {
-	mcutl::tests::memory_address_t spi_cr{};
+	mcutl::tests::memory::memory_address_t spi_cr{};
 	
 	if constexpr (std::is_same_v<typename TestFixture::original_config_t,
 		spi_config_original<mcutl::clock::spi1>>)

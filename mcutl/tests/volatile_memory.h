@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cassert>
 #include <limits>
 #include <stdint.h>
 #include <type_traits>
@@ -9,7 +10,7 @@
 #include "gmock/gmock.h"
 #include "mcutl/utils/type_helpers.h"
 
-namespace mcutl::tests
+namespace mcutl::tests::memory
 {
 
 using memory_address_t = uintptr_t;
@@ -64,7 +65,7 @@ public:
 		set_same_address_access_limit(50);
 	}
 	
-	memory_interface_not_mocked with_unmocked_memory() noexcept
+	[[nodiscard]] memory_interface_not_mocked with_unmocked_memory() noexcept
 	{
 		return memory_interface_not_mocked(*this);
 	}
@@ -74,7 +75,7 @@ public:
 		EXPECT_CALL(*this, read(address)).Times(::testing::AtLeast(0));
 	}
 	
-	uint64_t get(memory_address_t address) const
+	[[nodiscard]] uint64_t get(memory_address_t address) const
 	{
 		check_same_address_accesses(address);
 		auto it = memory_.find(address);
@@ -87,7 +88,7 @@ public:
 		memory_[address] = value;
 	}
 	
-	uint64_t& get(memory_address_t address)
+	[[nodiscard]] uint64_t& get(memory_address_t address)
 	{
 		check_same_address_accesses(address);
 		return memory_[address];
@@ -141,6 +142,7 @@ public:
 	template<typename Ptr, typename Value>
 	static void write(Ptr* pointer, Value value)
 	{
+		assert(interface_);
 		auto address = reinterpret_cast<memory_address_t>(pointer);
 		interface_->write(address, static_cast<uint64_t>(value));
 	}
@@ -148,6 +150,7 @@ public:
 	template<typename Value, typename Ptr>
 	static Value read(const Ptr* pointer)
 	{
+		assert(interface_);
 		auto address = reinterpret_cast<memory_address_t>(pointer);
 		return static_cast<Value>(interface_->read(address));
 	}
@@ -197,15 +200,15 @@ public:
 		memory_controller::set_interface(nullptr);
 	}
 
-	memory_interface_mock& memory() noexcept
+	[[nodiscard]] memory_interface_mock& memory() noexcept
 	{
 		return memory_mock_;
 	}
 
 	template<typename Pointer>
-	static memory_address_t addr(const Pointer* pointer) noexcept
+	[[nodiscard]] static memory_address_t addr(const Pointer* pointer) noexcept
 	{
-		return mcutl::tests::addr(pointer);
+		return mcutl::tests::memory::addr(pointer);
 	}
 
 private:
@@ -222,7 +225,7 @@ public:
 	}
 };
 
-} //namespace mcutl::tests
+} //namespace mcutl::tests::memory
 
 namespace mcutl::device::memory
 {
@@ -255,15 +258,15 @@ void set_register_bits([[maybe_unused]] volatile RegStruct* ptr)
 	constexpr auto unsigned_bitmask = static_cast<std::make_unsigned_t<decltype(BitMask)>>(BitMask);
 	if constexpr (unsigned_bitmask == max_bitmask<decltype(unsigned_bitmask)>)
 	{
-		tests::memory_controller::write(&(ptr->*Reg), BitValues);
+		tests::memory::memory_controller::write(&(ptr->*Reg), BitValues);
 	}
 	else if constexpr (!!unsigned_bitmask)
 	{
 		using value_t = std::remove_cv_t<mcutl::types::type_of_member_pointer_t<Reg>>;
-		auto value = tests::memory_controller::read<value_t>(&(ptr->*Reg));
+		auto value = tests::memory::memory_controller::read<value_t>(&(ptr->*Reg));
 		value &= ~unsigned_bitmask;
 		value |= (BitValues & unsigned_bitmask);
-		tests::memory_controller::write(&(ptr->*Reg), value);
+		tests::memory::memory_controller::write(&(ptr->*Reg), value);
 	}
 }
 
@@ -274,15 +277,15 @@ void set_register_bits([[maybe_unused]] volatile RegStruct* ptr,
 	constexpr auto unsigned_bitmask = static_cast<std::make_unsigned_t<decltype(BitMask)>>(BitMask);
 	if constexpr (unsigned_bitmask == max_bitmask<decltype(unsigned_bitmask)>)
 	{
-		tests::memory_controller::write(&(ptr->*Reg), values);
+		tests::memory::memory_controller::write(&(ptr->*Reg), values);
 	}
 	else if constexpr (!!unsigned_bitmask)
 	{
 		using value_t = std::remove_cv_t<mcutl::types::type_of_member_pointer_t<Reg>>;
-		auto value = tests::memory_controller::read<value_t>(&(ptr->*Reg));
+		auto value = tests::memory::memory_controller::read<value_t>(&(ptr->*Reg));
 		value &= ~unsigned_bitmask;
 		value |= (unsigned_bitmask & values);
-		tests::memory_controller::write(&(ptr->*Reg), value);
+		tests::memory::memory_controller::write(&(ptr->*Reg), value);
 	}
 }
 
@@ -304,7 +307,7 @@ template<auto Reg, typename RegStruct>
 [[nodiscard]] inline auto get_register_bits(const volatile RegStruct* ptr)
 {
 	using value_t = std::remove_cv_t<mcutl::types::type_of_member_pointer_t<Reg>>;
-	return tests::memory_controller::read<value_t>(&(ptr->*Reg));
+	return tests::memory::memory_controller::read<value_t>(&(ptr->*Reg));
 }
 
 template<auto Reg, uintptr_t RegStructBase>
@@ -378,14 +381,14 @@ inline void set_register_bits([[maybe_unused]] RegType RegStruct::*reg_ptr,
 	constexpr auto unsigned_bitmask = static_cast<std::make_unsigned_t<decltype(BitMask)>>(BitMask);
 	if constexpr (unsigned_bitmask == max_bitmask<decltype(unsigned_bitmask)>)
 	{
-		tests::memory_controller::write(&(ptr->*reg_ptr), BitValues);
+		tests::memory::memory_controller::write(&(ptr->*reg_ptr), BitValues);
 	}
 	else if constexpr (!!unsigned_bitmask)
 	{
-		auto value = tests::memory_controller::read<RegType>(&(ptr->*reg_ptr));
+		auto value = tests::memory::memory_controller::read<RegType>(&(ptr->*reg_ptr));
 		value &= ~unsigned_bitmask;
 		value |= (BitValues & unsigned_bitmask);
-		tests::memory_controller::write(&(ptr->*reg_ptr), value);
+		tests::memory::memory_controller::write(&(ptr->*reg_ptr), value);
 	}
 }
 
@@ -397,14 +400,14 @@ inline void set_register_bits([[maybe_unused]] RegType RegStruct::*reg_ptr,
 	constexpr auto unsigned_bitmask = static_cast<std::make_unsigned_t<decltype(BitMask)>>(BitMask);
 	if constexpr (unsigned_bitmask == max_bitmask<decltype(unsigned_bitmask)>)
 	{
-		tests::memory_controller::write(&(ptr->*reg_ptr), values);
+		tests::memory::memory_controller::write(&(ptr->*reg_ptr), values);
 	}
 	else if constexpr (!!unsigned_bitmask)
 	{
-		auto value = tests::memory_controller::read<RegType>(&(ptr->*reg_ptr));
+		auto value = tests::memory::memory_controller::read<RegType>(&(ptr->*reg_ptr));
 		value &= ~unsigned_bitmask;
 		value |= (unsigned_bitmask & values);
-		tests::memory_controller::write(&(ptr->*reg_ptr), value);
+		tests::memory::memory_controller::write(&(ptr->*reg_ptr), value);
 	}
 }
 
@@ -450,7 +453,7 @@ template<typename RegType, typename RegStruct>
 [[nodiscard]] inline auto get_register_bits(RegType RegStruct::*reg_ptr,
 	const volatile RegStruct* ptr) noexcept
 {
-	return tests::memory_controller::read<RegType>(&(ptr->*reg_ptr));
+	return tests::memory::memory_controller::read<RegType>(&(ptr->*reg_ptr));
 }
 
 template<uintptr_t RegStructBase, typename RegType, typename RegStruct>

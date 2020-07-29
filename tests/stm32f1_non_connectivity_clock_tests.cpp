@@ -397,7 +397,7 @@ TYPED_TEST(spi_test_fixture_templated, Spi)
 {
 	using clock_id = mcutl::clock::clock_id;
 	clock_id spi_id {};
-	mcutl::tests::memory_address_t spi_cr{};
+	mcutl::tests::memory::memory_address_t spi_cr{};
 	
 	constexpr bool is_spi1 = std::is_same_v<typename TestFixture::clock_config_t,
 		spi_config<mcutl::clock::spi1>>;

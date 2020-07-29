@@ -5,6 +5,7 @@ To enable testing on a host, define the `MCUTL_TEST` macro. When this macro is d
 
 The interface and the mock for memory accesses are located in the **mcutl/tests/volatile_memory.h** file. This file is automatically included and used when the `MCUTL_TEST` macro is defined. The interface used to mock the memory operations is extremely simple:
 ```cpp
+//mcutl::tests::memory namespace
 class memory_interface
 {
 public:
@@ -20,6 +21,7 @@ The mock for this interface is called `memory_interface_mock`. There are also tw
 
 #### memory_interface_mock
 ```cpp
+//mcutl::tests::memory namespace
 class memory_interface_mock : public memory_interface
 {
 public:
@@ -58,6 +60,7 @@ public:
 
 #### test_fixture_base
 ```cpp
+//mcutl::tests::memory namespace
 //This is the default test fixture which sets up the
 //memory_interface_mock mock and can be used in tests.
 //This test fixture allows all read operations.
@@ -75,6 +78,7 @@ public:
 
 #### strict_test_fixture_base
 ```cpp
+//mcutl::tests::memory namespace
 //This is the default test fixture which sets up the
 //memory_interface_mock mock and can be used in tests.
 //This test fixture denies all read operations until

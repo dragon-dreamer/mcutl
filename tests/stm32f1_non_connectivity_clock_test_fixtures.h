@@ -10,19 +10,19 @@
 using namespace ::testing;
 using namespace mcutl::clock::literals;
 
-class clock_test_fixture : public mcutl::tests::strict_test_fixture_base
+class clock_test_fixture : public mcutl::tests::memory::strict_test_fixture_base
 {
 public:
 	virtual void SetUp() override
 	{
-		mcutl::tests::strict_test_fixture_base::SetUp();
+		mcutl::tests::memory::strict_test_fixture_base::SetUp();
 		memory().set(addr(&RCC->CR), 0xff83);
 		memory().allow_reads(addr(&RCC->CR));
 		memory().allow_reads(addr(&RCC->CFGR));
 		memory().allow_reads(addr(&FLASH->ACR));
 	}
 	
-	void expect_reg_bits_set(mcutl::tests::memory_address_t address,
+	void expect_reg_bits_set(mcutl::tests::memory::memory_address_t address,
 		uint32_t mask, uint32_t bits)
 	{
 		bits &= mask;
@@ -114,7 +114,7 @@ public:
 			});
 	}
 	
-	void expect_spi_prescaler_change(mcutl::tests::memory_address_t address,
+	void expect_spi_prescaler_change(mcutl::tests::memory::memory_address_t address,
 		uint32_t prescaler_bits)
 	{
 		expect_reg_bits_set(address, SPI_CR1_BR, prescaler_bits);

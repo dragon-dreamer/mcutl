@@ -13,7 +13,7 @@ struct test_register
 	uint32_t reg1 = 0;
 };
 
-class memory_layer_test_fixture : public mcutl::tests::strict_test_fixture_base
+class memory_layer_test_fixture : public mcutl::tests::memory::strict_test_fixture_base
 {
 public:
 	static constexpr uint32_t test_address = 0x12345678u;

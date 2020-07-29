@@ -5,4 +5,6 @@
 
 #ifdef STM32F1
 #	include "mcutl/device/periph/stm32_periph.h"
-#endif //STM32F1
+#else
+static_assert(false, "Selected MCU does not support peripheral configuration");
+#endif

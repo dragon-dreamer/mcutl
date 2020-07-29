@@ -4,4 +4,6 @@
 
 #ifdef STM32F1
 #	include "mcutl/device/gpio/stm32f1_gpio.h"
-#endif //STM32F1
+#else
+static_assert(false, "Selected MCU does not support GPIO configuration");
+#endif

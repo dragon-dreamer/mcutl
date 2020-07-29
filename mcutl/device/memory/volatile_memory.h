@@ -50,18 +50,18 @@ void set_register_bits([[maybe_unused]] volatile RegStruct* ptr) noexcept
 
 template<auto BitMask, auto Reg, typename RegStruct>
 void set_register_bits([[maybe_unused]] volatile RegStruct* ptr,
-	[[maybe_unused]] std::make_unsigned_t<decltype(BitMask)> value) noexcept
+	[[maybe_unused]] std::make_unsigned_t<decltype(BitMask)> values) noexcept
 {
 	constexpr auto unsigned_bitmask = static_cast<std::make_unsigned_t<decltype(BitMask)>>(BitMask);
 	if constexpr (unsigned_bitmask == max_bitmask<decltype(unsigned_bitmask)>)
 	{
-		ptr->*Reg = value;
+		ptr->*Reg = values;
 	}
 	else if constexpr (!!unsigned_bitmask)
 	{
 		auto value = ptr->*Reg;
 		value &= ~unsigned_bitmask;
-		value |= (unsigned_bitmask & value);
+		value |= (unsigned_bitmask & values);
 		ptr->*Reg = value;
 	}
 }
@@ -148,6 +148,123 @@ inline void set_register_value() noexcept
 	using bitmask_t = std::remove_cv_t<mcutl::types::type_of_member_pointer_t<Reg>>;
 	set_register_bits<max_bitmask<std::make_unsigned_t<bitmask_t>>,
 		static_cast<bitmask_t>(Value), Reg, RegStructBase>();
+}
+
+template<auto BitMask, decltype(BitMask) BitValues, typename RegType, typename RegStruct>
+inline void set_register_bits([[maybe_unused]] RegType RegStruct::*reg_ptr,
+	[[maybe_unused]] volatile RegStruct* ptr) noexcept
+{
+	constexpr auto unsigned_bitmask = static_cast<std::make_unsigned_t<decltype(BitMask)>>(BitMask);
+	if constexpr (unsigned_bitmask == max_bitmask<decltype(unsigned_bitmask)>)
+	{
+		ptr->*reg_ptr = BitValues;
+	}
+	else if constexpr (!!unsigned_bitmask)
+	{
+		auto value = ptr->*reg_ptr;
+		value &= ~unsigned_bitmask;
+		value |= (BitValues & unsigned_bitmask);
+		ptr->*reg_ptr = value;
+	}
+}
+
+template<auto BitMask, typename RegType, typename RegStruct>
+inline void set_register_bits([[maybe_unused]] RegType RegStruct::*reg_ptr,
+	[[maybe_unused]] volatile RegStruct* ptr,
+	[[maybe_unused]] std::make_unsigned_t<decltype(BitMask)> values) noexcept
+{
+	constexpr auto unsigned_bitmask = static_cast<std::make_unsigned_t<decltype(BitMask)>>(BitMask);
+	if constexpr (unsigned_bitmask == max_bitmask<decltype(unsigned_bitmask)>)
+	{
+		ptr->*reg_ptr = values;
+	}
+	else if constexpr (!!unsigned_bitmask)
+	{
+		auto value = ptr->*reg_ptr;
+		value &= ~unsigned_bitmask;
+		value |= (unsigned_bitmask & values);
+		ptr->*reg_ptr = value;
+	}
+}
+
+template<auto BitMask, uintptr_t RegStructBase, typename RegType, typename RegStruct>
+inline void set_register_bits(RegType RegStruct::*reg_ptr, decltype(BitMask) value) noexcept
+{
+	set_register_bits<BitMask>(reg_ptr, volatile_memory<RegStruct, RegStructBase>(), value);
+}
+
+template<auto BitMask, decltype(BitMask) BitValues, uintptr_t RegStructBase,
+	typename RegType, typename RegStruct>
+inline void set_register_bits(RegType RegStruct::*reg_ptr) noexcept
+{
+	set_register_bits<BitMask, BitValues>(reg_ptr, volatile_memory<RegStruct, RegStructBase>());
+}
+
+template<auto Value, typename RegType, typename RegStruct>
+inline void set_register_value(RegType RegStruct::*reg_ptr, volatile RegStruct* ptr) noexcept
+{
+	set_register_bits<max_bitmask<std::make_unsigned_t<RegType>>, static_cast<RegType>(Value)>(reg_ptr, ptr);
+}
+
+template<typename RegType, typename RegStruct, typename Value>
+inline void set_register_value(RegType RegStruct::*reg_ptr, volatile RegStruct* ptr, Value value) noexcept
+{
+	set_register_bits<max_bitmask<std::make_unsigned_t<RegType>>>(reg_ptr, ptr, value);
+}
+
+template<uintptr_t RegStructBase, typename RegType, typename RegStruct, typename Value>
+inline void set_register_value(RegType RegStruct::*reg_ptr, Value value) noexcept
+{
+	set_register_bits<max_bitmask<std::make_unsigned_t<RegType>>, RegStructBase>(reg_ptr, value);
+}
+
+template<auto Value, uintptr_t RegStructBase, typename RegType, typename RegStruct>
+inline void set_register_value(RegType RegStruct::*reg_ptr) noexcept
+{
+	set_register_bits<max_bitmask<std::make_unsigned_t<RegType>>,
+		static_cast<RegType>(Value), RegStructBase>(reg_ptr);
+}
+
+template<typename RegType, typename RegStruct>
+[[nodiscard]] inline auto get_register_bits(RegType RegStruct::*reg_ptr,
+	const volatile RegStruct* ptr) noexcept
+{
+	return ptr->*reg_ptr;
+}
+
+template<uintptr_t RegStructBase, typename RegType, typename RegStruct>
+[[nodiscard]] inline auto get_register_bits(RegType RegStruct::*reg_ptr) noexcept
+{
+	return get_register_bits(reg_ptr, volatile_memory<RegStruct, RegStructBase>());
+}
+
+template<uintptr_t RegStructBase, auto BitMask, typename RegType, typename RegStruct>
+[[nodiscard]] inline auto get_register_bits(RegType RegStruct::*reg_ptr) noexcept
+{
+	constexpr auto unsigned_bitmask = static_cast<std::make_unsigned_t<decltype(BitMask)>>(BitMask);
+	return static_cast<RegType>(
+		get_register_bits(reg_ptr, volatile_memory<RegStruct, RegStructBase>()) & unsigned_bitmask);
+}
+
+template<auto BitMask, typename RegType, typename RegStruct>
+[[nodiscard]] inline auto get_register_bits(RegType RegStruct::*reg_ptr,
+	const volatile RegStruct* ptr) noexcept
+{
+	constexpr auto unsigned_bitmask = static_cast<std::make_unsigned_t<decltype(BitMask)>>(BitMask);
+	return static_cast<RegType>(get_register_bits(reg_ptr, ptr) & unsigned_bitmask);
+}
+
+template<uintptr_t RegStructBase, auto BitMask, typename RegType, typename RegStruct>
+[[nodiscard]] inline bool get_register_flag(RegType RegStruct::*reg_ptr) noexcept
+{
+	return static_cast<bool>(get_register_bits<RegStructBase, BitMask>(reg_ptr));
+}
+
+template<auto BitMask, typename RegType, typename RegStruct>
+[[nodiscard]] inline bool get_register_flag(RegType RegStruct::*reg_ptr,
+	const volatile RegStruct* ptr) noexcept
+{
+	return static_cast<bool>(get_register_bits<BitMask>(reg_ptr, ptr));
 }
 
 } //namespace mcutl::device::memory::common

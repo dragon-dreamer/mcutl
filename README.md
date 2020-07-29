@@ -15,7 +15,7 @@ As this is my hobby project, it currently supports some features of Cortex-M3 ST
 **Compiles and includes to binary *only* the code which is required to do what you ask** | Compiles full-blown bodies of functions with branches for every occasion, which leads to larger and slower code
 **Performs compile-time checks so you aren't able to compile ridiculous code (like settings incorrect clock prescalers)** | You can easily pass some invalid arguments to functions, most of them are not checked
 **Precomputes everything that's possible, minimizing code size and increasing its speed** | Precomputes a few lines of code using macros, but most of calculations are run-time
-**Unit-testable on the host PC, provides mocks for memory reads and writes and MCU-specific instructions. You can test both the library and the code which utilizes it** | Well, no, you have to mock everything yourself
+**Unit-testable on the host PC, provides mocks for memory reads and writes and MCU-specific instructions. You can test at low level (memory reads/writes) both the library and the code which utilizes it** | Well, no, you have to mock everything yourself
 Heavily relies on compiler optimizations, debug builds may be huge | **Doesn't depend on compiler optimizations that much**
 Requires C++17 | **Nope**
 
@@ -81,12 +81,13 @@ RCC->CR &= ~RCC_CR_HSION;
 <table>
 	<tr>
 		<th>MCU \\ Feature</th>
-		<th>Peripheral config</th><th>Clock config</th>
+		<th>Peripheral config</th><th>Clock config</th><th>GPIO</th>
 	</tr>
 	<tr>
 		<td>STM32F101, STM32F102, STM32F103</td>
 		<td rowspan="2">Full (enable, disable, reset, clear reset)</td>
 		<td>Yes, except Clock Security System (CSS), clock-out capability, RTC and Watchdog clocks</td>
+		<td rowspan="2">Yes, except locking, EXTI and AFIO</td>
 	</tr>
 	<tr>
 		<td>STM32F105, STM32F107</td>

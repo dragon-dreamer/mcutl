@@ -4,22 +4,38 @@
 #include "mcutl/device/memory/volatile_memory.h"
 
 #include "mcutl/utils/math.h"
+#include "mcutl/utils/definitions.h"
 #include "mcutl/utils/type_helpers.h"
 
 namespace mcutl::device::memory
 {
 
 template<auto BitMask, std::make_unsigned_t<decltype(BitMask)> BitValues, auto Reg, typename RegStruct>
-inline void set_register_bits([[maybe_unused]] volatile RegStruct* ptr) noexcept
+inline void set_register_bits([[maybe_unused]] volatile RegStruct* ptr) MCUTL_NOEXCEPT
 {
 	return common::set_register_bits<BitMask, BitValues, Reg>(ptr);
 }
 
 template<auto BitMask, auto Reg, typename RegStruct>
-inline void set_register_bits([[maybe_unused]] volatile RegStruct* reg,
-	[[maybe_unused]] std::make_unsigned_t<decltype(BitMask)> values) noexcept
+inline void set_register_bits([[maybe_unused]] volatile RegStruct* ptr,
+	[[maybe_unused]] std::make_unsigned_t<decltype(BitMask)> values) MCUTL_NOEXCEPT
 {
-	return common::set_register_bits<BitMask, Reg>(reg, values);
+	return common::set_register_bits<BitMask, Reg>(ptr, values);
+}
+
+template<auto BitMask, decltype(BitMask) BitValues, typename RegType, typename RegStruct>
+inline void set_register_bits([[maybe_unused]] RegType RegStruct::*reg_ptr,
+	[[maybe_unused]] volatile RegStruct* ptr) MCUTL_NOEXCEPT
+{
+	return common::set_register_bits<BitMask, BitValues>(reg_ptr, ptr);
+}
+
+template<auto BitMask, typename RegType, typename RegStruct>
+inline void set_register_bits([[maybe_unused]] RegType RegStruct::*reg_ptr,
+	[[maybe_unused]] volatile RegStruct* ptr,
+	[[maybe_unused]] decltype(BitMask) value) MCUTL_NOEXCEPT
+{
+	return common::set_register_bits<BitMask>(reg_ptr, ptr, value);
 }
 
 template<uintptr_t BasePointer>
@@ -34,7 +50,7 @@ constexpr bool is_periph_bitband_area() noexcept
 	return BasePointer >= PERIPH_BASE && BasePointer <= PERIPH_BASE + 0xfffff;
 }
 
-template<auto BitMask, auto MemberPointer, uintptr_t BasePointer>
+template<auto BitMask, typename MemberPointer, uintptr_t BasePointer>
 constexpr bool bit_band_available() noexcept
 {
 #ifndef SRAM_BB_BASE
@@ -47,8 +63,8 @@ constexpr bool bit_band_available() noexcept
 	
 	//Currently there's no way to check if BasePointer + MemberPointer offset is aligned
 	//Also, there's no way to add MemberPointer offset to BasePointer to perform a better check of address
-	using class_t = types::class_of_member_pointer_t<MemberPointer>;
-	using member_t = types::type_of_member_pointer_t<MemberPointer>;
+	using class_t = types::class_of_member_pointer_type_t<MemberPointer>;
+	using member_t = types::type_of_member_pointer_type_t<MemberPointer>;
 	if (BasePointer % alignof(member_t))
 		return false;
 	
@@ -58,7 +74,7 @@ constexpr bool bit_band_available() noexcept
 }
 
 template<auto BitMask, auto Reg, uintptr_t RegStructBase>
-volatile uint32_t* bitband_alias() noexcept
+volatile uint32_t* bitband_alias() MCUTL_NOEXCEPT
 {
 #ifdef SRAM_BB_BASE
 	using class_t = types::class_of_member_pointer_t<Reg>;
@@ -82,26 +98,73 @@ volatile uint32_t* bitband_alias() noexcept
 #endif //SRAM_BB_BASE
 }
 
+template<auto BitMask, uintptr_t RegStructBase, typename RegType, typename RegStruct>
+volatile uint32_t* bitband_alias(RegType RegStruct::*reg_ptr) MCUTL_NOEXCEPT
+{
+#ifdef SRAM_BB_BASE
+	constexpr auto bit_offset = math::first_set_bit_position<BitMask>() * 4;
+	if constexpr (is_sram_bitband_area<RegStructBase>())
+	{
+		return common::volatile_memory<uint32_t>(SRAM_BB_BASE
+			+ (to_address(&(common::volatile_memory<RegStruct, RegStructBase>()->*reg_ptr)) - SRAM_BASE) * 32
+			+ bit_offset
+		);
+	}
+	else
+	{
+		return common::volatile_memory<uint32_t>(PERIPH_BB_BASE
+			+ (to_address(&(common::volatile_memory<RegStruct, RegStructBase>()->*reg_ptr)) - PERIPH_BASE) * 32
+			+ bit_offset
+		);
+	}
+#else //SRAM_BB_BASE
+	return nullptr;
+#endif //SRAM_BB_BASE
+}
+
 template<auto BitMask, auto Reg, uintptr_t RegStructBase>
-void set_register_bits(decltype(BitMask) value) noexcept
+inline void set_register_bits(decltype(BitMask) value) MCUTL_NOEXCEPT
 {
 	constexpr auto unsigned_bitmask = static_cast<std::make_unsigned_t<decltype(BitMask)>>(BitMask);
 	
-	if constexpr (bit_band_available<unsigned_bitmask, Reg, RegStructBase>())
+	if constexpr (bit_band_available<unsigned_bitmask, decltype(Reg), RegStructBase>())
 		*bitband_alias<unsigned_bitmask, Reg, RegStructBase>() = (value & unsigned_bitmask) ? 1 : 0;
 	else
 		common::set_register_bits<BitMask, Reg, RegStructBase>(value);
 }
 
 template<auto BitMask, std::make_unsigned_t<decltype(BitMask)> BitValues, auto Reg, uintptr_t RegStructBase>
-void set_register_bits() noexcept
+inline void set_register_bits() MCUTL_NOEXCEPT
 {
 	constexpr auto unsigned_bitmask = static_cast<std::make_unsigned_t<decltype(BitMask)>>(BitMask);
 	
-	if constexpr (bit_band_available<unsigned_bitmask, Reg, RegStructBase>())
+	if constexpr (bit_band_available<unsigned_bitmask, decltype(Reg), RegStructBase>())
 		*bitband_alias<unsigned_bitmask, Reg, RegStructBase>() = (BitValues & unsigned_bitmask) ? 1 : 0;
 	else
 		common::set_register_bits<BitMask, BitValues, Reg, RegStructBase>();
+}
+
+template<auto BitMask, uintptr_t RegStructBase, typename RegType, typename RegStruct>
+inline void set_register_bits(RegType RegStruct::*reg_ptr, decltype(BitMask) value) MCUTL_NOEXCEPT
+{
+	constexpr auto unsigned_bitmask = static_cast<std::make_unsigned_t<decltype(BitMask)>>(BitMask);
+	
+	if constexpr (bit_band_available<unsigned_bitmask, RegType, RegStructBase>())
+		*bitband_alias<unsigned_bitmask, RegStructBase>(reg_ptr) = (value & unsigned_bitmask) ? 1 : 0;
+	else
+		common::set_register_bits<BitMask, RegStructBase>(reg_ptr, value);
+}
+
+template<auto BitMask, decltype(BitMask) BitValues, uintptr_t RegStructBase,
+	typename RegType, typename RegStruct>
+inline void set_register_bits(RegType RegStruct::*reg_ptr) MCUTL_NOEXCEPT
+{
+	constexpr auto unsigned_bitmask = static_cast<std::make_unsigned_t<decltype(BitMask)>>(BitMask);
+	
+	if constexpr (bit_band_available<unsigned_bitmask, RegType, RegStructBase>())
+		*bitband_alias<unsigned_bitmask, RegStructBase>(reg_ptr) = (BitValues & unsigned_bitmask) ? 1 : 0;
+	else
+		common::set_register_bits<BitMask, BitValues, RegStructBase>(reg_ptr);
 }
 
 } //namespace mcutl::device::memory

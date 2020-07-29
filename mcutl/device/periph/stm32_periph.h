@@ -34,7 +34,8 @@ struct periph_config
 	template<uint16_t Bits>
 	constexpr auto set_ahb_enr_bits() noexcept
 	{
-		ahb_enr_conflict = ahb_enr_conflict || (ahb_enr_changed & Bits);
+		if ((ahb_enr_changed & Bits) && (ahb_enr & Bits) == 0)
+			ahb_enr_conflict = true;
 		ahb_enr_changed |= Bits;
 		ahb_enr |= Bits;
 	}
@@ -42,14 +43,16 @@ struct periph_config
 	template<uint16_t Bits>
 	constexpr auto reset_ahb_enr_bits() noexcept
 	{
-		ahb_enr_conflict = ahb_enr_conflict || (ahb_enr_changed & Bits);
+		if ((ahb_enr_changed & Bits) && (ahb_enr & Bits) != 0)
+			ahb_enr_conflict = true;
 		ahb_enr_changed |= Bits;
 	}
 	
 	template<uint32_t Bits>
 	constexpr auto set_apb1_enr_bits() noexcept
 	{
-		apb1_enr_conflict = apb1_enr_conflict || (apb1_enr_changed & Bits);
+		if ((apb1_enr_changed & Bits) && (apb1_enr & Bits) == 0)
+			apb1_enr_conflict = true;
 		apb1_enr_changed |= Bits;
 		apb1_enr |= Bits;
 	}
@@ -57,14 +60,16 @@ struct periph_config
 	template<uint32_t Bits>
 	constexpr auto reset_apb1_enr_bits() noexcept
 	{
-		apb1_enr_conflict = apb1_enr_conflict || (apb1_enr_changed & Bits);
+		if ((apb1_enr_changed & Bits) && (apb1_enr & Bits) != 0)
+			apb1_enr_conflict = true;
 		apb1_enr_changed |= Bits;
 	}
 	
 	template<uint32_t Bits>
 	constexpr auto set_apb1_rst_bits() noexcept
 	{
-		apb1_rst_conflict = apb1_rst_conflict || (apb1_rst_changed & Bits);
+		if ((apb1_rst_changed & Bits) && (apb1_rst & Bits) == 0)
+			apb1_rst_conflict = true;
 		apb1_rst_changed |= Bits;
 		apb1_rst |= Bits;
 	}
@@ -72,14 +77,16 @@ struct periph_config
 	template<uint32_t Bits>
 	constexpr auto clear_apb1_rst_bits() noexcept
 	{
-		apb1_rst_conflict = apb1_rst_conflict || (apb1_rst_changed & Bits);
+		if ((apb1_rst_changed & Bits) && (apb1_rst & Bits) != 0)
+			apb1_rst_conflict = true;
 		apb1_rst_changed |= Bits;
 	}
 	
 	template<uint32_t Bits>
 	constexpr auto set_apb2_enr_bits() noexcept
 	{
-		apb2_enr_conflict = apb2_enr_conflict || (apb2_enr_changed & Bits);
+		if ((apb2_enr_changed & Bits) && (apb2_enr & Bits) == 0)
+			apb2_enr_conflict = true;
 		apb2_enr_changed |= Bits;
 		apb2_enr |= Bits;
 	}
@@ -87,14 +94,16 @@ struct periph_config
 	template<uint32_t Bits>
 	constexpr auto reset_apb2_enr_bits() noexcept
 	{
-		apb2_enr_conflict = apb2_enr_conflict || (apb2_enr_changed & Bits);
+		if ((apb2_enr_changed & Bits) && (apb2_enr & Bits) != 0)
+			apb2_enr_conflict = true;
 		apb2_enr_changed |= Bits;
 	}
 	
 	template<uint32_t Bits>
 	constexpr auto set_apb2_rst_bits() noexcept
 	{
-		apb2_rst_conflict = apb2_rst_conflict || (apb2_rst_changed & Bits);
+		if ((apb2_rst_changed & Bits) && (apb2_rst & Bits) == 0)
+			apb2_rst_conflict = true;
 		apb2_rst_changed |= Bits;
 		apb2_rst |= Bits;
 	}
@@ -102,7 +111,8 @@ struct periph_config
 	template<uint32_t Bits>
 	constexpr auto clear_apb2_rst_bits() noexcept
 	{
-		apb2_rst_conflict = apb2_rst_conflict || (apb2_rst_changed & Bits);
+		if ((apb2_rst_changed & Bits) && (apb2_rst & Bits) != 0)
+			apb2_rst_conflict = true;
 		apb2_rst_changed |= Bits;
 	}
 };

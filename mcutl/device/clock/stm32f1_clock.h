@@ -839,7 +839,7 @@ constexpr device_clock_options get_clock_options(
 }
 
 template<uint32_t PrescalerBits, uint32_t SpiBase>
-void set_spi_prescaler() noexcept
+void set_spi_prescaler() MCUTL_NOEXCEPT
 {
 	memory::set_register_bits<SPI_CR1_BR_Msk, PrescalerBits, &SPI_TypeDef::CR1, SpiBase>();
 }

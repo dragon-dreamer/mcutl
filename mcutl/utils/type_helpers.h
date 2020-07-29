@@ -35,6 +35,9 @@ struct class_of_member_pointer<T Class::*>
 template<auto PointerToMember>
 using class_of_member_pointer_t = typename class_of_member_pointer<decltype(PointerToMember)>::type;
 
+template<typename PointerToMember>
+using class_of_member_pointer_type_t = typename class_of_member_pointer<PointerToMember>::type;
+
 template<typename T>
 struct member_pointer_type {};
  
@@ -50,11 +53,20 @@ using member_pointer_type_t = typename member_pointer_type<T>::type;
 template<auto PointerToMember>
 using type_of_member_pointer_t = member_pointer_type_t<decltype(PointerToMember)>;
 
+template<typename PointerToMember>
+using type_of_member_pointer_type_t = member_pointer_type_t<PointerToMember>;
+
 template<typename...>
 struct always_false { static constexpr bool value = false; };
 
-template<typename...>
-struct list {};
+template<auto...>
+struct value_always_false { static constexpr bool value = false; };
+
+template<typename... T>
+struct list
+{
+	static constexpr auto length = sizeof...(T);
+};
 
 template<typename T>
 struct identity
@@ -163,5 +175,85 @@ struct pop_front
 
 template<typename Container>
 using pop_front_t = typename pop_front<Container>::type;
+
+namespace detail
+{
+
+template<typename...>
+struct duplicate_helper : std::bool_constant<false> {};
+
+template<typename T, typename... Other>
+struct duplicate_helper<T, Other...> : std::bool_constant<false> {};
+
+template<typename T, typename Other, typename... Others>
+struct duplicate_helper<T, Other, Others...>
+{
+	static constexpr bool value = std::is_same_v<T, Other>
+		|| duplicate_helper<T, Others...>::value
+		|| duplicate_helper<Other, Others...>::value;
+};
+
+} //namespace detail
+
+template<typename... T>
+[[maybe_unused]] constexpr bool has_duplicates_v = detail::duplicate_helper<T...>::value;
+
+namespace detail
+{
+
+template<template <typename...> typename Container, typename...>
+struct remove_helper
+{
+};
+
+template<template <typename...> typename Container, typename T, typename... Filtered>
+struct remove_helper<Container, T, Container<Filtered...>, Container<>>
+{
+	using type = Container<Filtered...>;
+};
+
+template<template <typename...> typename Container,
+	typename T, typename... Filtered, typename ToFilter, typename... OtherToFilter>
+struct remove_helper<Container, T, Container<Filtered...>, Container<ToFilter, OtherToFilter...>>
+{
+	using type = typename std::conditional<std::is_same_v<T, ToFilter>,
+		remove_helper<Container, T, Container<Filtered...>, Container<OtherToFilter...>>,
+		remove_helper<Container, T, Container<Filtered..., ToFilter>, Container<OtherToFilter...>>
+	>::type::type;
+};
+
+template<typename Remove, typename Container>
+struct remove_container_helper {};
+
+template<typename Remove, template <typename...> typename Container, typename... Types>
+struct remove_container_helper<Remove, Container<Types...>>
+{
+	using type = typename remove_helper<Container, Remove, Container<>, Container<Types...>>::type;
+};
+
+} //namespace detail
+
+template<typename Remove, typename... T>
+using remove_t = typename detail::remove_helper<list, Remove, list<>, list<T...>>::type;
+
+template<typename Remove, typename Container>
+using remove_from_container_t = typename detail::remove_container_helper<Remove, Container>::type;
+
+namespace detail
+{
+
+template<typename...>
+struct first_type {};
+
+template<typename T, typename... Ts>
+struct first_type<T, Ts...>
+{
+	using type = T;
+};
+
+} //namespace detail
+
+template<typename... T>
+using first_type_t = typename detail::first_type<T...>::type;
 
 } //namespace mcutl::types

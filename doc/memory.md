@@ -16,7 +16,7 @@ Convert either a pointer or a struct reference to the MCU byte pointer.
 ## volatile_memory.h header
 Contains functions to access volatile memory of the MCU. When compiling for the MCU, these functions represent raw volatile memory accesses. When the `MCUTL_TEST` macro is defined, these functions call the special test interface, which is then used for unit-testing. Basically, to test the firmware, you need to check that the code performs correct writes to (and sometime reads from) correct memory locations with the right order. The test mocks and interfaces are described in [mcutl/tests](tests.md) in detail.
 
-For Cortex-M3 microcontrollers, the memory access layer performs automatic memory bit-banding, when possible (i.e., when setting a single bit of a memory word inside the bitband regions). If this behavior is not desired, it can be disabled by defining the `MCUTL_CORTEX_M3_BITBAND_DISABLE` macro.
+For Cortex-M3 microcontrollers, the memory access layer performs automatic memory bit-banding, when possible (i.e., when writing a single bit of a memory word inside the bitband regions). If this behavior is not desired, it can be disabled by defining the `MCUTL_CORTEX_M3_BITBAND_DISABLE` macro.
 
 #### volatile_memory
 ```cpp
@@ -62,13 +62,13 @@ typedef struct
 #define RCC_BASE ...
 #define RCC ((RCC_TypeDef *)RCC_BASE)
 ```
-The `set_register_bits`, `set_register_value`, `get_register_bits`, `get_register_flag` groups of overridden functions are designed to work with such registers. You can write to the registers and read them directly, but it's much better to use these MCUTL functions, which enables unit-testing of your firmware on a host PC. MCUTL itself never writes or reads any registers directly to allow unit-testing.
+The `set_register_bits`, `set_register_value`, `get_register_bits`, `get_register_flag` groups of overridden functions are designed to work with such registers. You can write to the registers and read them directly, but it's much better to use these MCUTL functions, which enables unit-testing of your firmware on a host PC. MCUTL itself never writes or reads any registers directly to allow unit-testing. You may want to use as much template arguments as possible when calling these functions to allow more compile-time optimizations.
 
 ---
 
 ```cpp
 template<auto BitMask, std::make_unsigned_t<decltype(BitMask)> BitValues, auto Reg, typename RegStruct>
-void set_register_bits([[maybe_unused]] volatile RegStruct* ptr) noexcept;
+void set_register_bits(volatile RegStruct* ptr) noexcept;
 ```
 Sets `BitValues` bits of a bitmask `BitMask` to `1` in a register `Reg` of a struct `RegStruct`. For example, instead of the following code:
 ```c
@@ -86,8 +86,8 @@ mcutl::memory::set_register_bits<RCC_CFGR_SW, RCC_CFGR_SW_PLL, &RCC_TypeDef::CFG
 
 ```cpp
 template<auto BitMask, auto Reg, typename RegStruct>
-void set_register_bits([[maybe_unused]] volatile RegStruct* ptr,
-	[[maybe_unused]] std::make_unsigned_t<decltype(BitMask)> value) noexcept;
+void set_register_bits(volatile RegStruct* ptr,
+	std::make_unsigned_t<decltype(BitMask)> value) noexcept;
 ```
 Sets `value` bits of a bitmask `BitMask` to `1` in a register `Reg` of a struct `RegStruct`. For example, instead of the following code:
 ```c
@@ -135,6 +135,80 @@ RCC->CFGR = rcc_cfgr;
 you may write the following:
 ```cpp
 mcutl::memory::set_register_bits<RCC_CFGR_SW_PLL, RCC_CFGR_SW, &RCC_TypeDef::CFGR, RCC_BASE>();
+```
+
+---
+
+```cpp
+template<auto BitMask, decltype(BitMask) BitValues, typename RegType, typename RegStruct>
+inline void set_register_bits(RegType RegStruct::*reg_ptr, volatile RegStruct* ptr) noexcept;
+```
+Sets `BitValues` bits of a bitmask `BitMask` to `1` in a register `reg_ptr` of a struct `RegStruct`. For example, instead of the following code:
+```c
+auto rcc_cfgr = RCC->CFGR;
+rcc_cfgr &= ~RCC_CFGR_SW;
+rcc_cfgr |= RCC_CFGR_SW_PLL;
+RCC->CFGR = rcc_cfgr;
+```
+you may write the following:
+```cpp
+mcutl::memory::set_register_bits<RCC_CFGR_SW, RCC_CFGR_SW_PLL>(&RCC_TypeDef::CFGR, RCC);
+```
+
+---
+
+```cpp
+template<auto BitMask, typename RegType, typename RegStruct>
+inline void set_register_bits(RegType RegStruct::*reg_ptr,
+	volatile RegStruct* ptr, decltype(BitMask) value) noexcept;
+```
+Sets `value` bits of a bitmask `BitMask` to `1` in a register `reg_ptr` of a struct `RegStruct`. For example, instead of the following code:
+```c
+auto rcc_cfgr = RCC->CFGR;
+rcc_cfgr &= ~RCC_CFGR_SW;
+rcc_cfgr |= RCC_CFGR_SW_PLL;
+RCC->CFGR = rcc_cfgr;
+```
+you may write the following:
+```cpp
+mcutl::memory::set_register_bits<RCC_CFGR_SW_PLL>(&RCC_TypeDef::CFGR, RCC, RCC_CFGR_SW);
+```
+
+---
+
+```cpp
+template<auto BitMask, uintptr_t RegStructBase, typename RegType, typename RegStruct>
+inline void set_register_bits(RegType RegStruct::*reg_ptr, decltype(BitMask) value) noexcept;
+```
+Sets `value` bits of a bitmask `BitMask` to `1` in a register `reg_ptr` of a struct with address `RegStructBase`. For example, instead of the following code:
+```c
+auto rcc_cfgr = RCC->CFGR;
+rcc_cfgr &= ~RCC_CFGR_SW;
+rcc_cfgr |= RCC_CFGR_SW_PLL;
+RCC->CFGR = rcc_cfgr;
+```
+you may write the following:
+```cpp
+mcutl::memory::set_register_bits<RCC_CFGR_SW_PLL, RCC_BASE>(&RCC_TypeDef::CFGR, RCC_CFGR_SW);
+```
+
+---
+
+```cpp
+template<auto BitMask, decltype(BitMask) BitValues, uintptr_t RegStructBase,
+	typename RegType, typename RegStruct>
+inline void set_register_bits(RegType RegStruct::*reg_ptr) noexcept;
+```
+Sets `BitValues` bits of a bitmask `BitMask` to `1` in a register `reg_ptr` of a struct with address `RegStructBase`. For example, instead of the following code:
+```c
+auto rcc_cfgr = RCC->CFGR;
+rcc_cfgr &= ~RCC_CFGR_SW;
+rcc_cfgr |= RCC_CFGR_SW_PLL;
+RCC->CFGR = rcc_cfgr;
+```
+you may write the following:
+```cpp
+mcutl::memory::set_register_bits<RCC_CFGR_SW_PLL, RCC_CFGR_SW, RCC_BASE>(&RCC_TypeDef::CFGR);
 ```
 
 ---
@@ -200,6 +274,66 @@ mcutl::memory::set_register_value<RCC_CFGR_USBPRE, &RCC_TypeDef::CFGR, RCC_BASE>
 ---
 
 ```cpp
+template<auto Value, typename RegType, typename RegStruct>
+inline void set_register_value(RegType RegStruct::*reg_ptr, volatile RegStruct* ptr) noexcept;
+```
+Writes `Value` to a register `reg_ptr` of a struct `RegStruct`. For example, instead of the following code:
+```c
+RCC->CFGR = RCC_CFGR_USBPRE;
+```
+you may write the following:
+```cpp
+mcutl::memory::set_register_value<RCC_CFGR_USBPRE>(&RCC_TypeDef::CFGR, RCC);
+```
+
+---
+
+```cpp
+template<typename RegType, typename RegStruct, typename Value>
+inline void set_register_value(RegType RegStruct::*reg_ptr, volatile RegStruct* ptr, Value value) noexcept;
+```
+Writes `value` to a register `reg_ptr` of a struct `RegStruct`. For example, instead of the following code:
+```c
+RCC->CFGR = RCC_CFGR_USBPRE;
+```
+you may write the following:
+```cpp
+mcutl::memory::set_register_value(&RCC_TypeDef::CFGR, RCC, RCC_CFGR_USBPRE);
+```
+
+---
+
+```cpp
+template<uintptr_t RegStructBase, typename RegType, typename RegStruct, typename Value>
+inline void set_register_value(RegType RegStruct::*reg_ptr, Value value) noexcept;
+```
+Writes `value` to a register `reg_ptr` of a struct with address `RegStructBase`. For example, instead of the following code:
+```c
+RCC->CFGR = RCC_CFGR_USBPRE;
+```
+you may write the following:
+```cpp
+mcutl::memory::set_register_value<RCC_BASE>(&RCC_TypeDef::CFGR, RCC_CFGR_USBPRE);
+```
+
+---
+
+```cpp
+template<auto Value, uintptr_t RegStructBase, typename RegType, typename RegStruct>
+inline void set_register_value(RegType RegStruct::*reg_ptr) noexcept;
+```
+Writes `Value` to a register `reg_ptr` of a struct with address `RegStructBase`. For example, instead of the following code:
+```c
+RCC->CFGR = RCC_CFGR_USBPRE;
+```
+you may write the following:
+```cpp
+mcutl::memory::set_register_value<RCC_CFGR_USBPRE, RCC_BASE>(&RCC_TypeDef::CFGR);
+```
+
+---
+
+```cpp
 template<auto Reg, typename RegStruct>
 [[nodiscard]] inline auto get_register_bits(const volatile RegStruct* ptr) noexcept;
 ```
@@ -260,6 +394,68 @@ auto value = mcutl::memory::get_register_bits<&RCC_TypeDef::CFGR, RCC_CFGR_SWS>(
 ---
 
 ```cpp
+template<typename RegType, typename RegStruct>
+[[nodiscard]] inline auto get_register_bits(RegType RegStruct::*reg_ptr,
+	const volatile RegStruct* ptr) noexcept;
+```
+Returns `reg_ptr` register value of a struct `RegStruct`. For example, instead of the following code:
+```c
+auto value = RCC->CFGR;
+```
+you may write the following:
+```cpp
+auto value = mcutl::memory::get_register_bits(&RCC_TypeDef::CFGR, RCC);
+```
+
+---
+
+```cpp
+template<uintptr_t RegStructBase, typename RegType, typename RegStruct>
+[[nodiscard]] inline auto get_register_bits(RegType RegStruct::*reg_ptr) noexcept;
+```
+Returns `reg_ptr` register value of a struct with address `RegStructBase`. For example, instead of the following code:
+```c
+auto value = RCC->CFGR;
+```
+you may write the following:
+```cpp
+auto value = mcutl::memory::get_register_bits<RCC_BASE>(&RCC_TypeDef::CFGR);
+```
+
+---
+
+```cpp
+template<uintptr_t RegStructBase, auto BitMask, typename RegType, typename RegStruct>
+[[nodiscard]] inline auto get_register_bits(RegType RegStruct::*reg_ptr) noexcept;
+```
+For a struct with address `RegStructBase`, returns `reg_ptr` register value masked with `BitMask`. For example, instead of the following code:
+```c
+auto value = RCC->CFGR & RCC_CFGR_SWS;
+```
+you may write the following:
+```cpp
+auto value = mcutl::memory::get_register_bits<RCC_BASE, RCC_CFGR_SWS>(&RCC_TypeDef::CFGR);
+```
+
+---
+
+```cpp
+template<auto BitMask, typename RegType, typename RegStruct>
+[[nodiscard]] inline auto get_register_bits(RegType RegStruct::*reg_ptr,
+	const volatile RegStruct* ptr) noexcept;
+```
+For a struct `RegStruct`, returns `reg_ptr` register value masked with `BitMask`. For example, instead of the following code:
+```c
+auto value = RCC->CFGR & RCC_CFGR_SWS;
+```
+you may write the following:
+```cpp
+auto value = mcutl::memory::get_register_bits<RCC_CFGR_SWS>(&RCC_TypeDef::CFGR, RCC);
+```
+
+---
+
+```cpp
 template<auto Reg, uintptr_t RegStructBase, auto BitMask>
 [[nodiscard]] inline bool get_register_flag() noexcept;
 ```
@@ -285,4 +481,36 @@ bool value = !!(RCC->CFGR & RCC_CFGR_SWS);
 you may write the following:
 ```cpp
 bool value = mcutl::memory::get_register_flag<RCC_CFGR_SWS, &RCC_TypeDef::CFGR>(RCC);
+```
+
+---
+
+
+```cpp
+template<uintptr_t RegStructBase, auto BitMask, typename RegType, typename RegStruct>
+[[nodiscard]] inline bool get_register_flag(RegType RegStruct::*reg_ptr) noexcept;
+```
+For a struct with address `RegStructBase`, returns `reg_ptr` register value masked with `BitMask` and converted to `bool`. For example, instead of the following code:
+```c
+bool value = !!(RCC->CFGR & RCC_CFGR_SWS);
+```
+you may write the following:
+```cpp
+bool value = mcutl::memory::get_register_flag<RCC_BASE, RCC_CFGR_SWS>(&RCC_TypeDef::CFGR);
+```
+
+---
+
+```cpp
+template<auto BitMask, typename RegType, typename RegStruct>
+[[nodiscard]] inline bool get_register_flag(RegType RegStruct::*reg_ptr,
+	const volatile RegStruct* ptr) noexcept;
+```
+For a struct `RegStruct`, returns `reg_ptr` register value masked with `BitMask` and converted to `bool`. For example, instead of the following code:
+```c
+bool value = !!(RCC->CFGR & RCC_CFGR_SWS);
+```
+you may write the following:
+```cpp
+bool value = mcutl::memory::get_register_flag<RCC_CFGR_SWS>(&RCC_TypeDef::CFGR, RCC);
 ```

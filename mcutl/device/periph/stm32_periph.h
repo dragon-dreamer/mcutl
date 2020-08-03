@@ -134,25 +134,25 @@ void configure_peripheral(PeripheralConfigLambda config_lambda) MCUTL_NOEXCEPT
 	static constexpr auto config = config_lambda();
 	if constexpr (!!config.ahb_enr_changed)
 	{
-		memory::set_register_bits<config.ahb_enr_changed, config.ahb_enr,
+		mcutl::memory::set_register_bits<config.ahb_enr_changed, config.ahb_enr,
 			&RCC_TypeDef::AHBENR, RCC_BASE>();
-		[[maybe_unused]] auto value = memory::get_register_bits<&RCC_TypeDef::AHBENR, RCC_BASE>();
+		[[maybe_unused]] auto value = mcutl::memory::get_register_bits<&RCC_TypeDef::AHBENR, RCC_BASE>();
 	}
 	if constexpr (!!config.apb1_enr_changed)
 	{
-		memory::set_register_bits<config.apb1_enr_changed, config.apb1_enr,
+		mcutl::memory::set_register_bits<config.apb1_enr_changed, config.apb1_enr,
 			&RCC_TypeDef::APB1ENR, RCC_BASE>();
-		[[maybe_unused]] auto value = memory::get_register_bits<&RCC_TypeDef::APB1ENR, RCC_BASE>();
+		[[maybe_unused]] auto value = mcutl::memory::get_register_bits<&RCC_TypeDef::APB1ENR, RCC_BASE>();
 	}
 	if constexpr (!!config.apb2_enr_changed)
 	{
-		memory::set_register_bits<config.apb2_enr_changed, config.apb2_enr,
+		mcutl::memory::set_register_bits<config.apb2_enr_changed, config.apb2_enr,
 			&RCC_TypeDef::APB2ENR, RCC_BASE>();
-		[[maybe_unused]] auto value = memory::get_register_bits<&RCC_TypeDef::APB2ENR, RCC_BASE>();
+		[[maybe_unused]] auto value = mcutl::memory::get_register_bits<&RCC_TypeDef::APB2ENR, RCC_BASE>();
 	}
-	memory::set_register_bits<config.apb1_rst_changed, config.apb1_rst,
+	mcutl::memory::set_register_bits<config.apb1_rst_changed, config.apb1_rst,
 		&RCC_TypeDef::APB1RSTR, RCC_BASE>();
-	memory::set_register_bits<config.apb2_rst_changed, config.apb2_rst,
+	mcutl::memory::set_register_bits<config.apb2_rst_changed, config.apb2_rst,
 		&RCC_TypeDef::APB2RSTR, RCC_BASE>();
 }
 

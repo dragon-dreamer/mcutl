@@ -5,6 +5,12 @@
 namespace mcutl::types
 {
 
+template<typename...>
+struct always_false { static constexpr bool value = false; };
+
+template<auto...>
+struct value_always_false { static constexpr bool value = false; };
+
 template<auto Min, auto Max>
 struct limits
 {
@@ -23,7 +29,7 @@ struct limits
 template<typename T>
 struct class_of_member_pointer
 {
-	using type = T;
+	static_assert(always_false<T>::value, "T is not a member pointer");
 };
 
 template<typename Class, typename T>
@@ -39,7 +45,10 @@ template<typename PointerToMember>
 using class_of_member_pointer_type_t = typename class_of_member_pointer<PointerToMember>::type;
 
 template<typename T>
-struct member_pointer_type {};
+struct member_pointer_type
+{
+	static_assert(always_false<T>::value, "T is not a member pointer");
+};
  
 template<typename Class, typename T>
 struct member_pointer_type<T Class::*>
@@ -55,12 +64,6 @@ using type_of_member_pointer_t = member_pointer_type_t<decltype(PointerToMember)
 
 template<typename PointerToMember>
 using type_of_member_pointer_type_t = member_pointer_type_t<PointerToMember>;
-
-template<typename...>
-struct always_false { static constexpr bool value = false; };
-
-template<auto...>
-struct value_always_false { static constexpr bool value = false; };
 
 template<typename... T>
 struct list

@@ -841,7 +841,7 @@ constexpr device_clock_options get_clock_options(
 template<uint32_t PrescalerBits, uint32_t SpiBase>
 void set_spi_prescaler() MCUTL_NOEXCEPT
 {
-	memory::set_register_bits<SPI_CR1_BR_Msk, PrescalerBits, &SPI_TypeDef::CR1, SpiBase>();
+	mcutl::memory::set_register_bits<SPI_CR1_BR_Msk, PrescalerBits, &SPI_TypeDef::CR1, SpiBase>();
 }
 
 template<uint64_t FlitfSysFrequency>
@@ -868,13 +868,13 @@ void configure_clocks(ClockOptionsLambda options_lambda,
 	constexpr auto clock_opts = get_clock_options(options_lambda, best_clock_tree_lambda);
 	
 	bool need_to_disable_usb = false;
-	uint32_t current_cfg = memory::get_register_bits<&RCC_TypeDef::CFGR, RCC_BASE>();
+	uint32_t current_cfg = mcutl::memory::get_register_bits<&RCC_TypeDef::CFGR, RCC_BASE>();
 	if constexpr (!clock_opts.base_configuration_is_present)
 	{
-		uint32_t current_control = memory::get_register_bits<&RCC_TypeDef::CR, RCC_BASE>();
+		uint32_t current_control = mcutl::memory::get_register_bits<&RCC_TypeDef::CR, RCC_BASE>();
 		
-		need_to_disable_usb = memory::get_register_flag<&RCC_TypeDef::APB1ENR,
-			RCC_BASE, RCC_APB1ENR_USBEN>();
+		need_to_disable_usb = mcutl::memory::get_register_flag<RCC_APB1ENR_USBEN,
+			&RCC_TypeDef::APB1ENR, RCC_BASE>();
 		bool need_to_switch_sys_to_hsi = (current_cfg & (RCC_CFGR_SW | RCC_CFGR_SWS))
 			!= (RCC_CFGR_SW_HSI | RCC_CFGR_SWS_HSI);
 		bool need_to_disable_pll = static_cast<bool>(
@@ -886,16 +886,16 @@ void configure_clocks(ClockOptionsLambda options_lambda,
 		
 		if (need_to_disable_usb)
 		{
-			memory::set_register_bits<RCC_APB1ENR_USBEN_Msk, ~RCC_APB1ENR_USBEN,
+			mcutl::memory::set_register_bits<RCC_APB1ENR_USBEN_Msk, ~RCC_APB1ENR_USBEN,
 				&RCC_TypeDef::APB1ENR, RCC_BASE>();
-			[[maybe_unused]] auto temp = memory::get_register_bits<&RCC_TypeDef::APB1ENR, RCC_BASE>();
+			[[maybe_unused]] auto temp = mcutl::memory::get_register_bits<&RCC_TypeDef::APB1ENR, RCC_BASE>();
 		}
 	
 		if (need_to_enable_hsi)
 		{
-			memory::set_register_bits<RCC_CR_HSION_Msk, RCC_CR_HSION,
+			mcutl::memory::set_register_bits<RCC_CR_HSION_Msk, RCC_CR_HSION,
 				&RCC_TypeDef::CR, RCC_BASE>();
-			while (!memory::get_register_bits<&RCC_TypeDef::CR, RCC_BASE, RCC_CR_HSIRDY>())
+			while (!mcutl::memory::get_register_bits<RCC_CR_HSIRDY, &RCC_TypeDef::CR, RCC_BASE>())
 			{
 			}
 		}
@@ -904,8 +904,8 @@ void configure_clocks(ClockOptionsLambda options_lambda,
 		{
 			current_cfg &= ~RCC_CFGR_SW;
 			current_cfg |= RCC_CFGR_SW_HSI;
-			memory::set_register_value<&RCC_TypeDef::CFGR, RCC_BASE>(current_cfg);
-			while (memory::get_register_bits<&RCC_TypeDef::CFGR, RCC_BASE, RCC_CFGR_SWS>()
+			mcutl::memory::set_register_value<&RCC_TypeDef::CFGR, RCC_BASE>(current_cfg);
+			while (mcutl::memory::get_register_bits<RCC_CFGR_SWS, &RCC_TypeDef::CFGR, RCC_BASE>()
 				!= RCC_CFGR_SWS_HSI)
 			{
 			}
@@ -913,21 +913,21 @@ void configure_clocks(ClockOptionsLambda options_lambda,
 	
 		if (need_to_disable_pll)
 		{
-			memory::set_register_bits<RCC_CR_PLLON_Msk, ~RCC_CR_PLLON,
+			mcutl::memory::set_register_bits<RCC_CR_PLLON_Msk, ~RCC_CR_PLLON,
 				&RCC_TypeDef::CR, RCC_BASE>();
-			while (memory::get_register_bits<&RCC_TypeDef::CR, RCC_BASE, RCC_CR_PLLRDY>())
+			while (mcutl::memory::get_register_bits<RCC_CR_PLLRDY, &RCC_TypeDef::CR, RCC_BASE>())
 			{
 			}
 		}
 	
 		if (need_to_disable_hse)
 		{
-			memory::set_register_bits<RCC_CR_HSEON_Msk, ~RCC_CR_HSEON,
+			mcutl::memory::set_register_bits<RCC_CR_HSEON_Msk, ~RCC_CR_HSEON,
 				&RCC_TypeDef::CR, RCC_BASE>();
-			while (memory::get_register_bits<&RCC_TypeDef::CR, RCC_BASE, RCC_CR_HSERDY>())
+			while (mcutl::memory::get_register_bits<RCC_CR_HSERDY, &RCC_TypeDef::CR, RCC_BASE>())
 			{
 			}
-			memory::set_register_bits<RCC_CR_HSEBYP_Msk, ~RCC_CR_HSEBYP,
+			mcutl::memory::set_register_bits<RCC_CR_HSEBYP_Msk, ~RCC_CR_HSEBYP,
 				&RCC_TypeDef::CR, RCC_BASE>();
 		}
 	}
@@ -936,41 +936,41 @@ void configure_clocks(ClockOptionsLambda options_lambda,
 	{
 		constexpr uint32_t cr_bits = RCC_CR_HSEON
 			| (clock_opts.use_external_bypass ? RCC_CR_HSEBYP : 0);
-		memory::set_register_bits<cr_bits, cr_bits, &RCC_TypeDef::CR, RCC_BASE>();
-		while (!memory::get_register_bits<&RCC_TypeDef::CR, RCC_BASE, RCC_CR_HSERDY>())
+		mcutl::memory::set_register_bits<cr_bits, cr_bits, &RCC_TypeDef::CR, RCC_BASE>();
+		while (!mcutl::memory::get_register_bits<RCC_CR_HSERDY, &RCC_TypeDef::CR, RCC_BASE>())
 		{
 		}
 	}
 	
 	current_cfg &= ~clock_opts.cfgr_bits_mask;
 	current_cfg |= clock_opts.cfgr_bits;
-	memory::set_register_value<&RCC_TypeDef::CFGR, RCC_BASE>(current_cfg);
+	mcutl::memory::set_register_value<&RCC_TypeDef::CFGR, RCC_BASE>(current_cfg);
 	if constexpr (clock_opts.pll_used)
 	{
-		memory::set_register_bits<RCC_CR_PLLON_Msk, RCC_CR_PLLON,
+		mcutl::memory::set_register_bits<RCC_CR_PLLON_Msk, RCC_CR_PLLON,
 			&RCC_TypeDef::CR, RCC_BASE>();
-		while (!memory::get_register_bits<&RCC_TypeDef::CR, RCC_BASE, RCC_CR_PLLRDY>())
+		while (!mcutl::memory::get_register_bits<RCC_CR_PLLRDY, &RCC_TypeDef::CR, RCC_BASE>())
 		{
 		}
 	}
 	
 	if constexpr (!!clock_opts.flitf_sys_frequency)
 	{
-		memory::set_register_bits<FLASH_ACR_LATENCY_Msk,
+		mcutl::memory::set_register_bits<FLASH_ACR_LATENCY_Msk,
 			get_flash_acr<clock_opts.flitf_sys_frequency>(), &FLASH_TypeDef::ACR, FLASH_R_BASE>();
 	}
 	
 	if constexpr (clock_opts.sys_source != device_source_id::hsi)
 	{
-		current_cfg = memory::get_register_bits<&RCC_TypeDef::CFGR, RCC_BASE>();
+		current_cfg = mcutl::memory::get_register_bits<&RCC_TypeDef::CFGR, RCC_BASE>();
 		current_cfg &= ~RCC_CFGR_SW;
 		if constexpr (clock_opts.sys_source == device_source_id::hse)
 			current_cfg |= RCC_CFGR_SW_HSE;
 		else if constexpr (clock_opts.sys_source == device_source_id::pll)
 			current_cfg |= RCC_CFGR_SW_PLL;
 		
-		memory::set_register_value<&RCC_TypeDef::CFGR, RCC_BASE>(current_cfg);
-		while (memory::get_register_bits<&RCC_TypeDef::CFGR, RCC_BASE, RCC_CFGR_SWS>()
+		mcutl::memory::set_register_value<&RCC_TypeDef::CFGR, RCC_BASE>(current_cfg);
+		while (mcutl::memory::get_register_bits<RCC_CFGR_SWS, &RCC_TypeDef::CFGR, RCC_BASE>()
 			== RCC_CFGR_SWS_HSI)
 		{
 		}
@@ -980,15 +980,15 @@ void configure_clocks(ClockOptionsLambda options_lambda,
 	{
 		if (need_to_disable_usb) //re-enable USB
 		{
-			memory::set_register_bits<RCC_APB1ENR_USBEN_Msk, RCC_APB1ENR_USBEN,
+			mcutl::memory::set_register_bits<RCC_APB1ENR_USBEN_Msk, RCC_APB1ENR_USBEN,
 				&RCC_TypeDef::APB1ENR, RCC_BASE>();
-			[[maybe_unused]] auto temp = memory::get_register_bits<&RCC_TypeDef::APB1ENR, RCC_BASE>();
+			[[maybe_unused]] auto temp = mcutl::memory::get_register_bits<&RCC_TypeDef::APB1ENR, RCC_BASE>();
 		}
 	}
 	
 	if constexpr (!clock_opts.hsi_used)
 	{
-		memory::set_register_bits<RCC_CR_HSION_Msk, ~RCC_CR_HSION,
+		mcutl::memory::set_register_bits<RCC_CR_HSION_Msk, ~RCC_CR_HSION,
 			&RCC_TypeDef::CR, RCC_BASE>();
 	}
 	
@@ -1099,16 +1099,16 @@ void reconfigure_clocks(OldClockOptionsLambda old_options_lambda,
 	
 	if constexpr (usb_must_be_disabled(old_clock_opts, new_clock_opts))
 	{
-		memory::set_register_bits<RCC_APB1ENR_USBEN_Msk, ~RCC_APB1ENR_USBEN,
+		mcutl::memory::set_register_bits<RCC_APB1ENR_USBEN_Msk, ~RCC_APB1ENR_USBEN,
 			&RCC_TypeDef::APB1ENR, RCC_BASE>();
-		[[maybe_unused]] auto temp = memory::get_register_bits<&RCC_TypeDef::APB1ENR, RCC_BASE>();
+		[[maybe_unused]] auto temp = mcutl::memory::get_register_bits<&RCC_TypeDef::APB1ENR, RCC_BASE>();
 	}
 	
 	if constexpr (need_to_switch_sys_to_hsi && !old_clock_opts.hsi_used)
 	{
-		memory::set_register_bits<RCC_CR_HSION_Msk, RCC_CR_HSION,
+		mcutl::memory::set_register_bits<RCC_CR_HSION_Msk, RCC_CR_HSION,
 			&RCC_TypeDef::CR, RCC_BASE>();
-		while (!memory::get_register_bits<&RCC_TypeDef::CR, RCC_BASE, RCC_CR_HSIRDY>())
+		while (!mcutl::memory::get_register_bits<RCC_CR_HSIRDY, &RCC_TypeDef::CR, RCC_BASE>())
 		{
 		}
 	}
@@ -1118,10 +1118,10 @@ void reconfigure_clocks(OldClockOptionsLambda old_options_lambda,
 	//no frequency falls out of maximum allowed range.
 	if constexpr (need_to_switch_sys_to_hsi)
 	{
-		memory::set_register_bits<old_clock_opts.cfgr_bits_mask | RCC_CFGR_SW_Msk,
+		mcutl::memory::set_register_bits<old_clock_opts.cfgr_bits_mask | RCC_CFGR_SW_Msk,
 			old_clock_opts.cfgr_bits & ~RCC_CFGR_SW_Msk,
 			&RCC_TypeDef::CFGR, RCC_BASE>();
-		while (memory::get_register_bits<&RCC_TypeDef::CFGR, RCC_BASE, RCC_CFGR_SWS>()
+		while (mcutl::memory::get_register_bits<RCC_CFGR_SWS, &RCC_TypeDef::CFGR, RCC_BASE>()
 			!= RCC_CFGR_SWS_HSI)
 		{
 		}
@@ -1129,23 +1129,23 @@ void reconfigure_clocks(OldClockOptionsLambda old_options_lambda,
 	
 	if constexpr (pll_must_be_disabled(old_clock_opts, new_clock_opts))
 	{
-		memory::set_register_bits<RCC_CR_PLLON_Msk, ~RCC_CR_PLLON,
+		mcutl::memory::set_register_bits<RCC_CR_PLLON_Msk, ~RCC_CR_PLLON,
 			&RCC_TypeDef::CR, RCC_BASE>();
-		while (memory::get_register_bits<&RCC_TypeDef::CR, RCC_BASE, RCC_CR_PLLRDY>())
+		while (mcutl::memory::get_register_bits<RCC_CR_PLLRDY, &RCC_TypeDef::CR, RCC_BASE>())
 		{
 		}
 	}
 	
 	if constexpr (hse_must_be_disabled(old_clock_opts, new_clock_opts))
 	{
-		memory::set_register_bits<RCC_CR_HSEON_Msk, ~RCC_CR_HSEON,
+		mcutl::memory::set_register_bits<RCC_CR_HSEON_Msk, ~RCC_CR_HSEON,
 			&RCC_TypeDef::CR, RCC_BASE>();
-		while (memory::get_register_bits<&RCC_TypeDef::CR, RCC_BASE, RCC_CR_HSERDY>())
+		while (mcutl::memory::get_register_bits<RCC_CR_HSERDY, &RCC_TypeDef::CR, RCC_BASE>())
 		{
 		}
 		if constexpr (old_clock_opts.use_external_bypass)
 		{
-			memory::set_register_bits<RCC_CR_HSEBYP_Msk, ~RCC_CR_HSEBYP,
+			mcutl::memory::set_register_bits<RCC_CR_HSEBYP_Msk, ~RCC_CR_HSEBYP,
 				&RCC_TypeDef::CR, RCC_BASE>();
 		}
 	}
@@ -1153,8 +1153,8 @@ void reconfigure_clocks(OldClockOptionsLambda old_options_lambda,
 	if constexpr (hse_must_be_reenabled(old_clock_opts, new_clock_opts))
 	{
 		constexpr uint32_t cr_bits = RCC_CR_HSEON | (new_clock_opts.use_external_bypass ? RCC_CR_HSEBYP : 0);
-		memory::set_register_bits<cr_bits, cr_bits, &RCC_TypeDef::CR, RCC_BASE>();
-		while (!memory::get_register_bits<&RCC_TypeDef::CR, RCC_BASE, RCC_CR_HSERDY>())
+		mcutl::memory::set_register_bits<cr_bits, cr_bits, &RCC_TypeDef::CR, RCC_BASE>();
+		while (!mcutl::memory::get_register_bits<RCC_CR_HSERDY, &RCC_TypeDef::CR, RCC_BASE>())
 		{
 		}
 	}
@@ -1162,15 +1162,15 @@ void reconfigure_clocks(OldClockOptionsLambda old_options_lambda,
 	if constexpr (old_clock_opts.cfgr_bits != new_clock_opts.cfgr_bits)
 	{
 		//This can change the prescalers and change the PLL source only
-		memory::set_register_bits<new_clock_opts.cfgr_bits_mask | old_clock_opts.cfgr_bits_mask,
+		mcutl::memory::set_register_bits<new_clock_opts.cfgr_bits_mask | old_clock_opts.cfgr_bits_mask,
 			new_clock_opts.cfgr_bits, &RCC_TypeDef::CFGR, RCC_BASE>();
 	}
 	
 	if constexpr (pll_must_be_reenabled(old_clock_opts, new_clock_opts))
 	{
-		memory::set_register_bits<RCC_CR_PLLON_Msk, RCC_CR_PLLON,
+		mcutl::memory::set_register_bits<RCC_CR_PLLON_Msk, RCC_CR_PLLON,
 			&RCC_TypeDef::CR, RCC_BASE>();
-		while (!memory::get_register_bits<&RCC_TypeDef::CR, RCC_BASE, RCC_CR_PLLRDY>())
+		while (!mcutl::memory::get_register_bits<RCC_CR_PLLRDY, &RCC_TypeDef::CR, RCC_BASE>())
 		{
 		}
 	}
@@ -1178,16 +1178,16 @@ void reconfigure_clocks(OldClockOptionsLambda old_options_lambda,
 	if constexpr (get_flash_acr<new_clock_opts.flitf_sys_frequency>()
 		!= get_flash_acr<old_clock_opts.flitf_sys_frequency>())
 	{
-		memory::set_register_bits<FLASH_ACR_LATENCY_Msk,
+		mcutl::memory::set_register_bits<FLASH_ACR_LATENCY_Msk,
 			get_flash_acr<new_clock_opts.flitf_sys_frequency>(), &FLASH_TypeDef::ACR, FLASH_R_BASE>();
 	}
 	
 	if constexpr (need_to_switch_sys_to_hsi && new_clock_opts.sys_source != device_source_id::hsi)
 	{
 		constexpr auto new_sys_source_bits = get_sys_source_bits(new_clock_opts);
-		memory::set_register_bits<RCC_CFGR_SW_Msk, new_sys_source_bits,
+		mcutl::memory::set_register_bits<RCC_CFGR_SW_Msk, new_sys_source_bits,
 			&RCC_TypeDef::CFGR, RCC_BASE>();
-		while (memory::get_register_bits<&RCC_TypeDef::CFGR, RCC_BASE, RCC_CFGR_SWS>()
+		while (mcutl::memory::get_register_bits<RCC_CFGR_SWS, &RCC_TypeDef::CFGR, RCC_BASE>()
 			== RCC_CFGR_SWS_HSI)
 		{
 		}
@@ -1195,14 +1195,14 @@ void reconfigure_clocks(OldClockOptionsLambda old_options_lambda,
 	
 	if constexpr (usb_must_be_reenabled(old_clock_opts, new_clock_opts))
 	{
-		memory::set_register_bits<RCC_APB1ENR_USBEN_Msk, RCC_APB1ENR_USBEN,
+		mcutl::memory::set_register_bits<RCC_APB1ENR_USBEN_Msk, RCC_APB1ENR_USBEN,
 			&RCC_TypeDef::APB1ENR, RCC_BASE>();
-		[[maybe_unused]] auto temp = memory::get_register_bits<&RCC_TypeDef::APB1ENR, RCC_BASE>();
+		[[maybe_unused]] auto temp = mcutl::memory::get_register_bits<&RCC_TypeDef::APB1ENR, RCC_BASE>();
 	}
 	
 	if constexpr ((need_to_switch_sys_to_hsi || old_clock_opts.hsi_used) && !new_clock_opts.hsi_used)
 	{
-		memory::set_register_bits<RCC_CR_HSION_Msk, ~RCC_CR_HSION,
+		mcutl::memory::set_register_bits<RCC_CR_HSION_Msk, ~RCC_CR_HSION,
 			&RCC_TypeDef::CR, RCC_BASE>();
 	}
 	

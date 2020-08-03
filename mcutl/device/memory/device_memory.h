@@ -12,14 +12,15 @@ using mcutl::device::memory::common::to_address;
 using mcutl::device::memory::common::to_bytes;
 using mcutl::device::memory::common::volatile_memory;
 using mcutl::device::memory::common::get_register_bits;
-using mcutl::device::memory::common::get_register_flag;
-using mcutl::device::memory::common::set_register_value;
+using mcutl::device::memory::common::get_register_array_bits;
 
 #ifndef __CORTEX_M
 using mcutl::device::memory::common::set_register_bits;
+using mcutl::device::memory::common::set_register_array_bits;
 #else //__CORTEX_M
 #	if __CORTEX_M != 3u
 using mcutl::device::memory::common::set_register_bits;
+using mcutl::device::memory::common::set_register_array_bits;
 #	endif //__CORTEX_M != 3u
 #endif //__CORTEX_M
 } //namespace mcutl::device::memory

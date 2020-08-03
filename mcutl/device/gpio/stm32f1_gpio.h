@@ -258,17 +258,17 @@ struct config_helper<mcutl::gpio::config<PinConfig...>,
 		constexpr auto data = get_port_bit_data<PortLetter>();
 		constexpr auto port_base = get_port_base<PortLetter>();
 		
-		memory::set_register_bits<
+		mcutl::memory::set_register_bits<
 			static_cast<uint32_t>(data.cr_changed_bits & (std::numeric_limits<uint32_t>::max)()),
 			static_cast<uint32_t>(data.cr_bit_values & (std::numeric_limits<uint32_t>::max)()),
 			&GPIO_TypeDef::CRL, port_base>();
-		memory::set_register_bits<
+		mcutl::memory::set_register_bits<
 			static_cast<uint32_t>((data.cr_changed_bits >> 32u) & (std::numeric_limits<uint32_t>::max)()),
 			static_cast<uint32_t>((data.cr_bit_values >> 32u) & (std::numeric_limits<uint32_t>::max)()),
 			&GPIO_TypeDef::CRH, port_base>();
 		if constexpr (data.dr_set_bits || data.dr_reset_bits)
 		{
-			memory::set_register_value<
+			mcutl::memory::set_register_value<
 				(static_cast<uint32_t>(data.dr_set_bits) << GPIO_BSRR_BS0_Pos)
 					| static_cast<uint32_t>(data.dr_reset_bits) << GPIO_BSRR_BR0_Pos,
 				&GPIO_TypeDef::BSRR, port_base>();
@@ -294,9 +294,9 @@ auto get_input_values_mask() MCUTL_NOEXCEPT
 	constexpr auto port_base = get_port_base<port_letter>();
 	constexpr auto pin_bit_mask = get_pin_bit_mask<Pins...>();
 	if constexpr (NegateBits)
-		return ~memory::get_register_bits<&GPIO_TypeDef::IDR, port_base>() & pin_bit_mask;
+		return ~mcutl::memory::get_register_bits<&GPIO_TypeDef::IDR, port_base>() & pin_bit_mask;
 	else
-		return memory::get_register_bits<&GPIO_TypeDef::IDR, port_base, pin_bit_mask>();
+		return mcutl::memory::get_register_bits<pin_bit_mask, &GPIO_TypeDef::IDR, port_base>();
 }
 
 template<bool NegateBits, typename... Pins>
@@ -306,9 +306,9 @@ auto get_output_values_mask() MCUTL_NOEXCEPT
 	constexpr auto port_base = get_port_base<port_letter>();
 	constexpr auto pin_bit_mask = get_pin_bit_mask<Pins...>();
 	if constexpr (NegateBits)
-		return ~memory::get_register_bits<&GPIO_TypeDef::ODR, port_base>() & pin_bit_mask;
+		return ~mcutl::memory::get_register_bits<&GPIO_TypeDef::ODR, port_base>() & pin_bit_mask;
 	else
-		return memory::get_register_bits<&GPIO_TypeDef::ODR, port_base, pin_bit_mask>();
+		return mcutl::memory::get_register_bits<pin_bit_mask, &GPIO_TypeDef::ODR, port_base>();
 }
 
 template<typename Pin>
@@ -319,12 +319,12 @@ bool is_output() MCUTL_NOEXCEPT
 	if constexpr (Pin::pin_number < 8)
 	{
 		constexpr uint32_t pin_mode_mask = (GPIO_CRL_MODE0 << (Pin::pin_number * defines::conf_and_mode_bit_count));
-		return memory::get_register_bits<&GPIO_TypeDef::CRL, port_base, pin_mode_mask>() != defines::input_mode;
+		return mcutl::memory::get_register_bits<pin_mode_mask, &GPIO_TypeDef::CRL, port_base>() != defines::input_mode;
 	}
 	else
 	{
 		constexpr uint32_t pin_mode_mask = (GPIO_CRH_MODE8 << ((Pin::pin_number - 8) * defines::conf_and_mode_bit_count));
-		return memory::get_register_bits<&GPIO_TypeDef::CRH, port_base, pin_mode_mask>() != defines::input_mode;
+		return mcutl::memory::get_register_bits<pin_mode_mask, &GPIO_TypeDef::CRH, port_base>() != defines::input_mode;
 	}
 }
 
@@ -337,7 +337,7 @@ template<typename PinConfig>
 	constexpr auto port_base = get_port_base<PinConfig::pin::port_letter>();
 	if constexpr ((data.cr_changed_bits & (std::numeric_limits<uint32_t>::max)()) != 0)
 	{
-		if (memory::get_register_bits<&GPIO_TypeDef::CRL, port_base, data.cr_changed_bits>()
+		if (mcutl::memory::get_register_bits<data.cr_changed_bits, &GPIO_TypeDef::CRL, port_base>()
 			!= (data.cr_bit_values & (std::numeric_limits<uint32_t>::max)()))
 		{
 			return false;
@@ -345,8 +345,9 @@ template<typename PinConfig>
 	}
 	else if constexpr (((data.cr_changed_bits >> 32u) & (std::numeric_limits<uint32_t>::max)()) != 0)
 	{
-		if (memory::get_register_bits<&GPIO_TypeDef::CRH, port_base,
-			static_cast<uint32_t>((data.cr_changed_bits >> 32u) & (std::numeric_limits<uint32_t>::max)())>()
+		if (mcutl::memory::get_register_bits<
+			static_cast<uint32_t>((data.cr_changed_bits >> 32u) & (std::numeric_limits<uint32_t>::max)()),
+			&GPIO_TypeDef::CRH, port_base>()
 				!= ((data.cr_bit_values >> 32u) & (std::numeric_limits<uint32_t>::max)()))
 		{
 			return false;
@@ -358,16 +359,16 @@ template<typename PinConfig>
 		constexpr auto pin_type = pin_helper<PinConfig>::type;
 		if constexpr (pin_type == config_type::input)
 		{
-			if (memory::get_register_bits<&GPIO_TypeDef::IDR, port_base,
-				data.dr_set_bits | data.dr_reset_bits>() != data.dr_set_bits)
+			if (mcutl::memory::get_register_bits<data.dr_set_bits | data.dr_reset_bits,
+				&GPIO_TypeDef::IDR, port_base>() != data.dr_set_bits)
 			{
 				return false;
 			}
 		}
 		else if constexpr (pin_type == config_type::output)
 		{
-			if (memory::get_register_bits<&GPIO_TypeDef::ODR, port_base,
-				data.dr_set_bits | data.dr_reset_bits>() != data.dr_set_bits)
+			if (mcutl::memory::get_register_bits<data.dr_set_bits | data.dr_reset_bits,
+				&GPIO_TypeDef::ODR, port_base>() != data.dr_set_bits)
 			{
 				return false;
 			}
@@ -375,8 +376,8 @@ template<typename PinConfig>
 		else
 		{
 			auto dr = is_output<typename PinConfig::pin>() ? &GPIO_TypeDef::ODR : &GPIO_TypeDef::IDR;
-			if (memory::get_register_bits<port_base,
-				data.dr_set_bits | data.dr_reset_bits>(dr) != data.dr_set_bits)
+			if (mcutl::memory::get_register_bits<data.dr_set_bits | data.dr_reset_bits,
+				port_base>(dr) != data.dr_set_bits)
 			{
 				return false;
 			}
@@ -594,14 +595,15 @@ template<typename Pin, typename Option, typename... Options>
 	
 	if constexpr (!data.cr_changed_bits && (data.dr_set_bits || data.dr_reset_bits))
 	{
-		return is_output<Pin>() && memory::get_register_bits<&GPIO_TypeDef::ODR, port_base,
-			data.dr_set_bits | data.dr_reset_bits>() == data.dr_set_bits;
+		return is_output<Pin>() && mcutl::memory::get_register_bits<data.dr_set_bits | data.dr_reset_bits,
+			&GPIO_TypeDef::ODR, port_base>() == data.dr_set_bits;
 	}
 	else if constexpr (data.cr_changed_bits != 0)
 	{
 		if constexpr ((data.cr_changed_bits & (std::numeric_limits<uint32_t>::max)()) != 0)
 		{
-			auto cr = memory::get_register_bits<&GPIO_TypeDef::CRL, port_base, data.cr_changed_bits>();
+			auto cr = mcutl::memory::get_register_bits<data.cr_changed_bits,
+				&GPIO_TypeDef::CRL, port_base>();
 			if constexpr (data.pin_mode_set_count && data.pin_type_set_count)
 			{
 				if (cr != (data.cr_bit_values & (std::numeric_limits<uint32_t>::max)()))
@@ -628,8 +630,9 @@ template<typename Pin, typename Option, typename... Options>
 		}
 		else
 		{
-			auto cr = memory::get_register_bits<&GPIO_TypeDef::CRH, port_base,
-				static_cast<uint32_t>((data.cr_changed_bits >> 32u) & (std::numeric_limits<uint32_t>::max)())>();
+			auto cr = mcutl::memory::get_register_bits<
+				static_cast<uint32_t>((data.cr_changed_bits >> 32u) & (std::numeric_limits<uint32_t>::max)()),
+				&GPIO_TypeDef::CRH, port_base>();
 			if constexpr (data.pin_mode_set_count && data.pin_type_set_count)
 			{
 				if (cr != ((data.cr_bit_values >> 32u) & (std::numeric_limits<uint32_t>::max)()))
@@ -658,8 +661,8 @@ template<typename Pin, typename Option, typename... Options>
 		if constexpr (data.dr_set_bits || data.dr_reset_bits)
 		{
 			constexpr auto dr = data.input_category ? &GPIO_TypeDef::IDR : &GPIO_TypeDef::ODR;
-			if (memory::get_register_bits<dr, port_base,
-				data.dr_set_bits | data.dr_reset_bits>() != data.dr_set_bits)
+			if (mcutl::memory::get_register_bits<
+				data.dr_set_bits | data.dr_reset_bits, dr, port_base>() != data.dr_set_bits)
 			{
 				return false;
 			}

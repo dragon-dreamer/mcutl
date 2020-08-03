@@ -26,4 +26,20 @@ template<uint32_t Value>
 	return i;
 }
 
+template<auto Value>
+[[nodiscard]] constexpr bool is_power_of_2() noexcept
+{
+	return Value && (Value & (Value - 1)) == 0;
+}
+
+template<auto Value>
+[[nodiscard]] constexpr uint32_t log2() noexcept
+{
+	uint32_t res {};
+	auto value = Value;
+	while (value >>= 1)
+		++res;
+	return res;
+}
+
 } //namespace mcutl::math

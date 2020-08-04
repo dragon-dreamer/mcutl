@@ -13,7 +13,6 @@
 using namespace ::testing;
 using namespace mcutl::clock::literals;
 
-
 template<typename Source, typename Target>
 struct reconfigure_info
 {

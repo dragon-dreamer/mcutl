@@ -58,9 +58,11 @@ struct executor<instruction_type<device::instruction::type::wfe>>
 {
 	MCUTL_STATIC_NAKED_NOINLINE void wfe_call() noexcept
 	{
-		__asm volatile("wfe");
-		__asm volatile("nop");
-		__asm volatile("bx lr");
+		__asm volatile(
+			"wfe\n"
+			"nop\n"
+			"bx lr\n"
+		::: "memory");
 	}
 	
 	MCUTL_STATIC_FORCEINLINE void run() noexcept
@@ -74,9 +76,11 @@ struct executor<instruction_type<device::instruction::type::wfi>>
 {
 	MCUTL_STATIC_NAKED_NOINLINE void wfi_call() noexcept
 	{
-		__asm volatile("wfi");
-		__asm volatile("nop");
-		__asm volatile("bx lr");
+		__asm volatile(
+			"wfi\n"
+			"nop\n"
+			"bx lr\n"
+		::: "memory");
 	}
 	
 	MCUTL_STATIC_FORCEINLINE void run() noexcept

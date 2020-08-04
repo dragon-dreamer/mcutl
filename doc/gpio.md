@@ -208,6 +208,9 @@ bool has_config = mcutl::gpio::has<mcutl::gpio::gpiob<1>, mcutl::gpio::out::push
 bool is_analog_input = mcutl::gpio::has<mcutl::gpio::gpiob<1>, mcutl::gpio::in::analog>();
 ```
 
+## has_atomic_set_out_value
+This is a `constexpr` `bool` constant which indicates if atomic set operations are available for the target MCU (`set_out_value_atomic`, `set_one_atomic`, `set_zero_atomic`).
+
 ## MCU-specific configuration
 
 ### STM32F101, STM32F102, STM32F103, STM32F105, STM32F107 specific GPIO output options

@@ -14,6 +14,8 @@
 namespace mcutl::device::gpio
 {
 
+[[maybe_unused]] constexpr bool has_atomic_set_out_value = true;
+
 struct port_bit_data
 {
 	uint64_t cr_changed_bits = 0;

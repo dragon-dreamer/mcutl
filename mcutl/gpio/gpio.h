@@ -111,6 +111,8 @@ void set_out_value() MCUTL_NOEXCEPT
 	configure_gpio<to_value<Pin, Value, OutputOptions...>>();
 }
 
+[[maybe_unused]] constexpr bool has_atomic_set_out_value = device::gpio::has_atomic_set_out_value;
+
 template<typename Pin, typename Value, typename... OutputOptions>
 void set_out_value_atomic() MCUTL_NOEXCEPT
 {

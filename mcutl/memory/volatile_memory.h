@@ -1,5 +1,7 @@
 #pragma once
 
+#include <type_traits>
+
 #ifdef MCUTL_TEST
 #	include "mcutl/tests/volatile_memory.h"
 #else //MCUTL_TEST
@@ -33,50 +35,54 @@ template<typename Pointer>
 template<typename ValueType>
 [[maybe_unused]] constexpr auto max_bitmask = mcutl::device::memory::max_bitmask<ValueType>;
 
-template<auto BitMask, decltype(BitMask) BitValues, auto Reg, typename RegStruct>
-inline void set_register_bits(volatile RegStruct* ptr) MCUTL_NOEXCEPT
+template<auto BitMask, auto BitValues, auto Reg, typename RegStruct>
+inline std::enable_if_t<std::is_member_object_pointer_v<decltype(Reg)>> set_register_bits(
+	volatile RegStruct* ptr) MCUTL_NOEXCEPT
 {
 	device::memory::set_register_bits<BitMask, BitValues, Reg>(ptr);
 }
 
-template<auto BitMask, decltype(BitMask) BitValues, typename RegType, typename RegStruct>
+template<auto BitMask, auto BitValues, typename RegType, typename RegStruct>
 inline void set_register_bits(RegType RegStruct::*reg_ptr, volatile RegStruct* ptr) MCUTL_NOEXCEPT
 {
 	device::memory::set_register_bits<BitMask, BitValues>(reg_ptr, ptr);
 }
 
 template<auto BitMask, auto Reg, typename RegStruct>
-inline void set_register_bits(volatile RegStruct* ptr, decltype(BitMask) value) MCUTL_NOEXCEPT
+inline std::enable_if_t<std::is_member_object_pointer_v<decltype(Reg)>> set_register_bits(
+	volatile RegStruct* ptr, std::remove_cv_t<types::type_of_member_pointer_t<Reg>> value) MCUTL_NOEXCEPT
 {
 	device::memory::set_register_bits<BitMask, Reg>(ptr, value);
 }
 
 template<auto BitMask, typename RegType, typename RegStruct>
 inline void set_register_bits(RegType RegStruct::*reg_ptr,
-	volatile RegStruct* ptr, decltype(BitMask) value) MCUTL_NOEXCEPT
+	volatile RegStruct* ptr, std::remove_cv_t<RegType> value) MCUTL_NOEXCEPT
 {
 	device::memory::set_register_bits<BitMask>(reg_ptr, ptr, value);
 }
 
 template<auto BitMask, auto Reg, uintptr_t RegStructBase>
-inline void set_register_bits(decltype(BitMask) value) MCUTL_NOEXCEPT
+inline std::enable_if_t<std::is_member_object_pointer_v<decltype(Reg)>> set_register_bits(
+	std::remove_cv_t<types::type_of_member_pointer_t<Reg>> value) MCUTL_NOEXCEPT
 {
 	device::memory::set_register_bits<BitMask, Reg, RegStructBase>(value);
 }
 
 template<auto BitMask, uintptr_t RegStructBase, typename RegType, typename RegStruct>
-inline void set_register_bits(RegType RegStruct::*reg_ptr, decltype(BitMask) value) MCUTL_NOEXCEPT
+inline void set_register_bits(RegType RegStruct::*reg_ptr,
+	std::remove_cv_t<RegType> value) MCUTL_NOEXCEPT
 {
 	device::memory::set_register_bits<BitMask, RegStructBase>(reg_ptr, value);
 }
 
-template<auto BitMask, decltype(BitMask) BitValues, auto Reg, uintptr_t RegStructBase>
-inline void set_register_bits() MCUTL_NOEXCEPT
+template<auto BitMask, auto BitValues, auto Reg, uintptr_t RegStructBase>
+inline std::enable_if_t<std::is_member_object_pointer_v<decltype(Reg)>> set_register_bits() MCUTL_NOEXCEPT
 {
 	device::memory::set_register_bits<BitMask, BitValues, Reg, RegStructBase>();
 }
 
-template<auto BitMask, decltype(BitMask) BitValues, uintptr_t RegStructBase,
+template<auto BitMask, auto BitValues, uintptr_t RegStructBase,
 	typename RegType, typename RegStruct>
 inline void set_register_bits(RegType RegStruct::*reg_ptr) MCUTL_NOEXCEPT
 {
@@ -84,28 +90,31 @@ inline void set_register_bits(RegType RegStruct::*reg_ptr) MCUTL_NOEXCEPT
 }
 
 template<auto Value, auto Reg, typename RegStruct>
-inline void set_register_value(volatile RegStruct* ptr) MCUTL_NOEXCEPT
+inline std::enable_if_t<std::is_member_object_pointer_v<decltype(Reg)>> set_register_value(
+	volatile RegStruct* ptr) MCUTL_NOEXCEPT
 {
 	using bitmask_t = std::remove_cv_t<mcutl::types::type_of_member_pointer_t<Reg>>;
 	set_register_bits<max_bitmask<std::make_unsigned_t<bitmask_t>>, static_cast<bitmask_t>(Value), Reg>(ptr);
 }
 
 template<auto Reg, typename RegStruct, typename Value>
-inline void set_register_value(volatile RegStruct* ptr, Value value) MCUTL_NOEXCEPT
+inline std::enable_if_t<std::is_member_object_pointer_v<decltype(Reg)>> set_register_value(
+	volatile RegStruct* ptr, Value value) MCUTL_NOEXCEPT
 {
 	using bitmask_t = std::remove_cv_t<mcutl::types::type_of_member_pointer_t<Reg>>;
 	set_register_bits<max_bitmask<std::make_unsigned_t<bitmask_t>>, Reg>(ptr, value);
 }
 
 template<auto Reg, uintptr_t RegStructBase, typename Value>
-inline void set_register_value(Value value) MCUTL_NOEXCEPT
+inline std::enable_if_t<std::is_member_object_pointer_v<decltype(Reg)>> set_register_value(
+	Value value) MCUTL_NOEXCEPT
 {
 	using bitmask_t = std::remove_cv_t<mcutl::types::type_of_member_pointer_t<Reg>>;
 	set_register_bits<max_bitmask<std::make_unsigned_t<bitmask_t>>, Reg, RegStructBase>(value);
 }
 
 template<auto Value, auto Reg, uintptr_t RegStructBase>
-inline void set_register_value() MCUTL_NOEXCEPT
+inline std::enable_if_t<std::is_member_object_pointer_v<decltype(Reg)>> set_register_value() MCUTL_NOEXCEPT
 {
 	using bitmask_t = std::remove_cv_t<mcutl::types::type_of_member_pointer_t<Reg>>;
 	set_register_bits<max_bitmask<std::make_unsigned_t<bitmask_t>>,
@@ -217,32 +226,33 @@ template<auto BitMask, typename RegType, typename RegStruct>
 	return static_cast<bool>(get_register_bits<BitMask>(reg_ptr, ptr));
 }
 
-template<auto BitMask, decltype(BitMask) BitValues,
-	auto Reg, size_t RegArrIndex, typename RegStruct>
-inline void set_register_array_bits(volatile RegStruct* ptr) MCUTL_NOEXCEPT
+template<auto BitMask, auto BitValues, auto Reg, size_t RegArrIndex, typename RegStruct>
+inline std::enable_if_t<std::is_member_object_pointer_v<decltype(Reg)>> set_register_array_bits(
+	volatile RegStruct* ptr) MCUTL_NOEXCEPT
 {
 	static_assert(RegArrIndex < std::extent_v<types::type_of_member_pointer_t<Reg>>, "Invalid array index");
 	device::memory::set_register_array_bits<BitMask, BitValues, Reg, RegArrIndex>(ptr);
 }
 
 template<auto BitMask, auto Reg, size_t RegArrIndex, typename RegStruct>
-inline void set_register_array_bits(volatile RegStruct* ptr,
-	decltype(BitMask) values) MCUTL_NOEXCEPT
+inline std::enable_if_t<std::is_member_object_pointer_v<decltype(Reg)>> set_register_array_bits(
+	volatile RegStruct* ptr,
+	std::remove_cv_t<std::remove_all_extents_t<types::type_of_member_pointer_t<Reg>>> values) MCUTL_NOEXCEPT
 {
 	static_assert(RegArrIndex < std::extent_v<types::type_of_member_pointer_t<Reg>>, "Invalid array index");
 	device::memory::set_register_array_bits<BitMask, Reg, RegArrIndex>(ptr, values);
 }
 
 template<auto BitMask, auto Reg, size_t RegArrIndex, uintptr_t RegStructBase>
-inline void set_register_array_bits(decltype(BitMask) value) MCUTL_NOEXCEPT
+inline std::enable_if_t<std::is_member_object_pointer_v<decltype(Reg)>> set_register_array_bits(
+	std::remove_cv_t<std::remove_all_extents_t<types::type_of_member_pointer_t<Reg>>> value) MCUTL_NOEXCEPT
 {
 	static_assert(RegArrIndex < std::extent_v<types::type_of_member_pointer_t<Reg>>, "Invalid array index");
 	device::memory::set_register_array_bits<BitMask, Reg, RegArrIndex, RegStructBase>(value);
 }
 
-template<auto BitMask, decltype(BitMask) BitValues, auto Reg,
-	size_t RegArrIndex, uintptr_t RegStructBase>
-inline void set_register_array_bits() MCUTL_NOEXCEPT
+template<auto BitMask, auto BitValues, auto Reg, size_t RegArrIndex, uintptr_t RegStructBase>
+inline std::enable_if_t<std::is_member_object_pointer_v<decltype(Reg)>> set_register_array_bits() MCUTL_NOEXCEPT
 {
 	static_assert(RegArrIndex < std::extent_v<types::type_of_member_pointer_t<Reg>>, "Invalid array index");
 	device::memory::set_register_array_bits<BitMask, BitValues, Reg, RegArrIndex, RegStructBase>();
@@ -291,7 +301,8 @@ template<auto BitMask, auto Reg, size_t RegArrIndex, typename RegStruct>
 }
 
 template<auto Value, auto Reg, size_t RegArrIndex, typename RegStruct>
-inline void set_register_array_value(volatile RegStruct* ptr) MCUTL_NOEXCEPT
+inline std::enable_if_t<std::is_member_object_pointer_v<decltype(Reg)>> set_register_array_value(
+	volatile RegStruct* ptr) MCUTL_NOEXCEPT
 {
 	static_assert(RegArrIndex < std::extent_v<types::type_of_member_pointer_t<Reg>>, "Invalid array index");
 	using bitmask_t = std::remove_cv_t<std::remove_all_extents_t<
@@ -301,7 +312,8 @@ inline void set_register_array_value(volatile RegStruct* ptr) MCUTL_NOEXCEPT
 }
 
 template<auto Reg, size_t RegArrIndex, typename RegStruct, typename Value>
-inline void set_register_array_value(volatile RegStruct* ptr, Value value) MCUTL_NOEXCEPT
+inline std::enable_if_t<std::is_member_object_pointer_v<decltype(Reg)>> set_register_array_value(
+	volatile RegStruct* ptr, Value value) MCUTL_NOEXCEPT
 {
 	static_assert(RegArrIndex < std::extent_v<types::type_of_member_pointer_t<Reg>>, "Invalid array index");
 	using bitmask_t = std::remove_cv_t<std::remove_all_extents_t<
@@ -311,7 +323,8 @@ inline void set_register_array_value(volatile RegStruct* ptr, Value value) MCUTL
 }
 
 template<auto Reg, size_t RegArrIndex, uintptr_t RegStructBase, typename Value>
-inline void set_register_array_value(Value value) MCUTL_NOEXCEPT
+inline std::enable_if_t<std::is_member_object_pointer_v<decltype(Reg)>> set_register_array_value(
+	Value value) MCUTL_NOEXCEPT
 {
 	static_assert(RegArrIndex < std::extent_v<types::type_of_member_pointer_t<Reg>>, "Invalid array index");
 	using bitmask_t = std::remove_cv_t<std::remove_all_extents_t<
@@ -321,7 +334,8 @@ inline void set_register_array_value(Value value) MCUTL_NOEXCEPT
 }
 
 template<auto Value, auto Reg, size_t RegArrIndex, uintptr_t RegStructBase>
-inline void set_register_array_value() MCUTL_NOEXCEPT
+inline std::enable_if_t<std::is_member_object_pointer_v<decltype(Reg)>> set_register_array_value(
+	) MCUTL_NOEXCEPT
 {
 	static_assert(RegArrIndex < std::extent_v<types::type_of_member_pointer_t<Reg>>, "Invalid array index");
 	using bitmask_t = std::remove_cv_t<std::remove_all_extents_t<
@@ -330,8 +344,7 @@ inline void set_register_array_value() MCUTL_NOEXCEPT
 		static_cast<bitmask_t>(Value), Reg, RegArrIndex, RegStructBase>();
 }
 
-template<auto BitMask, decltype(BitMask) BitValues,
-	size_t RegArrIndex, typename RegType, typename RegStruct>
+template<auto BitMask, auto BitValues, size_t RegArrIndex, typename RegType, typename RegStruct>
 inline void set_register_array_bits(RegType RegStruct::*reg_ptr, volatile RegStruct* ptr) MCUTL_NOEXCEPT
 {
 	static_assert(RegArrIndex < std::extent_v<RegType>, "Invalid array index");
@@ -340,7 +353,7 @@ inline void set_register_array_bits(RegType RegStruct::*reg_ptr, volatile RegStr
 
 template<auto BitMask, size_t RegArrIndex, typename RegType, typename RegStruct>
 inline void set_register_array_bits(RegType RegStruct::*reg_ptr,
-	volatile RegStruct* ptr, decltype(BitMask) values) MCUTL_NOEXCEPT
+	volatile RegStruct* ptr, std::remove_cv_t<std::remove_all_extents_t<RegType>> values) MCUTL_NOEXCEPT
 {
 	static_assert(RegArrIndex < std::extent_v<RegType>, "Invalid array index");
 	device::memory::set_register_array_bits<BitMask, RegArrIndex>(reg_ptr, ptr, values);
@@ -348,13 +361,14 @@ inline void set_register_array_bits(RegType RegStruct::*reg_ptr,
 
 template<auto BitMask, size_t RegArrIndex, uintptr_t RegStructBase,
 	typename RegType, typename RegStruct>
-inline void set_register_array_bits(RegType RegStruct::*reg_ptr, decltype(BitMask) values) MCUTL_NOEXCEPT
+inline void set_register_array_bits(RegType RegStruct::*reg_ptr,
+	std::remove_cv_t<std::remove_all_extents_t<RegType>> values) MCUTL_NOEXCEPT
 {
 	static_assert(RegArrIndex < std::extent_v<RegType>, "Invalid array index");
 	device::memory::set_register_array_bits<BitMask, RegArrIndex, RegStructBase>(reg_ptr, values);
 }
 
-template<auto BitMask, decltype(BitMask) BitValues,
+template<auto BitMask, auto BitValues,
 	size_t RegArrIndex, uintptr_t RegStructBase, typename RegType, typename RegStruct>
 inline void set_register_array_bits(RegType RegStruct::*reg_ptr) MCUTL_NOEXCEPT
 {

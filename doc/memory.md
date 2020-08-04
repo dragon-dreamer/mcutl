@@ -67,7 +67,7 @@ The `set_register_bits`, `set_register_value`, `get_register_bits`, `get_registe
 ---
 
 ```cpp
-template<auto BitMask, decltype(BitMask) BitValues, auto Reg, typename RegStruct>
+template<auto BitMask, auto BitValues, auto Reg, typename RegStruct>
 void set_register_bits(volatile RegStruct* ptr) noexcept;
 ```
 Sets `BitValues` bits of a bitmask `BitMask` to `1` in a register `Reg` of a struct `RegStruct`. For example, instead of the following code:
@@ -86,7 +86,7 @@ mcutl::memory::set_register_bits<RCC_CFGR_SW, RCC_CFGR_SW_PLL, &RCC_TypeDef::CFG
 
 ```cpp
 template<auto BitMask, auto Reg, typename RegStruct>
-void set_register_bits(volatile RegStruct* ptr, decltype(BitMask) value) noexcept;
+void set_register_bits(volatile RegStruct* ptr, type_of_Reg_value value) noexcept;
 ```
 Sets `value` bits of a bitmask `BitMask` to `1` in a register `Reg` of a struct `RegStruct`. For example, instead of the following code:
 ```c
@@ -104,7 +104,7 @@ mcutl::memory::set_register_bits<RCC_CFGR_SW_PLL, &RCC_TypeDef::CFGR>(RCC, RCC_C
 
 ```cpp
 template<auto BitMask, auto Reg, uintptr_t RegStructBase>
-void set_register_bits(decltype(BitMask) value) noexcept;
+void set_register_bits(type_of_Reg_value value) noexcept;
 ```
 Sets `value` bits of a bitmask `BitMask` to `1` in a register `Reg` of a struct with address `RegStructBase`. For example, instead of the following code:
 ```c
@@ -121,7 +121,7 @@ mcutl::memory::set_register_bits<RCC_CFGR_SW_PLL, &RCC_TypeDef::CFGR, RCC_BASE>(
 ---
 
 ```cpp
-template<auto BitMask, decltype(BitMask) BitValues, auto Reg, uintptr_t RegStructBase>
+template<auto BitMask, auto BitValues, auto Reg, uintptr_t RegStructBase>
 void set_register_bits() noexcept;
 ```
 Sets `BitValues` bits of a bitmask `BitMask` to `1` in a register `Reg` of a struct with address `RegStructBase`. For example, instead of the following code:
@@ -139,7 +139,7 @@ mcutl::memory::set_register_bits<RCC_CFGR_SW_PLL, RCC_CFGR_SW, &RCC_TypeDef::CFG
 ---
 
 ```cpp
-template<auto BitMask, decltype(BitMask) BitValues, typename RegType, typename RegStruct>
+template<auto BitMask, auto BitValues, typename RegType, typename RegStruct>
 void set_register_bits(RegType RegStruct::*reg_ptr, volatile RegStruct* ptr) noexcept;
 ```
 Sets `BitValues` bits of a bitmask `BitMask` to `1` in a register `reg_ptr` of a struct `RegStruct`. For example, instead of the following code:
@@ -159,7 +159,7 @@ mcutl::memory::set_register_bits<RCC_CFGR_SW, RCC_CFGR_SW_PLL>(&RCC_TypeDef::CFG
 ```cpp
 template<auto BitMask, typename RegType, typename RegStruct>
 void set_register_bits(RegType RegStruct::*reg_ptr,
-	volatile RegStruct* ptr, decltype(BitMask) value) noexcept;
+	volatile RegStruct* ptr, type_of_RegType_value value) noexcept;
 ```
 Sets `value` bits of a bitmask `BitMask` to `1` in a register `reg_ptr` of a struct `RegStruct`. For example, instead of the following code:
 ```c
@@ -177,7 +177,7 @@ mcutl::memory::set_register_bits<RCC_CFGR_SW_PLL>(&RCC_TypeDef::CFGR, RCC, RCC_C
 
 ```cpp
 template<auto BitMask, uintptr_t RegStructBase, typename RegType, typename RegStruct>
-void set_register_bits(RegType RegStruct::*reg_ptr, decltype(BitMask) value) noexcept;
+void set_register_bits(RegType RegStruct::*reg_ptr, type_of_RegType_value value) noexcept;
 ```
 Sets `value` bits of a bitmask `BitMask` to `1` in a register `reg_ptr` of a struct with address `RegStructBase`. For example, instead of the following code:
 ```c
@@ -194,7 +194,7 @@ mcutl::memory::set_register_bits<RCC_CFGR_SW_PLL, RCC_BASE>(&RCC_TypeDef::CFGR, 
 ---
 
 ```cpp
-template<auto BitMask, decltype(BitMask) BitValues, uintptr_t RegStructBase,
+template<auto BitMask, auto BitValues, uintptr_t RegStructBase,
 	typename RegType, typename RegStruct>
 void set_register_bits(RegType RegStruct::*reg_ptr) noexcept;
 ```
@@ -290,7 +290,7 @@ mcutl::memory::set_register_value<RCC_CFGR_USBPRE>(&RCC_TypeDef::CFGR, RCC);
 ```cpp
 template<typename RegType, typename RegStruct>
 void set_register_value(RegType RegStruct::*reg_ptr, volatile RegStruct* ptr,
-	std::remove_cv_t<RegType> value) noexcept;
+	type_of_RegType_value value) noexcept;
 ```
 Writes `value` to a register `reg_ptr` of a struct `RegStruct`. For example, instead of the following code:
 ```c
@@ -306,7 +306,7 @@ mcutl::memory::set_register_value(&RCC_TypeDef::CFGR, RCC, RCC_CFGR_USBPRE);
 ```cpp
 template<uintptr_t RegStructBase, typename RegType, typename RegStruct, typename Value>
 void set_register_value(RegType RegStruct::*reg_ptr,
-	std::remove_cv_t<RegType> value) noexcept;
+	type_of_RegType_value value) noexcept;
 ```
 Writes `value` to a register `reg_ptr` of a struct with address `RegStructBase`. For example, instead of the following code:
 ```c
@@ -543,7 +543,7 @@ Here all the registers (`ISER`, `ICER`, etc) are arrays, and the `set_register_a
 ---
 
 ```cpp
-template<auto BitMask, decltype(BitMask) BitValues,
+template<auto BitMask, auto BitValues,
 	auto Reg, size_t RegArrIndex, typename RegStruct>
 void set_register_array_bits(volatile RegStruct* ptr) noexcept;
 ```
@@ -564,7 +564,7 @@ mcutl::memory::set_register_array_bits<AFIO_EXTICR2_EXTI4,
 
 ```cpp
 template<auto BitMask, auto Reg, size_t RegArrIndex, typename RegStruct>
-void set_register_array_bits(volatile RegStruct* ptr, decltype(BitMask) values) noexcept;
+void set_register_array_bits(volatile RegStruct* ptr, type_of_Reg_value values) noexcept;
 ```
 Sets `values` bits of a bitmask `BitMask` to `1` in a register array `Reg` index `RegArrIndex` of a struct `RegStruct`. For example, instead of the following code:
 ```c
@@ -583,7 +583,7 @@ mcutl::memory::set_register_array_bits<AFIO_EXTICR2_EXTI4,
 
 ```cpp
 template<auto BitMask, auto Reg, size_t RegArrIndex, uintptr_t RegStructBase>
-void set_register_array_bits(decltype(BitMask) value) noexcept;
+void set_register_array_bits(type_of_Reg_value value) noexcept;
 ```
 For a struct with address `RegStructBase`, sets `value` bits of a bitmask `BitMask` to `1` in a register array `Reg` index `RegArrIndex`. For example, instead of the following code:
 ```c
@@ -601,7 +601,7 @@ mcutl::memory::set_register_array_bits<AFIO_EXTICR2_EXTI4,
 ---
 
 ```cpp
-template<auto BitMask, decltype(BitMask) BitValues, auto Reg,
+template<auto BitMask, auto BitValues, auto Reg,
 	size_t RegArrIndex, uintptr_t RegStructBase>
 void set_register_array_bits() noexcept;
 ```
@@ -621,7 +621,7 @@ mcutl::memory::set_register_array_bits<AFIO_EXTICR2_EXTI4,
 ---
 
 ```cpp
-template<auto BitMask, decltype(BitMask) BitValues,
+template<auto BitMask, auto BitValues,
 	size_t RegArrIndex, typename RegType, typename RegStruct>
 void set_register_array_bits(RegType RegStruct::*reg_ptr, volatile RegStruct* ptr) noexcept;
 ```
@@ -643,7 +643,7 @@ mcutl::memory::set_register_array_bits<AFIO_EXTICR2_EXTI4,
 ```cpp
 template<auto BitMask, size_t RegArrIndex, typename RegType, typename RegStruct>
 void set_register_array_bits(RegType RegStruct::*reg_ptr,
-	volatile RegStruct* ptr, decltype(BitMask) values) noexcept;
+	volatile RegStruct* ptr, type_of_RegType_value values) noexcept;
 ```
 Sets `values` bits of a bitmask `BitMask` to `1` in a register array `reg_ptr` index `RegArrIndex` for a struct `RegStruct`. For example, instead of the following code:
 ```c
@@ -663,7 +663,7 @@ mcutl::memory::set_register_array_bits<AFIO_EXTICR2_EXTI4,
 ```cpp
 template<auto BitMask, size_t RegArrIndex, uintptr_t RegStructBase,
 	typename RegType, typename RegStruct>
-void set_register_array_bits(RegType RegStruct::*reg_ptr, decltype(BitMask) values) noexcept;
+void set_register_array_bits(RegType RegStruct::*reg_ptr, type_of_RegType_value values) noexcept;
 ```
 For a struct with address `RegStructBase`, sets `values` bits of a bitmask `BitMask` to `1` in a register array `reg_ptr` index `RegArrIndex`. For example, instead of the following code:
 ```c
@@ -681,7 +681,7 @@ mcutl::memory::set_register_array_bits<AFIO_EXTICR2_EXTI4,
 ---
 
 ```cpp
-template<auto BitMask, decltype(BitMask) BitValues,
+template<auto BitMask, auto BitValues,
 	size_t RegArrIndex, uintptr_t RegStructBase, typename RegType, typename RegStruct>
 void set_register_array_bits(RegType RegStruct::*reg_ptr) noexcept;
 ```
@@ -796,8 +796,7 @@ mcutl::memory::set_register_array_value<3>(&NVIC_Type::ISER, NVIC, 32);
 ```cpp
 template<size_t RegArrIndex, uintptr_t RegStructBase,
 	typename RegType, typename RegStruct>
-void set_register_array_value(RegType RegStruct::*reg_ptr,
-	std::remove_cv_t<std::remove_all_extents_t<RegType>> value) noexcept;
+void set_register_array_value(RegType RegStruct::*reg_ptr, type_of_RegType_value value) noexcept;
 ```
 For a struct with address `RegStructBase`, writes `value` to a register array `reg_ptr` index `RegArrIndex`. For example, instead of the following code:
 ```c
@@ -907,7 +906,7 @@ auto value = mcutl::memory::get_register_array_bits<2>(&AFIO_TypeDef::EXTICR, AF
 ```cpp
 template<size_t RegArrIndex, uintptr_t RegStructBase,
 	typename RegType, typename RegStruct>
-[[nodiscard]] inline auto get_register_array_bits(RegType RegStruct::*reg_ptr) MCUTL_NOEXCEPT
+auto get_register_array_bits(RegType RegStruct::*reg_ptr) MCUTL_NOEXCEPT
 ```
 For a struct with address `RegStructBase`, returns `reg_ptr` register array index `RegArrIndex` value. For example, instead of the following code:
 ```c

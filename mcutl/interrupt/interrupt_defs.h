@@ -14,7 +14,7 @@ using irqn_t = int32_t;
 template<typename Type, priority_t Priority, priority_t Subpriority = default_priority>
 struct interrupt
 {
-	using interrupt_t = Type;
+	using interrupt_type = Type;
 	static constexpr auto priority = Priority;
 	static constexpr auto subpriority = Subpriority;
 };
@@ -33,7 +33,7 @@ struct interrupt_traits
 {
 	static constexpr auto priority = default_priority;
 	static constexpr auto subpriority = default_priority;
-	using interrupt_t = Interrupt;
+	using interrupt_type = Interrupt;
 };
 
 template<typename Type, priority_t Priority, priority_t Subpriority>
@@ -43,7 +43,7 @@ struct interrupt_traits<interrupt<Type, Priority, Subpriority>>
 	static constexpr auto subpriority = Subpriority;
 	static_assert(subpriority == default_priority || priority != default_priority,
 		"Invalid priority/subpriority settings for an interrupt");
-	using interrupt_t = Type;
+	using interrupt_type = Type;
 };
 
 } //namespace detail

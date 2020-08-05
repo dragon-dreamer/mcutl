@@ -14,7 +14,7 @@ MCU definitions provide device-specific interrupt structures (which are defined 
 template<typename Type, priority_t Priority, priority_t Subpriority = default_priority>
 struct interrupt
 {
-	using interrupt_t = Type;
+	using interrupt_type = Type;
 	static constexpr auto priority = Priority;
 	static constexpr auto subpriority = Subpriority;
 };

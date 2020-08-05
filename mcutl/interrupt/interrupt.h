@@ -26,25 +26,25 @@ inline void enable() MCUTL_NOEXCEPT
 	if constexpr (has_priorities && traits::priority != default_priority)
 	{
 		device::interrupt::set_priority<
-			typename traits::interrupt_t, traits::priority,
+			typename traits::interrupt_type, traits::priority,
 			traits::subpriority, PriorityCount>();
 	}
 	
-	device::interrupt::enable<typename traits::interrupt_t>();
+	device::interrupt::enable<typename traits::interrupt_type>();
 }
 
 template<typename Interrupt>
 inline void disable() MCUTL_NOEXCEPT
 {
 	using traits = detail::interrupt_traits<Interrupt>;
-	device::interrupt::disable<typename traits::interrupt_t>();
+	device::interrupt::disable<typename traits::interrupt_type>();
 }
 
 template<typename Interrupt>
 [[nodiscard]] inline bool is_enabled() MCUTL_NOEXCEPT
 {
 	using traits = detail::interrupt_traits<Interrupt>;
-	return device::interrupt::is_enabled<typename traits::interrupt_t>();
+	return device::interrupt::is_enabled<typename traits::interrupt_type>();
 }
 
 template<typename Interrupt, auto PriorityCount = maximum_priorities>
@@ -54,7 +54,7 @@ inline void set_priority() MCUTL_NOEXCEPT
 	static_assert(traits::priority != default_priority,
 		"Invalid priority for set_interrupt_priority()");
 	device::interrupt::set_priority<
-		typename traits::interrupt_t, traits::priority,
+		typename traits::interrupt_type, traits::priority,
 		traits::subpriority, PriorityCount>();
 }
 
@@ -62,28 +62,28 @@ template<typename Interrupt, auto PriorityCount = maximum_priorities>
 [[nodiscard]] inline priority_t get_priority() MCUTL_NOEXCEPT
 {
 	using traits = detail::interrupt_traits<Interrupt>;
-	return device::interrupt::get_priority<typename traits::interrupt_t, PriorityCount>();
+	return device::interrupt::get_priority<typename traits::interrupt_type, PriorityCount>();
 }
 
 template<typename Interrupt, auto PriorityCount = maximum_priorities>
 [[nodiscard]] inline priority_t get_subpriority() MCUTL_NOEXCEPT
 {
 	using traits = detail::interrupt_traits<Interrupt>;
-	return device::interrupt::get_subpriority<typename traits::interrupt_t, PriorityCount>();
+	return device::interrupt::get_subpriority<typename traits::interrupt_type, PriorityCount>();
 }
 
 template<typename Interrupt>
 inline void clear_pending() MCUTL_NOEXCEPT
 {
 	using traits = detail::interrupt_traits<Interrupt>;
-	device::interrupt::clear_pending<typename traits::interrupt_t>();
+	device::interrupt::clear_pending<typename traits::interrupt_type>();
 }
 
 template<typename Interrupt>
 [[nodiscard]] inline bool is_pending() MCUTL_NOEXCEPT
 {
 	using traits = detail::interrupt_traits<Interrupt>;
-	return device::interrupt::is_pending<typename traits::interrupt_t>();
+	return device::interrupt::is_pending<typename traits::interrupt_type>();
 }
 
 template<typename T = void>
@@ -119,14 +119,14 @@ inline void enable_atomic() MCUTL_NOEXCEPT
 	using traits = detail::interrupt_traits<Interrupt>;
 	static_assert(traits::priority == default_priority,
 		"Unable to set interrupt priority with enable_atomic() call");
-	device::interrupt::enable_atomic<typename traits::interrupt_t>();
+	device::interrupt::enable_atomic<typename traits::interrupt_type>();
 }
 
 template<typename Interrupt>
 inline void disable_atomic() MCUTL_NOEXCEPT
 {
 	using traits = detail::interrupt_traits<Interrupt>;
-	device::interrupt::disable_atomic<typename traits::interrupt_t>();
+	device::interrupt::disable_atomic<typename traits::interrupt_type>();
 }
 
 template<typename Interrupt, auto PriorityCount = maximum_priorities>
@@ -136,7 +136,7 @@ inline void set_priority_atomic() MCUTL_NOEXCEPT
 	static_assert(traits::priority != default_priority,
 		"Invalid priority for set_interrupt_priority()");
 	device::interrupt::set_priority_atomic<
-		typename traits::interrupt_t, traits::priority,
+		typename traits::interrupt_type, traits::priority,
 		traits::subpriority, PriorityCount>();
 }
 
@@ -144,7 +144,7 @@ template<typename Interrupt>
 inline void clear_pending_atomic() MCUTL_NOEXCEPT
 {
 	using traits = detail::interrupt_traits<Interrupt>;
-	device::interrupt::clear_pending_atomic<typename traits::interrupt_t>();
+	device::interrupt::clear_pending_atomic<typename traits::interrupt_type>();
 }
 
 } //namespace mcutl::interrupt

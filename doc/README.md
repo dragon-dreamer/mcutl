@@ -8,6 +8,7 @@ Directory | Purpose
 mcutl/device | Device-specific files. No need to use them directly, necessary files are included automatically
 mcutl/external | Required external files (such as CMSIS or STM Device Peripheral Access Layer headers), included automatically
 [**mcutl/gpio**](gpio.md) | MCU GPIO configuration
+[**mcutl/interrupt**](interrupt.md) | MCU interrupt configuration
 [mcutl/instruction](instruction.md) | Testable MCU-specific instructions access layer
 [mcutl/memory](memory.md) | MCU testable memory access layer
 [**mcutl/periph**](periph.md) | MCU peripheral configuration

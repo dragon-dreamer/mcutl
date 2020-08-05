@@ -13,17 +13,17 @@ namespace mcutl::interrupt
 [[maybe_unused]] constexpr bool has_get_active = device::interrupt::has_get_active;
 [[maybe_unused]] constexpr auto maximum_priorities = device::interrupt::maximum_priorities;
 
-template<auto PriorityCount = device::interrupt::maximum_priorities>
+template<auto PriorityCount = maximum_priorities>
 inline void initialize_controller() MCUTL_NOEXCEPT
 {
 	device::interrupt::initialize_controller<PriorityCount>();
 }
 
-template<typename Interrupt, auto PriorityCount = device::interrupt::maximum_priorities>
+template<typename Interrupt, auto PriorityCount = maximum_priorities>
 inline void enable() MCUTL_NOEXCEPT
 {
 	using traits = detail::interrupt_traits<Interrupt>;
-	if constexpr (traits::priority != default_priority)
+	if constexpr (has_priorities && traits::priority != default_priority)
 	{
 		device::interrupt::set_priority<
 			typename traits::interrupt_t, traits::priority,
@@ -47,7 +47,7 @@ template<typename Interrupt>
 	return device::interrupt::is_enabled<typename traits::interrupt_t>();
 }
 
-template<typename Interrupt, auto PriorityCount = device::interrupt::maximum_priorities>
+template<typename Interrupt, auto PriorityCount = maximum_priorities>
 inline void set_priority() MCUTL_NOEXCEPT
 {
 	using traits = detail::interrupt_traits<Interrupt>;
@@ -58,14 +58,14 @@ inline void set_priority() MCUTL_NOEXCEPT
 		traits::subpriority, PriorityCount>();
 }
 
-template<typename Interrupt, auto PriorityCount = device::interrupt::maximum_priorities>
+template<typename Interrupt, auto PriorityCount = maximum_priorities>
 [[nodiscard]] inline priority_t get_priority() MCUTL_NOEXCEPT
 {
 	using traits = detail::interrupt_traits<Interrupt>;
 	return device::interrupt::get_priority<typename traits::interrupt_t, PriorityCount>();
 }
 
-template<typename Interrupt, auto PriorityCount = device::interrupt::maximum_priorities>
+template<typename Interrupt, auto PriorityCount = maximum_priorities>
 [[nodiscard]] inline priority_t get_subpriority() MCUTL_NOEXCEPT
 {
 	using traits = detail::interrupt_traits<Interrupt>;
@@ -129,7 +129,7 @@ inline void disable_atomic() MCUTL_NOEXCEPT
 	device::interrupt::disable_atomic<typename traits::interrupt_t>();
 }
 
-template<typename Interrupt, auto PriorityCount = device::interrupt::maximum_priorities>
+template<typename Interrupt, auto PriorityCount = maximum_priorities>
 inline void set_priority_atomic() MCUTL_NOEXCEPT
 {
 	using traits = detail::interrupt_traits<Interrupt>;

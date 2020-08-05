@@ -196,6 +196,19 @@ TEST_F(interrupt_strict_test_fixture, DisableAllTest)
 	mcutl::interrupt::disable_all();
 }
 
+TEST_F(interrupt_strict_test_fixture, TraitsTest)
+{
+	EXPECT_EQ(mcutl::interrupt::maximum_priorities, 16u);
+	EXPECT_TRUE(mcutl::interrupt::has_atomic_enable);
+	EXPECT_TRUE(mcutl::interrupt::has_atomic_disable);
+	EXPECT_TRUE(mcutl::interrupt::has_atomic_set_priority);
+	EXPECT_TRUE(mcutl::interrupt::has_atomic_clear_pending);
+	EXPECT_TRUE(mcutl::interrupt::has_priorities);
+	EXPECT_TRUE(mcutl::interrupt::has_subpriorities);
+	EXPECT_TRUE(mcutl::interrupt::has_interrupt_context);
+	EXPECT_TRUE(mcutl::interrupt::has_get_active);
+}
+
 INSTANTIATE_TEST_SUITE_P(atomic_and_nonatomic_tests,
 	atomic_interrupt_strict_test_fixture,
 	testing::Values(true, false));

@@ -11,6 +11,7 @@ namespace mcutl::interrupt
 [[maybe_unused]] constexpr bool has_subpriorities = device::interrupt::has_subpriorities;
 [[maybe_unused]] constexpr bool has_interrupt_context = device::interrupt::has_interrupt_context;
 [[maybe_unused]] constexpr bool has_get_active = device::interrupt::has_get_active;
+[[maybe_unused]] constexpr auto maximum_priorities = device::interrupt::maximum_priorities;
 
 template<auto PriorityCount = device::interrupt::maximum_priorities>
 inline void initialize_controller() MCUTL_NOEXCEPT

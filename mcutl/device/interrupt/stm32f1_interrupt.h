@@ -151,9 +151,10 @@ constexpr uint8_t get_priority_value() noexcept
 	return res;
 }
 
-template<uint32_t PriorityCount>
+template<uint32_t PriorityCount, typename... Options>
 void initialize_controller() noexcept
 {
+	static_assert(sizeof...(Options) == 0, "No options are supported by the NVIC");
 	validate_priority_count<PriorityCount>();
 	constexpr uint32_t priority_grouping = 7 - get_priority_bitcount<PriorityCount>();
 	mcutl::memory::set_register_bits<SCB_AIRCR_VECTKEY_Msk | SCB_AIRCR_PRIGROUP_Msk,

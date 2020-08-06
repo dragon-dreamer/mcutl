@@ -184,6 +184,15 @@ void set_priority() noexcept
 	mcutl::instruction::execute<instruction::type::isb>();
 }
 
+template<typename Interrupt, mcutl::interrupt::priority_t Priority,
+	mcutl::interrupt::priority_t SubPriority, uint32_t PriorityCount>
+void set_priority_optional() noexcept
+{
+	validate_priority_count<PriorityCount>();
+	if constexpr (Priority != mcutl::interrupt::default_priority)
+		set_priority<Interrupt, Priority, SubPriority, PriorityCount>();
+}
+
 template<typename Interrupt, uint32_t PriorityCount>
 mcutl::interrupt::priority_t get_priority() noexcept
 {

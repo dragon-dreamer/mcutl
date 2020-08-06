@@ -273,9 +273,9 @@ TEST_F(exti_strict_test_fixture_base, GetPendingLineBitsTest)
 	EXPECT_FALSE((mcutl::exti::get_pending_line_bits<mcutl::exti::config<line5, line2>>()));
 	
 	EXPECT_EQ((mcutl::exti::get_pending_line_bits<line5, line2, line19, line7>()),
-		(mcutl::exti::exti_lines_bit_mask_v<line7, line19>));
+		(mcutl::exti::lines_bit_mask_v<line7, line19>));
 	EXPECT_EQ((mcutl::exti::get_pending_line_bits<mcutl::exti::config<line5, line2, line19, line7>>()),
-		(mcutl::exti::exti_lines_bit_mask_v<mcutl::exti::config<line7, line19>>));
+		(mcutl::exti::lines_bit_mask_v<mcutl::exti::config<line7, line19>>));
 }
 
 TEST_P(software_trigger_test_fixture, SoftwareTriggerSimpleTest)

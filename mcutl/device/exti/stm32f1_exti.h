@@ -348,15 +348,15 @@ inline void software_trigger_atomic() noexcept
 }
 
 template<typename Line>
-constexpr uint32_t get_exti_line_bit_mask() noexcept
+constexpr uint32_t get_line_bit_mask() noexcept
 {
 	return (1u << Line::line::value);
 }
 
 template<typename... Lines>
-constexpr uint32_t get_exti_lines_bit_mask() noexcept
+constexpr uint32_t get_lines_bit_mask() noexcept
 {
-	return (0u | ... | get_exti_line_bit_mask<Lines>());
+	return (0u | ... | get_line_bit_mask<Lines>());
 }
 
 template<typename... Interrupt>

@@ -112,9 +112,9 @@ struct configuration_helper
 		device::exti::software_trigger_atomic<LineOptions...>();
 	}
 
-	static constexpr auto get_exti_lines_bit_mask() noexcept
+	static constexpr auto get_lines_bit_mask() noexcept
 	{
-		return device::exti::get_exti_lines_bit_mask<LineOptions...>();
+		return device::exti::get_lines_bit_mask<LineOptions...>();
 	}
 };
 
@@ -178,9 +178,9 @@ struct configuration_helper<config<LineOptions...>>
 		configuration_helper<LineOptions...>::software_trigger_atomic();
 	}
 
-	static constexpr auto get_exti_lines_bit_mask() noexcept
+	static constexpr auto get_lines_bit_mask() noexcept
 	{
-		return configuration_helper<LineOptions...>::get_exti_lines_bit_mask();
+		return configuration_helper<LineOptions...>::get_lines_bit_mask();
 	}
 };
 
@@ -257,19 +257,19 @@ inline void set_interrupt_prioritites() MCUTL_NOEXCEPT
 }
 
 template<typename... Lines>
-inline void software_trigger() noexcept
+inline void software_trigger() MCUTL_NOEXCEPT
 {
 	detail::configuration_helper<Lines...>::software_trigger();
 }
 
 template<typename... Lines>
-inline void software_trigger_atomic() noexcept
+inline void software_trigger_atomic() MCUTL_NOEXCEPT
 {
 	detail::configuration_helper<Lines...>::software_trigger_atomic();
 }
 
 template<typename... Lines>
-[[maybe_unused]] constexpr auto exti_lines_bit_mask_v = detail::configuration_helper<Lines...>::get_exti_lines_bit_mask();
+[[maybe_unused]] constexpr auto lines_bit_mask_v = detail::configuration_helper<Lines...>::get_lines_bit_mask();
 
 [[maybe_unused]] constexpr bool has_events = device::exti::has_events;
 [[maybe_unused]] constexpr bool has_rising_trigger = device::exti::has_rising_trigger;

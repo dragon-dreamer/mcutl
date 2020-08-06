@@ -88,7 +88,7 @@ RCC->CR &= ~RCC_CR_HSION;
 		<td rowspan="2">Full (enable, disable, reset, clear reset)</td>
 		<td>Yes, except Clock Security System (CSS), clock-out capability, RTC and Watchdog clocks</td>
 		<td rowspan="2">Yes, except locking, EXTI and AFIO</td>
-		<td rowspan="2">Full</td>
+		<td rowspan="2">Yes, except faults, vector table relocation or editing</td>
 	</tr>
 	<tr>
 		<td>STM32F105, STM32F107</td>

@@ -211,4 +211,4 @@ TEST_F(interrupt_strict_test_fixture, TraitsTest)
 
 INSTANTIATE_TEST_SUITE_P(atomic_and_nonatomic_tests,
 	atomic_interrupt_strict_test_fixture,
-	testing::Values(true, false));
+	::testing::Values(true, false));

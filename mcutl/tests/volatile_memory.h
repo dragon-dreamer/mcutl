@@ -8,6 +8,8 @@
 
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
+
+#include "mcutl/device/memory/memory.h"
 #include "mcutl/utils/type_helpers.h"
 
 namespace mcutl::tests::memory
@@ -229,6 +231,8 @@ public:
 
 namespace mcutl::device::memory
 {
+
+using mcutl::device::memory::common::to_bytes;
 
 template<typename Type, auto Address>
 [[nodiscard]] inline volatile Type* volatile_memory() noexcept

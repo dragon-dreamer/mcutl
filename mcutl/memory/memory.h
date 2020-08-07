@@ -1,6 +1,10 @@
 #pragma once
 
-#include "mcutl/device/memory/device_memory.h"
+#ifdef MCUTL_TEST
+#	include "mcutl/tests/volatile_memory.h"
+#else //MCUTL_TEST
+#	include "mcutl/device/memory/device_memory.h"
+#endif //MCUTL_TEST
 
 namespace mcutl::memory
 {

@@ -119,70 +119,7 @@ struct configuration_helper
 };
 
 template<typename... LineOptions>
-struct configuration_helper<config<LineOptions...>>
-{
-	static inline void enable_lines() MCUTL_NOEXCEPT
-	{
-		configuration_helper<LineOptions...>::enable_lines();
-	}
-
-	static inline void disable_lines() MCUTL_NOEXCEPT
-	{
-		configuration_helper<LineOptions...>::disable_lines();
-	}
-
-	static inline void clear_pending_line_bits() MCUTL_NOEXCEPT
-	{
-		configuration_helper<LineOptions...>::clear_pending_line_bits();
-	}
-
-	static inline void clear_pending_line_bits_atomic() MCUTL_NOEXCEPT
-	{
-		configuration_helper<LineOptions...>::clear_pending_line_bits_atomic();
-	}
-
-	static inline auto get_pending_line_bits() MCUTL_NOEXCEPT
-	{
-		return configuration_helper<LineOptions...>::get_pending_line_bits();
-	}
-
-	static inline void clear_pending_interrupts() MCUTL_NOEXCEPT
-	{
-		configuration_helper<LineOptions...>::clear_pending_interrupts();
-	}
-	
-	static inline void disable_interrupts() MCUTL_NOEXCEPT
-	{
-		configuration_helper<LineOptions...>::disable_interrupts();
-	}
-
-	template<auto PriorityCount>
-	static inline void enable_interrupts() MCUTL_NOEXCEPT
-	{
-		configuration_helper<LineOptions...>::template enable_interrupts<PriorityCount>();
-	}
-
-	template<auto PriorityCount>
-	static inline void set_interrupt_prioritites() MCUTL_NOEXCEPT
-	{
-		configuration_helper<LineOptions...>::template set_interrupt_prioritites<PriorityCount>();
-	}
-
-	static inline void software_trigger() MCUTL_NOEXCEPT
-	{
-		configuration_helper<LineOptions...>::software_trigger();
-	}
-
-	static inline void software_trigger_atomic() MCUTL_NOEXCEPT
-	{
-		configuration_helper<LineOptions...>::software_trigger_atomic();
-	}
-
-	static constexpr auto get_lines_bit_mask() noexcept
-	{
-		return configuration_helper<LineOptions...>::get_lines_bit_mask();
-	}
-};
+struct configuration_helper<config<LineOptions...>> : configuration_helper<LineOptions...> {};
 
 } //namespace detail
 
@@ -283,3 +220,72 @@ template<typename... Lines>
 	= device::exti::has_atomic_software_trigger;
 
 } //namespace mcutl::exti
+
+namespace mcutl::gpio
+{
+
+namespace detail
+{
+
+template<typename PinConfig>
+struct line_bits_helper
+{
+	static constexpr auto get_line_bits() noexcept
+	{
+		return 0;
+	}
+};
+
+template<char PortLetter, uint32_t PinNumber>
+struct line_bits_helper<pin<PortLetter, PinNumber>>
+{
+	static constexpr auto get_line_bits() noexcept
+	{
+		constexpr auto line_number = detail::exti_line_options<
+			pin<PortLetter, PinNumber>, default_exti_line>::line;
+		return exti::lines_bit_mask_v<exti::line<line_number>>;
+	}
+};
+
+template<typename Pin, uint32_t ExtiLine, typename... Options>
+struct line_bits_helper<connect_to_exti_line<Pin, ExtiLine, Options...>>
+{
+	static constexpr auto get_line_bits() noexcept
+	{
+		constexpr auto line_number = detail::exti_line_options<Pin, ExtiLine>::line;
+		return exti::lines_bit_mask_v<exti::line<line_number>>;
+	}
+};
+
+template<typename Pin, uint32_t ExtiLine, typename... Options>
+struct line_bits_helper<disconnect_from_exti_line<Pin, ExtiLine, Options...>>
+{
+	static constexpr auto get_line_bits() noexcept
+	{
+		constexpr auto line_number = detail::exti_line_options<Pin, ExtiLine>::line;
+		return exti::lines_bit_mask_v<exti::line<line_number>>;
+	}
+};
+
+template<typename... PinConfig>
+struct exti_helper
+{
+	static constexpr auto get_exti_lines_bit_mask() noexcept
+	{
+		return (0u | ... | line_bits_helper<PinConfig>::get_line_bits());
+	}
+};
+
+template<typename... PinConfig>
+struct exti_helper<config<PinConfig...>> : exti_helper<PinConfig...> {};
+
+} //namespace detail
+
+template<typename Pin>
+using default_exti_line_type = exti::line<detail::exti_line_options<Pin, default_exti_line>::line>;
+
+template<typename... PinConfig>
+[[maybe_unused]] constexpr auto exti_lines_bit_mask_v
+	= detail::exti_helper<PinConfig...>::get_exti_lines_bit_mask();
+
+} //namespace mcutl::gpio

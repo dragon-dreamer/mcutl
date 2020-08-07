@@ -35,13 +35,7 @@ struct config_helper
 };
 
 template<typename... PeripheralConfig>
-struct config_helper<config<PeripheralConfig...>>
-{
-	static constexpr auto get_and_validate_config() noexcept
-	{
-		return config_helper<PeripheralConfig...>::get_and_validate_config();
-	}
-};
+struct config_helper<config<PeripheralConfig...>> : config_helper<PeripheralConfig...> {};
 
 } //namespace detail
 

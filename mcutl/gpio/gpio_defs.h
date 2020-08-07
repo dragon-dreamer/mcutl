@@ -51,19 +51,22 @@ using negate_t = typename negate<Value>::type;
 namespace detail
 {
 
-template<typename Pin, typename... Options>
+template<typename Pin, typename Tag, typename... Options>
 struct config_base
 {
 	config_base() = delete;
 	using pin = Pin;
+	using tag = Tag;
 	using options = types::list<Options...>;
 };
+
+struct gpio_tag {};
 
 } //namespace detail
 
 template<typename Pin, typename OutputMode,
 	typename OutValue = out::keep_value, typename... OutputOptions>
-struct as_output : detail::config_base<Pin, OutputOptions...>
+struct as_output : detail::config_base<Pin, detail::gpio_tag, OutputOptions...>
 {
 	using output_mode = OutputMode;
 	using out_value = OutValue;
@@ -74,7 +77,7 @@ struct as_output : detail::config_base<Pin, OutputOptions...>
 };
 
 template<typename Pin, typename OutValue, typename... OutputOptions>
-struct to_value : detail::config_base<Pin, OutputOptions...>
+struct to_value : detail::config_base<Pin, detail::gpio_tag, OutputOptions...>
 {
 	using out_value = OutValue;
 	
@@ -93,7 +96,7 @@ struct pull_down {};
 } //namespace in
 
 template<typename Pin, typename InputMode, typename... InputOptions>
-struct as_input : detail::config_base<Pin, InputOptions...>
+struct as_input : detail::config_base<Pin, detail::gpio_tag, InputOptions...>
 {
 	using input_mode = InputMode;
 };
@@ -105,6 +108,7 @@ namespace detail
 
 struct out_option {};
 struct in_option {};
+struct exti_option {};
 struct unknown_option_category {};
 
 template<typename Option>

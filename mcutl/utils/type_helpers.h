@@ -182,24 +182,28 @@ using pop_front_t = typename pop_front<Container>::type;
 namespace detail
 {
 
-template<typename...>
+template<template <typename, typename> typename IsSame, typename...>
 struct duplicate_helper : std::bool_constant<false> {};
 
-template<typename T, typename... Other>
-struct duplicate_helper<T, Other...> : std::bool_constant<false> {};
+template<template <typename, typename> typename IsSame, typename T, typename... Other>
+struct duplicate_helper<IsSame, T, Other...> : std::bool_constant<false> {};
 
-template<typename T, typename Other, typename... Others>
-struct duplicate_helper<T, Other, Others...>
+template<template <typename, typename> typename IsSame,
+	typename T, typename Other, typename... Others>
+struct duplicate_helper<IsSame, T, Other, Others...>
 {
-	static constexpr bool value = std::is_same_v<T, Other>
-		|| duplicate_helper<T, Others...>::value
-		|| duplicate_helper<Other, Others...>::value;
+	static constexpr bool value = IsSame<T, Other>::value
+		|| duplicate_helper<IsSame, T, Others...>::value
+		|| duplicate_helper<IsSame, Other, Others...>::value;
 };
 
 } //namespace detail
 
 template<typename... T>
-[[maybe_unused]] constexpr bool has_duplicates_v = detail::duplicate_helper<T...>::value;
+[[maybe_unused]] constexpr bool has_duplicates_v = detail::duplicate_helper<std::is_same, T...>::value;
+
+template<template <typename, typename> typename IsSame, typename... T>
+[[maybe_unused]] constexpr bool has_duplicates_filtered_v = detail::duplicate_helper<IsSame, T...>::value;
 
 namespace detail
 {

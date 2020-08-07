@@ -1,5 +1,7 @@
 #pragma once
 
+#include <type_traits>
+
 #include "mcutl/gpio/gpio_defs.h"
 #include "mcutl/device/gpio/device_gpio.h"
 #include "mcutl/periph/periph.h"
@@ -32,28 +34,47 @@ constexpr bool is_valid_pin(device::gpio::valid_gpio_list<AvailableReg, Availabl
 		|| is_valid_pin<PinConfig>(device::gpio::valid_gpio_list<AvailableRegs...>{});
 }
 
+template<typename PinConfig1, typename PinConfig2>
+struct pin_config_same
+{
+	static constexpr bool value
+		= std::is_same_v<typename PinConfig1::pin, typename PinConfig2::pin>
+		&& std::is_same_v<typename PinConfig1::tag, typename PinConfig2::tag>;
+};
+
+template<typename PinConfig1, typename PinConfig2>
+struct exti_line_same
+{
+	static constexpr bool get_value() noexcept
+	{
+		if constexpr (std::is_same_v<typename PinConfig1::tag, exti_tag>
+			&& std::is_same_v<typename PinConfig2::tag, exti_tag>)
+		{
+			return PinConfig1::line == PinConfig2::line;
+		}
+		else
+		{
+			return false;
+		}
+	}
+	
+	static constexpr bool value = get_value();
+};
+
 template<typename... PinConfig>
 constexpr bool validate_pin_configs(config<PinConfig...>) noexcept
 {
-	constexpr bool has_duplicates = types::has_duplicates_v<typename PinConfig::pin...>;
+	constexpr bool has_duplicates = types::has_duplicates_filtered_v<
+		pin_config_same, PinConfig...>;
 	constexpr bool pins_are_valid = (... && is_valid_pin<PinConfig>(
 		device::gpio::available_regs_t{}));
+	constexpr bool has_duplicate_exti_lines = types::has_duplicates_filtered_v<
+		exti_line_same, PinConfig...>;
 	static_assert(!has_duplicates, "Duplicate pin configurations");
+	static_assert(!has_duplicate_exti_lines, "Duplicate pin EXTI lines");
 	static_assert(pins_are_valid, "Invalid gpio pin for selected MCU");
 	return pins_are_valid && !has_duplicates;
 }
-
-template<typename GpioConfig>
-struct gpio_peripheral_control {};
-
-template<typename... PinConfig>
-struct gpio_peripheral_control<config<PinConfig...>>
-{
-	static constexpr void enable() MCUTL_NOEXCEPT
-	{
-		periph::configure_peripheral<periph::enable<to_periph<typename PinConfig::pin>>...>();
-	}
-};
 
 template<typename... PinConfig>
 struct configuration_helper
@@ -62,36 +83,30 @@ struct configuration_helper
 	{
 		using pin_config_t = types::remove_from_container_t<enable_peripherals, config<PinConfig...>>;
 		
-		if constexpr (!std::is_same_v<pin_config_t, config<PinConfig...>>)
-			detail::gpio_peripheral_control<pin_config_t>::enable();
+		constexpr bool enable_peripherals_requested
+			= !std::is_same_v<pin_config_t, config<PinConfig...>>;
 		
 		static_assert(pin_config_t::length != 0, "Empty pin configuration");
 		if constexpr (pin_config_t::length && validate_pin_configs(pin_config_t{}))
-			device::gpio::configure_gpio<pin_config_t>();
+			device::gpio::configure_gpio<enable_peripherals_requested, pin_config_t>();
 	}
 	
 	static constexpr auto get_pin_bit_mask() noexcept
 	{
-		if constexpr (!validate_pin_configs(config<detail::config_base<PinConfig>...>{}))
+		if constexpr (!validate_pin_configs(
+			config<detail::config_base<PinConfig, detail::gpio_tag>...>{}))
+		{
 			return 0;
+		}
 		else
+		{
 			return device::gpio::get_pin_bit_mask<PinConfig...>();
+		}
 	}
 };
 
 template<typename... PinConfig>
-struct configuration_helper<config<PinConfig...>>
-{
-	static void configure_gpio() MCUTL_NOEXCEPT
-	{
-		configuration_helper<PinConfig...>::configure_gpio();
-	}
-	
-	static constexpr auto get_pin_bit_mask() noexcept
-	{
-		return configuration_helper<PinConfig...>::get_pin_bit_mask();
-	}
-};
+struct configuration_helper<config<PinConfig...>> : configuration_helper<PinConfig...> {};
 
 } //namespace detail
 

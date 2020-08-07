@@ -691,8 +691,8 @@ TEST_F(gpio_strict_test_fixture, ExtiGpioLinesTest)
 {
 	EXPECT_EQ(mcutl::gpio::default_exti_line_type<mcutl::gpio::gpioa<3>>::value, 3u);
 	EXPECT_EQ(mcutl::gpio::default_exti_line_type<mcutl::gpio::gpiof<15>>::value, 15u);
-	EXPECT_EQ((mcutl::gpio::exti_lines_bit_mask_v<mcutl::gpio::gpiof<15>,
-		mcutl::gpio::gpioa<3>>), (1u << 3) | (1u << 15));
+	EXPECT_EQ((mcutl::gpio::exti_lines_bit_mask_v<mcutl::gpio::gpiof<15>, mcutl::gpio::gpioa<3>>),
+		(mcutl::exti::lines_bit_mask_v<mcutl::exti::line<3>, mcutl::exti::line<15>>));
 	
 	using test_config = mcutl::gpio::config<
 		mcutl::gpio::to_value<mcutl::gpio::gpiob<1>, mcutl::gpio::out::one>,
@@ -702,7 +702,9 @@ TEST_F(gpio_strict_test_fixture, ExtiGpioLinesTest)
 		mcutl::gpio::connect_to_exti_line<mcutl::gpio::gpiob<11>>,
 		mcutl::gpio::disconnect_from_exti_line<mcutl::gpio::gpioa<3>>
 	>;
-	EXPECT_EQ(mcutl::gpio::exti_lines_bit_mask_v<test_config>, (1u << 3) | (1u << 11) | (1u << 8));
+	EXPECT_EQ(mcutl::gpio::exti_lines_bit_mask_v<test_config>,
+		(mcutl::exti::lines_bit_mask_v<mcutl::exti::line<3>, mcutl::exti::line<11>,
+		mcutl::exti::line<8>>));
 }
 
 TEST_F(gpio_strict_test_fixture, IsExtiConnectedTest)

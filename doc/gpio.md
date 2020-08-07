@@ -1,7 +1,7 @@
 # MCU GPIO configuration (mcutl/gpio/gpio.h)
 This header provides facilities to configure MCU general purpose input/output ports (GPIO). You can configure GPIO, read and write values and check existing configurations.
 
-### Public definitions
+## Public definitions
 ```cpp
 template<char PortLetter, uint32_t PinNumber>
 struct pin;
@@ -94,7 +94,7 @@ mcutl::gpio::configure_gpio<gpio_config>();
 
 You may want to combine as much GPIOs as possible in a single `configure_gpio` call, as this call packs and combines MCU register reads and writes. This makes the code smaller and faster.
 
-## set_out_value
+### set_out_value
 The following function sets the output value of a GPIO:
 ```cpp
 template<typename Pin, typename Value, typename... OutputOptions>
@@ -102,7 +102,7 @@ void set_out_value() noexcept;
 ```
 This call sets the output value of the output `Pin` to `Value` (which can be `out::one` or `out::zero`) with optional `OutputOptions`.
 
-## set_out_value_atomic
+### set_out_value_atomic
 The following function sets the output value of a GPIO:
 ```cpp
 template<typename Pin, typename Value, typename... OutputOptions>
@@ -110,7 +110,7 @@ void set_out_value_atomic() noexcept;
 ```
 This call sets the output value of the output `Pin` to `Value` (which can be `out::one` or `out::zero`) with optional `OutputOptions`. This call is guaranteed to run atomically. No locking is required when changing the levels of shared GPIOs using this call.
 
-## set_one, set_zero
+### set_one, set_zero
 ```cpp
 template<typename Pin>
 void set_one() noexcept;
@@ -119,7 +119,7 @@ void set_zero() noexcept;
 ```
 These calls set the output `Pin` value to `1` or `0`, respectively.
 
-## set_one_atomic, set_zero_atomic
+### set_one_atomic, set_zero_atomic
 ```cpp
 template<typename Pin>
 void set_one_atomic() noexcept;
@@ -128,7 +128,7 @@ void set_zero_atomic() noexcept;
 ```
 These calls set the output `Pin` value to `1` or `0`, respectively. This call is guaranteed to run atomically. No locking is required when changing the levels of shared GPIOs using this call.
 
-## get_input_values_mask, get_output_values_mask, pin_bit_mask_v
+### get_input_values_mask, get_output_values_mask, pin_bit_mask_v
 ```cpp
 template<bool NegateBits, typename... Pins>
 [[nodiscard]] auto get_input_values_mask() noexcept;
@@ -156,7 +156,7 @@ if (set_pins & mcutl::gpio::pin_bit_mask_v<
 ```
 The `NegateBits` parameter indicates if the port value must be negated after reading.
 
-## get_input_bit, get_output_bit
+### get_input_bit, get_output_bit
 ```cpp
 template<typename Pin>
 [[nodiscard]] bool get_input_bit() noexcept;
@@ -168,14 +168,14 @@ These calls may be used to get the input or output logical level for the `Pin`. 
 bool is_one = mcutl::gpio::get_input_bit<mcutl::gpio::gpiod<15>>;
 ```
 
-## is_output
+### is_output
 ```cpp
 template<typename Pin>
 bool is_output() noexcept;
 ```
 Returns `true` if the `Pin` is configured as an output, and `false` otherwise.
 
-## is
+### is
 ```cpp
 template<typename PinConfig>
 [[nodiscard]] bool is() noexcept;
@@ -185,13 +185,18 @@ Returns `true` if the `PinConfig` exactly matches the real configuration of the 
 bool config_matches = mcutl::gpio::is<mcutl::gpio::as_output<mcutl::gpio::gpiob<11>,
 	mcutl::gpio::out::open_drain, mcutl::gpio::out::one, mcutl::gpio::out::opt::freq_50mhz>>();
 ```
+The following call checks if the pin `gpiod<15>` is connected to its default [EXTI](exti.md) line:
+```cpp
+bool connected_to_exti_line = mcutl::gpio::is<
+	mcutl::gpio::connect_to_exti_line<mcutl::gpio::gpiod<15>>>();
+```
 
-## has
+### has
 ```cpp
 template<typename Pin, typename... Options>
 [[nodiscard]] bool has() noexcept;
 ```
-Checks if the `Pin` has all of the traits listed in the `Options` list. All `Options` must be either input or output. Here are several examples:
+Checks if the `Pin` has all of the traits listed in the `Options` list. All `Options` must be either input or output or external interrupt. Here are several examples:
 ```cpp
 //Checks if the gpiob<1> pin is configured as an output
 bool is_output = mcutl::gpio::has<mcutl::gpio::gpiob<1>, mcutl::gpio::out::keep_value>();
@@ -206,10 +211,19 @@ bool has_config = mcutl::gpio::has<mcutl::gpio::gpiob<1>, mcutl::gpio::out::push
 
 //Checks if the gpiob<1> pin is configured as an analog input
 bool is_analog_input = mcutl::gpio::has<mcutl::gpio::gpiob<1>, mcutl::gpio::in::analog>();
+
+//Checks if the gpiob<11> is configured as a pull-down input
+//and connected to its default EXTI line
+bool is_pull_down_with_exti_line = mcutl::gpio::has<mcutl::gpio::gpiob<11>,
+	mcutl::gpio::in::pull_down,
+	mcutl::gpio::connect_to_exti_line<mcutl::gpio::gpiob<11>>>();
 ```
 
-## has_atomic_set_out_value
+### has_atomic_set_out_value
 This is a `constexpr` `bool` constant which indicates if atomic set operations are available for the target MCU (`set_out_value_atomic`, `set_one_atomic`, `set_zero_atomic`).
+
+## Connecting GPIO pins to EXTI lines
+Please refer to the [EXTI documentation](exti.md) to learn how to configure and enable EXTI lines and connect the GPIO pins to them.
 
 ## MCU-specific configuration
 

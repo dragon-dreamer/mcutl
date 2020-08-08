@@ -143,6 +143,9 @@ Returns the interrupt request number (`IRQn`) of the currently executing interru
 
 This function is available when `has_get_active` is `true`.
 
+## Processing interrupts
+To process an interrupt, you still have to define an interrupt handler for the MCU of your choice yourself. The MCUTL library does not define any handlers and does not change handler addresses dynamically.
+
 ## STM32F101, STM32F102, STM32F103, STM32F105, STM32F107 specific interrupts
 These interrupt definitions are defined in the `mcutl::interrupt::types` namespace. They can be used as is or with the `mcutl::interrupt::interrupt` wrapper type.
 

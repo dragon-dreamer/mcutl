@@ -11,7 +11,7 @@ auto to_bytes(Address* address) noexcept;
 template<typename Struct>
 auto to_bytes(Struct& obj) noexcept;
 ```
-Convert either a pointer or a struct reference to the MCU byte pointer.
+Convert either a pointer or a struct reference to the MCU byte pointer. `Address` and `Struct` types must be trivially copyable.
 
 ## volatile_memory.h header
 Contains functions to access volatile memory of the MCU. When compiling for the MCU, these functions represent raw volatile memory accesses. When the `MCUTL_TEST` macro is defined, these functions call the special test interface, which is then used for unit-testing. Basically, to test the firmware, you need to check that the code performs correct writes to (and sometime reads from) correct memory locations with the right order. The test mocks and interfaces are described in [mcutl/tests](tests.md) in detail.

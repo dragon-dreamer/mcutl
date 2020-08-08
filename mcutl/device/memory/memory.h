@@ -10,6 +10,7 @@ namespace mcutl::device::memory::common
 template<typename Address>
 [[nodiscard]] inline auto to_bytes(Address* address) noexcept
 {
+	static_assert(std::is_trivially_copyable_v<std::remove_cv_t<Address>>, "Invalid input type");
 	if constexpr (std::is_volatile_v<Address>)
 	{
 		if constexpr (std::is_const_v<Address>)

@@ -81,4 +81,19 @@ struct undo_reset : detail::peripheral_configuration<Peripheral, detail::undo_re
 template<typename... Options>
 struct config {};
 
+struct no_periph : detail::peripheral_base {};
+
+namespace detail
+{
+
+template<> struct peripheral_configurer<no_periph>
+{
+	template<typename Configuration, typename ConfigStruct>
+	static constexpr void execute(ConfigStruct&) noexcept
+	{
+	}
+};
+
+} //namespace detail
+
 } //namespace mcutl::periph

@@ -24,7 +24,9 @@ using periph_config = mcutl::periph::config<
 mcutl::periph::configure_peripheral<periph_config>();
 ```
 
-### STM32F101, STM32F102, STM32F103, STM32F105, STM32F107 peripherals
+There is a special peripheral `mcutl::periph::no_periph`, which is a no-op and can be passed to `enable`, `disable`, `reset` and `undo_reset` functions.
+
+## STM32F101, STM32F102, STM32F103, STM32F105, STM32F107 peripherals
 Here is the list of the peripherals that may be present on these MCUs:
 * ADC: `adc1`, `adc2`, `adc3`
 * AFIO: `afio`

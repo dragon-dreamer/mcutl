@@ -11,7 +11,7 @@ using interrupt_strict_test_fixture = mcutl::tests::mcu::strict_test_fixture_bas
 
 class atomic_interrupt_strict_test_fixture :
 	public interrupt_strict_test_fixture,
-	public testing::WithParamInterface<bool>
+	public ::testing::WithParamInterface<bool>
 {
 };
 

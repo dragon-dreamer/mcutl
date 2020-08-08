@@ -23,7 +23,7 @@ inline bool disable_backup_writes() MCUTL_NOEXCEPT
 	return device::backup::disable_backup_writes();
 }
 
-enum class disable_policy
+enum class write_disable_policy
 {
 	disable_always,
 	disable_only_if_enabled
@@ -39,7 +39,7 @@ constexpr void check_backup() noexcept
 	static_assert(Index >= min_register_index, "Invalid backup register index");
 }
 
-template<disable_policy DisablePolicy>
+template<write_disable_policy DisablePolicy>
 struct backup_write_enabler_base : types::noncopymovable
 {
 	inline backup_write_enabler_base() MCUTL_NOEXCEPT
@@ -54,7 +54,7 @@ struct backup_write_enabler_base : types::noncopymovable
 };
 
 template<>
-struct backup_write_enabler_base<disable_policy::disable_only_if_enabled>
+struct backup_write_enabler_base<write_disable_policy::disable_only_if_enabled>
 	: types::noncopymovable
 {
 public:
@@ -83,7 +83,7 @@ template<backup_index_type Index>
 }
 
 template<backup_index_type Index, bool EnableWrites = true,
-	disable_policy DisablePolicy = disable_policy::disable_only_if_enabled>
+	write_disable_policy DisablePolicy = write_disable_policy::disable_only_if_enabled>
 inline void write_backup(backup_register_type value) MCUTL_NOEXCEPT
 {
 	detail::check_backup<Index>();
@@ -93,7 +93,7 @@ inline void write_backup(backup_register_type value) MCUTL_NOEXCEPT
 		[[maybe_unused]] bool enabled = enable_backup_writes();
 		device::backup::write_backup<Index>(value);
 		
-		if constexpr (DisablePolicy == disable_policy::disable_always)
+		if constexpr (DisablePolicy == write_disable_policy::disable_always)
 			disable_backup_writes();
 		else if (enabled)
 			disable_backup_writes();
@@ -104,7 +104,7 @@ inline void write_backup(backup_register_type value) MCUTL_NOEXCEPT
 	}
 }
 
-template<disable_policy DisablePolicy = disable_policy::disable_only_if_enabled>
+template<write_disable_policy DisablePolicy = write_disable_policy::disable_only_if_enabled>
 struct backup_write_enabler : detail::backup_write_enabler_base<DisablePolicy>
 {
 public:

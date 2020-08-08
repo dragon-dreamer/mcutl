@@ -120,7 +120,7 @@ TEST_P(backup_strict_test_fixture, BackupWriteEnableDisableAlwaysTest)
 	expect_disable(true, false);
 	
 	mcutl::backup::write_backup<7, true,
-		mcutl::backup::disable_policy::disable_always>(dr7_value);
+		mcutl::backup::write_disable_policy::disable_always>(dr7_value);
 }
 
 TEST_P(backup_strict_test_fixture, BackupWriteEnableDisableIfEnabledTest)
@@ -136,7 +136,7 @@ TEST_P(backup_strict_test_fixture, BackupWriteEnableDisableIfEnabledTest)
 	expect_disable(!was_enabled, false);
 	
 	mcutl::backup::write_backup<7, true,
-		mcutl::backup::disable_policy::disable_only_if_enabled>(dr7_value);
+		mcutl::backup::write_disable_policy::disable_only_if_enabled>(dr7_value);
 }
 
 TEST_P(backup_strict_test_fixture, BackupWriteEnablerDisableAlwaysTest)
@@ -153,7 +153,7 @@ TEST_P(backup_strict_test_fixture, BackupWriteEnablerDisableAlwaysTest)
 	expect_disable(true, false);
 	
 	mcutl::backup::backup_write_enabler<
-		mcutl::backup::disable_policy::disable_always> bkp;
+		mcutl::backup::write_disable_policy::disable_always> bkp;
 	bkp.write<7>(dr7_value);
 	bkp.write<25>(dr25_value);
 }
@@ -173,7 +173,7 @@ TEST_P(backup_strict_test_fixture, BackupWriteEnablerDisableIfEnabledTest)
 	expect_disable(!was_enabled, false);
 	
 	mcutl::backup::backup_write_enabler<
-		mcutl::backup::disable_policy::disable_only_if_enabled> bkp;
+		mcutl::backup::write_disable_policy::disable_only_if_enabled> bkp;
 	bkp.write<7>(dr7_value);
 	bkp.write<25>(dr25_value);
 }

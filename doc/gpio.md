@@ -1,5 +1,5 @@
 # MCU GPIO configuration (mcutl/gpio/gpio.h)
-This header provides facilities to configure MCU general purpose input/output ports (GPIO). You can configure GPIO, read and write values and check existing configurations.
+This header provides facilities to configure MCU general purpose input/output ports (GPIO). You can configure GPIO, read and write values and check existing configurations. All of the definitions are in the `mcutl::gpio` namespace, unless otherwise stated.
 
 ## Public definitions
 ```cpp

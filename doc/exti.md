@@ -1,5 +1,5 @@
 # MCU external interrupts configuration (mcutl/exti/exti.h)
-This header provides facilities to configure external MCU interrupts (EXTI).
+This header provides facilities to configure external MCU interrupts (EXTI). All of the definitions are in the `mcutl::exti` namespace, unless otherwise stated.
 
 ### Public definitions
 ```cpp

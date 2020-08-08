@@ -1,5 +1,5 @@
 # MCUTL memory access layer (mcutl/memory)
-MCUTL routes all MCU memory accesses to a separate memory access layer. This is a zero-cost abstraction, which allows to unit-test your firmware on a host PC. Moreover, all the MCU-specific type casting is located exclusively in this layer. If you plan to unit-test your firmware on host PC, you need to use the functions described below when accessing the MCU memory. The MCUTL library uses these functions and never accesses MCU memory directly, which makes it testable.
+MCUTL routes all MCU memory accesses to a separate memory access layer. This is a zero-cost abstraction, which allows to unit-test your firmware on a host PC. Moreover, all the MCU-specific type casting is located exclusively in this layer. If you plan to unit-test your firmware on host PC, you need to use the functions described below when accessing the MCU memory. The MCUTL library uses these functions and never accesses MCU memory directly, which makes it testable. All of the definitions are in the `mcutl::memory` namespace, unless otherwise stated.
 
 ## memory.h header
 Contains functions to convert addresses and references to byte pointers.

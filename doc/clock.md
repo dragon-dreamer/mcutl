@@ -1,5 +1,5 @@
 # MCU clock configuration (mcutl/clock/clock.h)
-This header provides facilities to configure and reconfigure the MCU clock. It automatically calculates the best suitable clock tree considering your requirements, and then generates the code to configure the clocks as required. All calculations are done during compilation, so the code generated performs only the configuration itself and nothing else.
+This header provides facilities to configure and reconfigure the MCU clock. It automatically calculates the best suitable clock tree considering your requirements, and then generates the code to configure the clocks as required. All calculations are done during compilation, so the code generated performs only the configuration itself and nothing else. All of the definitions are in the `mcutl::clock` namespace, unless otherwise stated.
 
 ## Clock configuration
 Clock configuration is represented as a C++ type, for example:

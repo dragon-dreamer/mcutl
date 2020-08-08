@@ -1,5 +1,5 @@
 # MCUTL MCU-specific instructions access layer (mcutl/instruction)
-MCUTL routes all MCU-specific instruction calls to a separate instruction layer. This is a zero-cost abstraction, which allows to unit-test your firmware on a host PC. If you plan to unit-test your firmware on host PC, you need to use the functions described below when executing the MCU-specific instructions. The MCUTL library uses these functions and never executes MCU-specific instructions directly, which makes it testable.
+MCUTL routes all MCU-specific instruction calls to a separate instruction layer. This is a zero-cost abstraction, which allows to unit-test your firmware on a host PC. If you plan to unit-test your firmware on host PC, you need to use the functions described below when executing the MCU-specific instructions. The MCUTL library uses these functions and never executes MCU-specific instructions directly, which makes it testable. All of the definitions are in the `mcutl::instruction` namespace, unless otherwise stated.
 
 ## instruction.h header
 Contains functions to execute MCU-specific instructions.

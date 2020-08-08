@@ -1,5 +1,5 @@
 # MCU peripheral configuration (mcutl/periph/periph.h)
-This header provides facilities to configure MCU peripherals. You can enable, disable, reset and reset-clear the peripherals supported by the MCU of your choice. For configuration, `mcutl::periph::configure_peripheral` function is used. It can take any number of template arguments, which define the peripheral configuration to perform. There are four configuration options available: `enable`, `disable`, `reset` and `undo_reset`, which enable, disable, reset a peripheral or clear the reset flag for a peripheral, respectively.
+This header provides facilities to configure MCU peripherals. You can enable, disable, reset and reset-clear the peripherals supported by the MCU of your choice. For configuration, `mcutl::periph::configure_peripheral` function is used. It can take any number of template arguments, which define the peripheral configuration to perform. There are four configuration options available: `enable`, `disable`, `reset` and `undo_reset`, which enable, disable, reset a peripheral or clear the reset flag for a peripheral, respectively. All of the definitions are in the `mcutl::periph` namespace, unless otherwise stated.
 
 Here are several self-explanatory examples of peripheral configuration:
 ```cpp

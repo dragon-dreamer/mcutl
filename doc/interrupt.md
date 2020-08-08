@@ -1,5 +1,5 @@
 # MCU interrupt configuration (mcutl/interrupt/interrupt.h)
-This header provides facilities to configure MCU interrupt system (or nested vectored interrupt controller for some MCUs).
+This header provides facilities to configure MCU interrupt system (or nested vectored interrupt controller for some MCUs). All of the definitions are in the `mcutl::interrupt` namespace, unless otherwise stated.
 
 ### Priority, IRQn
 ```cpp

@@ -1,4 +1,4 @@
-# Microcontroller C++ template library (MCUTL)
+# Modern C++17 template header-only library for microcontrollers (MCUTL)
 
 ## What's this?
 This is a modern C++17 header-only template library for microcontrollers. The basic idea is to provide access to microcontroller features and peripherals via a uniform interface and precompute as much as possible during compilation. Bonus: it supports unit-testing!
@@ -81,7 +81,7 @@ RCC->CR &= ~RCC_CR_HSION;
 <table>
 	<tr>
 		<th>MCU \\ Feature</th>
-		<th>Peripheral config</th><th>Clock config</th><th>GPIO</th><th>Interrupts</th><th>External interrupts</th>
+		<th>Peripheral config</th><th>Clock config</th><th>GPIO</th><th>Interrupts</th><th>External interrupts</th><th>Hardware CRC</th>
 	</tr>
 	<tr>
 		<td>STM32F101, STM32F102, STM32F103</td>
@@ -89,6 +89,7 @@ RCC->CR &= ~RCC_CR_HSION;
 		<td>Yes, except Clock Security System (CSS), clock-out capability, RTC and Watchdog clocks</td>
 		<td rowspan="2">Yes, except locking and remapping</td>
 		<td rowspan="2">Yes, except faults, vector table relocation or editing</td>
+		<td rowspan="2">Yes</td>
 		<td rowspan="2">Yes</td>
 	</tr>
 	<tr>

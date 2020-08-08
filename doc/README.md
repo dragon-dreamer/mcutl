@@ -4,6 +4,7 @@
 MCUTL headers and some required external headers are located in the **mcutl** directory.
 Directory | Purpose
 --------- | -------
+[**mcutl/backup**](backup.md) | MCU backup domain configuration and access
 [**mcutl/clock**](clock.md) | MCU clock configuration
 [**mcutl/crc**](crc.md) | MCU hardware CRC configuration and calculation
 mcutl/device | Device-specific files. No need to use them directly, necessary files are included automatically

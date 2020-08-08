@@ -4,6 +4,7 @@
 
 #include "mcutl/device/device.h"
 #include "mcutl/memory/volatile_memory.h"
+#include "mcutl/periph/periph.h"
 #include "mcutl/utils/definitions.h"
 
 namespace mcutl::device::crc
@@ -12,6 +13,7 @@ namespace mcutl::device::crc
 using crc_input_type = uint32_t;
 [[maybe_unused]] constexpr crc_input_type crc_initial_value = 0xffffffffu;
 [[maybe_unused]] constexpr crc_input_type crc_polynomial = 0x4c11db7u;
+using peripheral_type = mcutl::periph::crc;
 
 inline void reset() MCUTL_NOEXCEPT
 {

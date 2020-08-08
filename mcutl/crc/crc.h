@@ -14,6 +14,7 @@ namespace mcutl::crc
 using crc_input_type = device::crc::crc_input_type;
 [[maybe_unused]] constexpr crc_input_type crc_initial_value = device::crc::crc_initial_value;
 [[maybe_unused]] constexpr crc_input_type crc_polynomial = device::crc::crc_polynomial;
+using peripheral_type = device::crc::peripheral_type;
 
 inline void reset() MCUTL_NOEXCEPT
 {

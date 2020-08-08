@@ -6,6 +6,7 @@
 #include <type_traits>
 
 #include "mcutl/crc/crc.h"
+#include "mcutl/periph/periph.h"
 
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
@@ -128,4 +129,11 @@ TEST_F(crc_strict_test_fixture, CalculateCrcStructTest)
 	test_crc_struct instance {};
 	EXPECT_EQ(mcutl::crc::calculate_crc(instance),
 		calc_fake_crc(reinterpret_cast<const uint8_t*>(&instance), sizeof(instance)));
+}
+
+TEST_F(crc_strict_test_fixture, CrcDefinitionsTest)
+{
+	EXPECT_EQ(mcutl::crc::crc_initial_value, 0xffffffffu);
+	EXPECT_EQ(mcutl::crc::crc_polynomial, 0x4c11db7u);
+	EXPECT_TRUE((std::is_same_v<mcutl::crc::peripheral_type, mcutl::periph::crc>));
 }

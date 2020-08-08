@@ -1,7 +1,7 @@
 #pragma once
 
 #ifdef MCUTL_TEST
-#	define MCUTL_NOEXCEPT
+#	define MCUTL_NOEXCEPT noexcept(false)
 #else
 #	define MCUTL_NOEXCEPT noexcept
 #endif

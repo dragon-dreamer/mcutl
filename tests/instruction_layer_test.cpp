@@ -10,7 +10,8 @@ using instruction_test_fixture = mcutl::tests::instruction::test_fixture_base;
 
 TEST_F(instruction_test_fixture, InstructionTest)
 {
-	EXPECT_CALL(instruction(), run(instr<mcutl::device::instruction::type::wfe>(), ::testing::IsEmpty()));
+	EXPECT_CALL(instruction(), run(instr<mcutl::device::instruction::type::wfe>(),
+		::testing::IsEmpty()));
 	mcutl::instruction::execute<mcutl::device::instruction::type::wfe>();
 }
 
@@ -31,7 +32,8 @@ struct return_type<mcutl::device::instruction::type::fake> { using type = unsign
 
 TEST_F(instruction_test_fixture, InstructionReturnValueTest)
 {
-	EXPECT_CALL(instruction(), run(instr<mcutl::device::instruction::type::fake>(), ::testing::IsEmpty())).
+	EXPECT_CALL(instruction(), run(instr<mcutl::device::instruction::type::fake>(),
+		::testing::IsEmpty())).
 		WillOnce(::testing::Return(12345u));
 	
 	EXPECT_EQ(mcutl::instruction::execute<mcutl::device::instruction::type::fake>(), 12345u);

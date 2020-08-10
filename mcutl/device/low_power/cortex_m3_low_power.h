@@ -22,7 +22,7 @@ namespace mcutl::device::low_power
 {
 
 [[maybe_unused]] constexpr bool supports_wait_for_event = true;
-[[maybe_unused]] constexpr bool wait_for_interrupt = true;
+[[maybe_unused]] constexpr bool supports_wait_for_interrupt = true;
 
 struct cortex_m3_low_power_options : mcutl::low_power::detail::low_power_options_base
 {

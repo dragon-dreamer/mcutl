@@ -10,8 +10,8 @@ namespace mcutl::low_power
 
 [[maybe_unused]] constexpr bool supports_wait_for_event
 	= device::low_power::supports_wait_for_event;
-[[maybe_unused]] constexpr bool wait_for_interrupt
-	= device::low_power::wait_for_interrupt;
+[[maybe_unused]] constexpr bool supports_wait_for_interrupt
+	= device::low_power::supports_wait_for_interrupt;
 [[maybe_unused]] constexpr bool supports_core_stop
 	= device::low_power::supports_core_stop;
 [[maybe_unused]] constexpr bool supports_adc_noise_reduction

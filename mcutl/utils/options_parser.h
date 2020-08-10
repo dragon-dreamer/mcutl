@@ -58,6 +58,15 @@ constexpr auto parse_options() noexcept
 	return result;
 }
 
+template<typename Result, template<typename> class OptionsParser,
+	typename... Options>
+constexpr auto parse_options() noexcept
+{
+	Result result {};
+	(..., OptionsParser<Options>::template parse(result));
+	return result;
+}
+
 template<typename Result, template<typename, typename> class OptionsParser,
 	typename Peripheral, typename... Options>
 constexpr auto parse_and_validate_options() noexcept
@@ -65,6 +74,15 @@ constexpr auto parse_and_validate_options() noexcept
 	(..., OptionsParser<Peripheral, Options>::template validate([]() constexpr {
 		return parse_options<Result, OptionsParser, Peripheral, Options...>(); }));
 	return parse_options<Result, OptionsParser, Peripheral, Options...>();
+}
+
+template<typename Result, template<typename> class OptionsParser,
+	typename... Options>
+constexpr auto parse_and_validate_options() noexcept
+{
+	(..., OptionsParser<Options>::template validate([]() constexpr {
+		return parse_options<Result, OptionsParser, Options...>(); }));
+	return parse_options<Result, OptionsParser, Options...>();
 }
 
 } //namespace mcutl::opts

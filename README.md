@@ -3,7 +3,7 @@
 ## What's this?
 This is a modern C++17 header-only template library for microcontrollers. The basic idea is to provide access to microcontroller features and peripherals via a uniform interface and precompute as much as possible during compilation. Bonus: it supports unit-testing!
 
-As this is my hobby project, it currently supports some features of Cortex-M3 STM32F101, STM32F102, STM32F103 and partially STM32F104 and STM32F105 controllers only, but I may add more in the future. The library does not guarantee stability of its interface, as I'm currently working on it. However, there are already some remarkable pieces of code, so you may want to use them anyway.
+As this is my hobby project, it currently supports some features of Cortex-M3 STM32F101, STM32F102, STM32F103 and partially STM32F104 and STM32F105 controllers only, but I may add more in the future. The library does not guarantee stability of its interface, as this is a work in progress. However, there are already some remarkable pieces of code, so you may want to use them or learn them anyway.
 
 ## Full documentation
 [Can be found here](doc/README.md).
@@ -81,7 +81,8 @@ RCC->CR &= ~RCC_CR_HSION;
 <table>
 	<tr>
 		<th>MCU \\ Feature</th>
-		<th>Peripheral config</th><th>Clock config</th><th>GPIO</th><th>Interrupts</th><th>External interrupts</th><th>Hardware CRC</th><th>Backup domain</th>
+		<th>Peripheral config</th><th>Clock config</th><th>GPIO</th><th>Interrupts</th><th>External interrupts</th>
+		<th>Hardware CRC</th><th>Backup domain</th><th>Low-power modes</th>
 	</tr>
 	<tr>
 		<td>STM32F101, STM32F102, STM32F103</td>
@@ -89,6 +90,7 @@ RCC->CR &= ~RCC_CR_HSION;
 		<td>Yes, except Clock Security System (CSS), clock-out capability, RTC and Watchdog clocks</td>
 		<td rowspan="2">Yes, except locking and remapping</td>
 		<td rowspan="2">Yes, except faults, vector table relocation or editing</td>
+		<td rowspan="2">Yes</td>
 		<td rowspan="2">Yes</td>
 		<td rowspan="2">Yes</td>
 		<td rowspan="2">Yes</td>

@@ -13,6 +13,7 @@ mcutl/external | Required external files (such as CMSIS or STM Device Peripheral
 [**mcutl/gpio**](gpio.md) | MCU GPIO configuration
 [**mcutl/interrupt**](interrupt.md) | MCU interrupt configuration
 [mcutl/instruction](instruction.md) | Testable MCU-specific instructions access layer
+[**mcutl/low_power**](low_power.md) | MCU low-power modes support
 [mcutl/memory](memory.md) | MCU testable memory access layer
 [**mcutl/periph**](periph.md) | MCU peripheral configuration
 [mcutl/tests](tests.md) | Unit test layer (memory access and MCU-specific instructions mocks). Don't use directly, it's included automatically when required

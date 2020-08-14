@@ -52,9 +52,9 @@ TEST_P(atomic_interrupt_strict_test_fixture, DisableTest)
 	::testing::InSequence s;
 	EXPECT_CALL(memory(), write(addr(&(NVIC->ICER[1])), (1u << 23)));
 	EXPECT_CALL(instruction(), run(instr<mcutl::device::instruction::type::dsb>(),
-			::testing::IsEmpty()));
+		::testing::IsEmpty()));
 	EXPECT_CALL(instruction(), run(instr<mcutl::device::instruction::type::isb>(),
-			::testing::IsEmpty()));
+		::testing::IsEmpty()));
 	if (GetParam())
 		mcutl::interrupt::disable_atomic<test_interrupt>();
 	else
@@ -82,10 +82,10 @@ TEST_F(interrupt_strict_test_fixture, EnableWithPriorityAndSubPriorityTest)
 	
 	EXPECT_CALL(memory(), write(addr(&(NVIC->IP[test_interrupt::irqn])), (5u << 5) | (3u)));
 	EXPECT_CALL(instruction(), run(instr<mcutl::device::instruction::type::isb>(),
-			::testing::IsEmpty()));
+		::testing::IsEmpty()));
 	
 	EXPECT_CALL(instruction(), run(instr<mcutl::device::instruction::type::dmb>(),
-			::testing::IsEmpty()));
+		::testing::IsEmpty()));
 	EXPECT_CALL(memory(), write(addr(&(NVIC->ISER[1])), (1u << 23)));
 	
 	mcutl::interrupt::enable<mcutl::interrupt::interrupt<test_interrupt, 5, 3>, 8>();
@@ -97,7 +97,7 @@ TEST_P(atomic_interrupt_strict_test_fixture, SetPriorityTest)
 	
 	EXPECT_CALL(memory(), write(addr(&(NVIC->IP[test_interrupt::irqn])), 5u << 4));
 	EXPECT_CALL(instruction(), run(instr<mcutl::device::instruction::type::isb>(),
-			::testing::IsEmpty()));
+		::testing::IsEmpty()));
 	
 	if (GetParam())
 		mcutl::interrupt::set_priority_atomic<mcutl::interrupt::interrupt<test_interrupt, 5>>();
@@ -111,7 +111,7 @@ TEST_P(atomic_interrupt_strict_test_fixture, SetPriorityAndSubPriorityTest)
 	
 	EXPECT_CALL(memory(), write(addr(&(NVIC->IP[test_interrupt::irqn])), (5u << 5) | (3u)));
 	EXPECT_CALL(instruction(), run(instr<mcutl::device::instruction::type::isb>(),
-			::testing::IsEmpty()));
+		::testing::IsEmpty()));
 	
 	if (GetParam())
 		mcutl::interrupt::set_priority_atomic<mcutl::interrupt::interrupt<test_interrupt, 5, 3>, 8>();

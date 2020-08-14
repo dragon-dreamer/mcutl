@@ -70,7 +70,7 @@ constexpr auto parse_and_validate_transfer_options() noexcept
 using size_type = device::dma::size_type;
 
 template<typename Channel, typename... Options>
-void configure_channel() MCUTL_NOEXCEPT
+inline void configure_channel() MCUTL_NOEXCEPT
 {
 	detail::dma_channel_validator<Channel>::validate();
 	device::dma::configure_dma<Channel>([]() constexpr
@@ -78,7 +78,7 @@ void configure_channel() MCUTL_NOEXCEPT
 }
 
 template<typename Channel, typename... Options>
-void reconfigure_channel() MCUTL_NOEXCEPT
+inline void reconfigure_channel() MCUTL_NOEXCEPT
 {
 	detail::dma_channel_validator<Channel>::validate();
 	device::dma::reconfigure_dma<Channel>([] () constexpr

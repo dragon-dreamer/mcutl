@@ -67,7 +67,13 @@ struct disable {};
 struct enable_controller_interrupts {};
 struct disable_controller_interrupts {};
 
+template<auto PriorityCount>
+struct priority_count {};
+
 } //namespace interrupt
+
+namespace detail
+{
 
 template<typename DataSize, typename AddressType,
 	typename PointerIncrementMode>
@@ -78,12 +84,14 @@ struct address_description
 	using address_type = AddressType;
 };
 
+} //namespace detail
+
 template<typename DataSize, typename AddressType,
 	typename PointerIncrementMode = pointer_increment::enabled>
-struct source : address_description<DataSize, AddressType, PointerIncrementMode> {};
+struct source : detail::address_description<DataSize, AddressType, PointerIncrementMode> {};
 template<typename DataSize, typename AddressType,
 	typename PointerIncrementMode = pointer_increment::disabled>
-struct destination : address_description<DataSize, AddressType, PointerIncrementMode> {};
+struct destination : detail::address_description<DataSize, AddressType, PointerIncrementMode> {};
 
 template<uint32_t DmaIndex, uint32_t ChannelNumber>
 struct channel
@@ -134,7 +142,7 @@ struct mode
 	enum value { normal, circular, end };
 };
 
-struct address_description
+struct address_info
 {
 	data_size::value size {};
 	address_type::value addr_type {};
@@ -150,13 +158,14 @@ struct interrupt_info
 
 struct transfer_options
 {
-	address_description source {};
-	address_description destination {};
+	address_info source {};
+	address_info destination {};
 	priority::value priority_level = priority::low;
 	mode::value mode_value = mode::normal;
 	interrupt_info transfer_complete {};
 	interrupt_info transfer_error {};
 	interrupt_info half_transfer {};
+	uint64_t priority_count = 0;
 	uint32_t source_set_count = 0;
 	uint32_t destination_set_count = 0;
 	uint32_t priority_level_set_count = 0;
@@ -167,6 +176,7 @@ struct transfer_options
 	uint32_t global_interrupt_set_count = 0;
 	uint32_t enable_controller_interrupts_set_count = 0;
 	uint32_t disable_controller_interrupts_set_count = 0;
+	uint32_t priority_count_set_count = 0;
 };
 
 template<typename Option>
@@ -332,6 +342,10 @@ template<>
 struct options_parser<interrupt::disable_controller_interrupts>
 	: opts::base_option_parser<0, nullptr, &transfer_options::disable_controller_interrupts_set_count> {};
 
+template<auto PriorityCount>
+struct options_parser<interrupt::priority_count<PriorityCount>>
+	: opts::base_option_parser<PriorityCount, &transfer_options::priority_count,
+		&transfer_options::priority_count_set_count> {};
 
 template<typename DataSize>
 constexpr data_size::value get_data_size() noexcept
@@ -400,7 +414,7 @@ constexpr pointer_increment_mode::value get_pointer_increment_mode<
 }
 
 template<typename DataSize, typename AddressType, typename PointerIncrementMode>
-constexpr void parse_address_options(address_description& address) noexcept
+constexpr void parse_address_options(address_info& address) noexcept
 {
 	address.size = static_cast<data_size::value>(get_data_size<DataSize>());
 	address.addr_type = static_cast<address_type::value>(get_address_type<AddressType>());

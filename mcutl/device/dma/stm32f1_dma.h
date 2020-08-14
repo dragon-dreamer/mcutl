@@ -352,7 +352,8 @@ void configure_dma(OptionsLambda opts_lambda) MCUTL_NOEXCEPT
 					>,
 					channel_info.interrupt_info.priority,
 					channel_info.interrupt_info.subpriority
-				>
+				>,
+				opts.priority_count_set_count ? opts.priority_count : mcutl::interrupt::maximum_priorities
 			>();
 		}
 	}
@@ -404,7 +405,8 @@ void reconfigure_dma(OptionsLambda opts_lambda) MCUTL_NOEXCEPT
 					>,
 					channel_info.interrupt_info.priority,
 					channel_info.interrupt_info.subpriority
-				>
+				>,
+				opts.priority_count_set_count ? opts.priority_count : mcutl::interrupt::maximum_priorities
 			>();
 		}
 	}

@@ -7,6 +7,7 @@ Directory | Purpose
 [**mcutl/backup**](backup.md) | MCU backup domain configuration and access
 [**mcutl/clock**](clock.md) | MCU clock configuration
 [**mcutl/crc**](crc.md) | MCU hardware CRC configuration and calculation
+[**mcutl/dma**](dma.md) | MCU DMA (direct memory access) support layer
 mcutl/device | Device-specific files. No need to use them directly, necessary files are included automatically
 mcutl/external | Required external files (such as CMSIS or STM Device Peripheral Access Layer headers), included automatically
 [**mcutl/exti**](exti.md) | MCU external interrupts configuration

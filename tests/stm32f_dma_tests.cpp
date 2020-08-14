@@ -53,7 +53,7 @@ public:
 				::testing::IsEmpty()));
 		}
 		
-		if (ccr != initial_ccr)
+		if (ccr != initial_ccr && ccr != (initial_ccr & ~DMA_CCR_EN))
 			EXPECT_CALL(memory(), write(addr(&channel_ptr->CCR), ccr));
 	}
 	
@@ -417,4 +417,14 @@ TEST_F(dma_strict_test_fixture, ReConfigureInterruptEnableWithPrioritiesTest)
 		mcutl::dma::interrupt::enable_controller_interrupts,
 		mcutl::dma::interrupt::priority_count<8>
 	>();
+}
+
+TEST_F(dma_strict_test_fixture, DisableTransferTest)
+{
+	uint32_t initial_ccr = DMA_CCR_TEIE
+		| DMA_CCR_MINC | DMA_CCR_PSIZE_1 | DMA_CCR_MSIZE_1 | DMA_CCR_EN;
+	uint32_t new_ccr = initial_ccr  & ~DMA_CCR_EN;
+	
+	expect_configure(DMA2_Channel5_BASE, new_ccr, 0, 0, 0, initial_ccr);
+	mcutl::dma::reconfigure_channel<mcutl::dma::dma2<5>>();
 }

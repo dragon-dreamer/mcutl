@@ -389,3 +389,17 @@ TEST_F(dma_strict_test_fixture, ReConfigureInterruptEnableDisableTest5)
 		mcutl::dma::interrupt::disable_controller_interrupts
 	>();
 }
+
+TEST_F(dma_strict_test_fixture, ReConfigureSourceIncrementOnlyTest)
+{
+	uint32_t initial_ccr = DMA_CCR_DIR | DMA_CCR_TCIE | DMA_CCR_TEIE;
+	uint32_t new_ccr = initial_ccr | DMA_CCR_MINC;
+	
+	expect_configure(DMA1_Channel4_BASE, new_ccr, 0, 0, 0, initial_ccr);
+	mcutl::dma::reconfigure_channel<mcutl::dma::dma1<4>,
+		mcutl::dma::source<mcutl::dma::data_size::byte, mcutl::dma::address::memory,
+			mcutl::dma::pointer_increment::enabled>,
+		mcutl::dma::destination<mcutl::dma::data_size::byte, mcutl::dma::address::peripheral,
+			mcutl::dma::pointer_increment::disabled>
+	>();
+}

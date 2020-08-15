@@ -11,6 +11,10 @@
 namespace mcutl::interrupt::type
 {
 
+struct systick : detail::interrupt_base<SysTick_IRQn> {};
+struct pendsv : detail::interrupt_base<PendSV_IRQn> {};
+struct svcall : detail::interrupt_base<SVCall_IRQn> {};
+
 struct wwdg : detail::interrupt_base<WWDG_IRQn> {};
 struct pvd : detail::interrupt_base<PVD_IRQn> {};
 struct tamper : detail::interrupt_base<TAMPER_IRQn> {};
@@ -165,6 +169,8 @@ void initialize_controller() noexcept
 template<typename Interrupt>
 void enable() noexcept
 {
+	static_assert(Interrupt::irqn >= 0,
+		"Negative IRQN interrupts can not be enabled via the NVIC");
 	mcutl::instruction::execute<instruction::type::dmb>();
 	__COMPILER_BARRIER();
 	mcutl::memory::set_register_array_value<(1u << (Interrupt::irqn & 0x1Fu)),
@@ -179,8 +185,16 @@ void set_priority() noexcept
 	validate_priority_count<PriorityCount>();
 	
 	constexpr uint8_t priority_value = get_priority_value<Priority, SubPriority, PriorityCount>();
-	mcutl::memory::set_register_array_value<priority_value,
-		&NVIC_Type::IP, Interrupt::irqn, NVIC_BASE>();
+	if constexpr (Interrupt::irqn >= 0)
+	{
+		mcutl::memory::set_register_array_value<priority_value,
+			&NVIC_Type::IP, Interrupt::irqn, NVIC_BASE>();
+	}
+	else
+	{
+		mcutl::memory::set_register_array_value<priority_value,
+			&SCB_Type::SHP, (static_cast<uint32_t>(Interrupt::irqn) & 0xful) - 4ul, SCB_BASE>();
+	}
 	mcutl::instruction::execute<instruction::type::isb>();
 }
 
@@ -204,9 +218,19 @@ mcutl::interrupt::priority_t get_priority() noexcept
 	}
 	else
 	{
-		return static_cast<mcutl::interrupt::priority_t>(
-			mcutl::memory::get_register_array_bits<0xffu, &NVIC_Type::IP, Interrupt::irqn, NVIC_BASE>()
-				>> (8u - priority_bitcount));
+		if constexpr (Interrupt::irqn >= 0)
+		{
+			return static_cast<mcutl::interrupt::priority_t>(
+				mcutl::memory::get_register_array_bits<0xffu, &NVIC_Type::IP, Interrupt::irqn, NVIC_BASE>()
+					>> (8u - priority_bitcount));
+		}
+		else
+		{
+			return static_cast<mcutl::interrupt::priority_t>(
+				mcutl::memory::get_register_array_bits<0xffu,
+					&SCB_Type::SHP, (static_cast<uint32_t>(Interrupt::irqn) & 0xful) - 4ul, SCB_BASE>()
+					>> (8u - priority_bitcount));
+		}
 	}
 }
 
@@ -215,14 +239,26 @@ mcutl::interrupt::priority_t get_subpriority() noexcept
 {
 	validate_priority_count<PriorityCount>();
 	constexpr uint32_t priority_bitcount = get_priority_bitcount<PriorityCount>();
-	return static_cast<mcutl::interrupt::priority_t>(
-		mcutl::memory::get_register_array_bits<0xffu, &NVIC_Type::IP, Interrupt::irqn, NVIC_BASE>()
-			& (0xffu >> priority_bitcount));
+	if constexpr (Interrupt::irqn >= 0)
+	{
+		return static_cast<mcutl::interrupt::priority_t>(
+			mcutl::memory::get_register_array_bits<0xffu, &NVIC_Type::IP, Interrupt::irqn, NVIC_BASE>()
+				& (0xffu >> priority_bitcount));
+	}
+	else
+	{
+		return static_cast<mcutl::interrupt::priority_t>(
+			mcutl::memory::get_register_array_bits<0xffu,
+				&SCB_Type::SHP, (static_cast<uint32_t>(Interrupt::irqn) & 0xful) - 4ul, SCB_BASE>()
+				& (0xffu >> priority_bitcount));
+	}
 }
 
 template<typename Interrupt>
 void disable() noexcept
 {
+	static_assert(Interrupt::irqn >= 0,
+		"Negative IRQN interrupts can not be disabled via the NVIC");
 	mcutl::memory::set_register_array_value<(1u << (Interrupt::irqn & 0x1Fu)),
 		&NVIC_Type::ICER, (Interrupt::irqn >> 5u), NVIC_BASE>();
 	mcutl::instruction::execute<instruction::type::dsb>();
@@ -232,6 +268,8 @@ void disable() noexcept
 template<typename Interrupt>
 void clear_pending() noexcept
 {
+	static_assert(Interrupt::irqn >= 0,
+		"clear_pending() via the NVIC  is not available for the negative IRQN interrupts");
 	mcutl::memory::set_register_array_value<(1u << (Interrupt::irqn & 0x1Fu)),
 		&NVIC_Type::ICPR, (Interrupt::irqn >> 5u), NVIC_BASE>();
 }
@@ -239,6 +277,8 @@ void clear_pending() noexcept
 template<typename Interrupt>
 bool is_pending() noexcept
 {
+	static_assert(Interrupt::irqn >= 0,
+		"is_pending() via the NVIC  is not available for the negative IRQN interrupts");
 	return mcutl::memory::get_register_array_flag<(1u << (Interrupt::irqn & 0x1Fu)),
 		&NVIC_Type::ISPR, (Interrupt::irqn >> 5u), NVIC_BASE>();
 }
@@ -246,6 +286,8 @@ bool is_pending() noexcept
 template<typename Interrupt>
 bool is_enabled() noexcept
 {
+	static_assert(Interrupt::irqn >= 0,
+		"is_enabled() via the NVIC  is not available for the negative IRQN interrupts");
 	return mcutl::memory::get_register_array_flag<(1u << (Interrupt::irqn & 0x1Fu)),
 		&NVIC_Type::ISER, (Interrupt::irqn >> 5u), NVIC_BASE>();
 }

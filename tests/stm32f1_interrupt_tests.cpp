@@ -212,3 +212,22 @@ TEST_F(interrupt_strict_test_fixture, TraitsTest)
 INSTANTIATE_TEST_SUITE_P(atomic_and_nonatomic_tests,
 	atomic_interrupt_strict_test_fixture,
 	::testing::Values(true, false));
+
+TEST_P(atomic_interrupt_strict_test_fixture, SetPriorityNegativeIrqnTest)
+{
+	::testing::InSequence s;
+	
+	EXPECT_CALL(memory(), write(addr(&(SCB->SHP[11])), 5u << 4));
+	EXPECT_CALL(instruction(), run(instr<mcutl::device::instruction::type::isb>(),
+		::testing::IsEmpty()));
+	if (GetParam())
+	{
+		mcutl::interrupt::set_priority_atomic<mcutl::interrupt::interrupt<
+			mcutl::interrupt::type::systick, 5>>();
+	}
+	else
+	{
+		mcutl::interrupt::set_priority<mcutl::interrupt::interrupt<
+			mcutl::interrupt::type::systick, 5>>();
+	}
+}

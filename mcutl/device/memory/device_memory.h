@@ -14,19 +14,12 @@ using mcutl::device::memory::common::volatile_memory;
 using mcutl::device::memory::common::get_register_bits;
 using mcutl::device::memory::common::get_register_array_bits;
 
-#ifndef __CORTEX_M
+#ifndef MCUTL_CORTEX_M3
 using mcutl::device::memory::common::set_register_bits;
 using mcutl::device::memory::common::set_register_array_bits;
-#else //__CORTEX_M
-#	if __CORTEX_M != 3u
-using mcutl::device::memory::common::set_register_bits;
-using mcutl::device::memory::common::set_register_array_bits;
-#	endif //__CORTEX_M != 3u
-#endif //__CORTEX_M
+#endif //MCUTL_CORTEX_M3
 } //namespace mcutl::device::memory
 
-#ifdef __CORTEX_M
-#	if __CORTEX_M == 3u
-#		include "mcutl/device/memory/arm/cortex_m3.h"
-#	endif //__CORTEX_M == 3u
-#endif //__CORTEX_M
+#ifdef MCUTL_CORTEX_M3
+#	include "mcutl/device/memory/arm/cortex_m3.h"
+#endif //MCUTL_CORTEX_M3

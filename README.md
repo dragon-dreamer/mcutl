@@ -80,9 +80,9 @@ RCC->CR &= ~RCC_CR_HSION;
 ## MCU support
 <table>
 	<tr>
-		<th>MCU \\ Feature</th>
-		<th>Peripheral config</th><th>Clock config</th><th>GPIO</th><th>Interrupts</th><th>External interrupts</th>
-		<th>Hardware CRC</th><th>Backup domain</th><th>Low-power modes</th><th>DMA</th>
+		<th nowrap>MCU \\ Feature</th>
+		<th nowrap>Peripheral config</th><th nowrap>Clock config</th><th nowrap>GPIO</th><th nowrap>Interrupts</th><th nowrap>External interrupts</th>
+		<th nowrap>Hardware CRC</th><th nowrap>Backup domain</th><th nowrap>Low-power modes</th><th nowrap>DMA</th>
 	</tr>
 	<tr>
 		<td>STM32F101, STM32F102, STM32F103</td>

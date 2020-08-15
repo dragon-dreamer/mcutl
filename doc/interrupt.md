@@ -143,6 +143,13 @@ Returns the interrupt request number (`IRQn`) of the currently executing interru
 
 This function is available when `has_get_active` is `true`.
 
+### disabled
+```cpp
+template<typename Interrupt>
+struct disabled {};
+```
+This is a helper structure to disable peripheral-specific interrupts. Please refer to peripherals documentation, which sometimes make use of this structure and provide examples of how to use it.
+
 ## Processing interrupts
 To process an interrupt, you still have to define an interrupt handler for the MCU of your choice yourself. The MCUTL library does not define any handlers and does not change handler addresses dynamically.
 
@@ -156,6 +163,8 @@ The following additional interrupts are available for connectivity line devices:
 The following additional interrupts are available for XL-density devices: `usb_hp_can1_tx`, `usb_lp_can1_rx0`, `tim1_brk_tim9`, `tim1_up_tim10`, `tim1_trg_com_tim11`, `usb_wakeup`, `tim8_brk_tim12`, `tim8_up_tim13`, `tim8_trg_com_tim14`, `tim8_cc`, `adc3`, `fsmc`, `sdio`, `dma2_ch4_5`.
 
 The following additional interrupts are available for all other devices (non-XL-density and non-Connectivity): `usb_hp_can1_tx`, `usb_lp_can1_rx0`, `tim1_brk`, `tim1_up`, `tim1_trg_com`, `usb_wakeup`, `tim8_brk`, `tim8_up`, `tim8_trg_com`, `tim8_cc`, `adc3`, `fsmc`, `sdio`, `dma2_ch4_5`.
+
+The following interrupts are available and currently support only setting priorities via the `mcutl::interrupt` functions: `svcall`, `pendsv`, `systick`.
 
 ## STM32F101, STM32F102, STM32F103, STM32F105, STM32F107 specific options for the interrupt controller
 These MCUs do not provide any additional options for the `initialize_controller` function.

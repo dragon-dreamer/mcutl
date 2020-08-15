@@ -63,9 +63,6 @@ struct transfer_error {};
 
 struct global {};
 
-template<typename Interrupt>
-struct disable {};
-
 struct enable_controller_interrupts {};
 struct disable_controller_interrupts {};
 
@@ -78,12 +75,11 @@ These structs are used to configure DMA interrupts.
 * `half_transfer` - half-transfer interrupt.
 * `transfer_error` - transfer error interrupt.
 * `global` - used to clear all DMA interrupt flags (see `clear_pending_flags` below).
-* `disable` - used to disable an interrupt.
 * `enable_controller_interrupts` - this options indicates, that the related [interrupt controller](interrupt.md) interrupts must be enabled.
 * `disable_controller_interrupts` - this options indicates, that the related [interrupt controller](interrupt.md) interrupts must be disabled.
 * `priority_count` - allows to set the priority count. Use this option if you explicitly changed the interrupt priority count when calling `mcutl::interrupt::initialize_controller`.
 
-To enable an interrupt, specify the related structure in the DMA configuration (see below for examples). To enable an interrupt and set its priority/subpriority, use `mcutl::interrupt::interrupt` [wrapper](interrupt.md). To disable an interrupt, wrap the related interrupt structure into the `disable` wrapper structure. To additionally enable or disable the related interrupt controllers interrupts, use the `enable_controller_interrupts` or `disable_controller_interrupts` structs. Use interrupt structures (or `global`) with the `clear_pending_flags` function to clear the related pending DMA flags (see below for more information).
+To enable an interrupt, specify the related structure in the DMA configuration (see below for examples). To enable an interrupt and set its priority/subpriority, use `mcutl::interrupt::interrupt` [wrapper](interrupt.md). To disable an interrupt, wrap the related interrupt structure into the `mcutl::interrupt::disabled` wrapper structure. To additionally enable or disable the related interrupt controllers interrupts, use the `enable_controller_interrupts` or `disable_controller_interrupts` structs. Use interrupt structures (or `global`) with the `clear_pending_flags` function to clear the related pending DMA flags (see below for more information).
 
 Some MCUs may support a different set of interrupts. There are several traits (described below) to determine the MCU capabilities.
 
@@ -188,7 +184,7 @@ mcutl::dma::configure_channel<mcutl::dma::dma2<3>,
 	mcutl::interrupt::interrupt<mcutl::dma::interrupt::transfer_complete, 5>,
 	mcutl::interrupt::interrupt<mcutl::dma::interrupt::transfer_error, 5>,
 	mcutl::dma::interrupt::enable_controller_interrupts,
-	mcutl::dma::interrupt::disable<mcutl::dma::interrupt::half_transfer>,
+	mcutl::dma::interrupt::disabled<mcutl::dma::interrupt::half_transfer>,
 	mcutl::dma::interrupt::disable_controller_interrupts,
 	mcutl::dma::source<mcutl::dma::data_size::word, mcutl::dma::address::peripheral,
 		mcutl::dma::pointer_increment::disabled>,

@@ -61,9 +61,6 @@ struct transfer_error {};
 
 struct global {}; //can be used only for clearing interrupt state
 
-template<typename Interrupt>
-struct disable {};
-
 struct enable_controller_interrupts {};
 struct disable_controller_interrupts {};
 
@@ -149,22 +146,15 @@ struct address_info
 	pointer_increment_mode::value increment_mode {};
 };
 
-struct interrupt_info
-{
-	mcutl::interrupt::priority_t priority = mcutl::interrupt::default_priority;
-	mcutl::interrupt::priority_t subpriority = mcutl::interrupt::default_priority;
-	bool disable = false;
-};
-
 struct transfer_options
 {
 	address_info source {};
 	address_info destination {};
 	priority::value priority_level = priority::low;
 	mode::value mode_value = mode::normal;
-	interrupt_info transfer_complete {};
-	interrupt_info transfer_error {};
-	interrupt_info half_transfer {};
+	mcutl::interrupt::detail::interrupt_info transfer_complete {};
+	mcutl::interrupt::detail::interrupt_info transfer_error {};
+	mcutl::interrupt::detail::interrupt_info half_transfer {};
 	uint64_t priority_count = 0;
 	uint32_t source_set_count = 0;
 	uint32_t destination_set_count = 0;
@@ -224,115 +214,43 @@ struct options_parser<dma::priority::very_high>
 	: opts::base_option_parser<priority::very_high,
 		&transfer_options::priority_level, &transfer_options::priority_level_set_count> {};
 
+template<typename Interrupt>
+struct interrupt_map : mcutl::interrupt::detail::map<Interrupt> {};
+
+template<> struct interrupt_map<interrupt::transfer_complete>
+	: mcutl::interrupt::detail::map_base<&transfer_options::transfer_complete_set_count,
+	&transfer_options::transfer_complete> {};
+template<> struct interrupt_map<interrupt::transfer_error>
+	: mcutl::interrupt::detail::map_base<&transfer_options::transfer_error_set_count,
+	&transfer_options::transfer_error> {};
+template<> struct interrupt_map<interrupt::half_transfer>
+	: mcutl::interrupt::detail::map_base<&transfer_options::half_transfer_set_count,
+	&transfer_options::half_transfer> {};
+
 template<>
 struct options_parser<interrupt::global>
 	: opts::base_option_parser<0, nullptr, &transfer_options::global_interrupt_set_count> {};
 
 template<>
 struct options_parser<interrupt::transfer_complete>
-	: opts::base_option_parser<0, nullptr, &transfer_options::transfer_complete_set_count> {};
+	: mcutl::interrupt::detail::interrupt_parser<interrupt::transfer_complete, interrupt_map> {};
 
 template<>
 struct options_parser<interrupt::transfer_error>
-	: opts::base_option_parser<0, nullptr, &transfer_options::transfer_error_set_count> {};
+	: mcutl::interrupt::detail::interrupt_parser<interrupt::transfer_error, interrupt_map> {};
 
 template<>
 struct options_parser<interrupt::half_transfer>
-	: opts::base_option_parser<0, nullptr, &transfer_options::half_transfer_set_count> {};
-
-template<mcutl::interrupt::priority_t Priority, mcutl::interrupt::priority_t Subpriority>
-struct options_parser<mcutl::interrupt::interrupt<interrupt::transfer_complete, Priority, Subpriority>>
-	: opts::base_option_parser<0, nullptr, &transfer_options::transfer_complete_set_count>
-{
-	template<typename Option>
-	static constexpr void parse(Option& options) noexcept
-	{
-		options.transfer_complete = { Priority, Subpriority, false };
-		++options.transfer_complete_set_count;
-	}
-};
-
-template<mcutl::interrupt::priority_t Priority, mcutl::interrupt::priority_t Subpriority>
-struct options_parser<mcutl::interrupt::interrupt<interrupt::half_transfer, Priority, Subpriority>>
-	: opts::base_option_parser<0, nullptr, &transfer_options::half_transfer_set_count>
-{
-	template<typename Option>
-	static constexpr void parse(Option& options) noexcept
-	{
-		options.half_transfer = { Priority, Subpriority, false };
-		++options.half_transfer_set_count;
-	}
-};
-
-template<mcutl::interrupt::priority_t Priority, mcutl::interrupt::priority_t Subpriority>
-struct options_parser<mcutl::interrupt::interrupt<interrupt::transfer_error, Priority, Subpriority>>
-	: opts::base_option_parser<0, nullptr, &transfer_options::transfer_error_set_count>
-{
-	template<typename Option>
-	static constexpr void parse(Option& options) noexcept
-	{
-		options.transfer_error = { Priority, Subpriority, false };
-		++options.transfer_error_set_count;
-	}
-};
-
-template<typename Interrupt>
-struct interrupt_disabler
-{
-	template<typename Option>
-	static constexpr void disable(Option&) noexcept
-	{
-	}
-};
+	: mcutl::interrupt::detail::interrupt_parser<interrupt::half_transfer, interrupt_map> {};
 
 template<typename Interrupt,
-	mcutl::interrupt::priority_t Priority, mcutl::interrupt::priority_t Subpriority>
-struct interrupt_disabler<mcutl::interrupt::interrupt<Interrupt, Priority, Subpriority>>
-{
-	template<typename Option>
-	static constexpr void disable(Option& options) noexcept
-	{
-		interrupt_disabler<Interrupt>::disable(options);
-	}
-};
-
-template<> struct interrupt_disabler<interrupt::transfer_complete>
-{
-	template<typename Option>
-	static constexpr void disable(Option& options) noexcept
-	{
-		options.transfer_complete.disable = true;
-	}
-};
-
-template<> struct interrupt_disabler<interrupt::half_transfer>
-{
-	template<typename Option>
-	static constexpr void disable(Option& options) noexcept
-	{
-		options.half_transfer.disable = true;
-	}
-};
-
-template<> struct interrupt_disabler<interrupt::transfer_error>
-{
-	template<typename Option>
-	static constexpr void disable(Option& options) noexcept
-	{
-		options.transfer_error.disable = true;
-	}
-};
+	mcutl::interrupt::priority_t Priority, mcutl::interrupt::priority_t SubPriority>
+struct options_parser<mcutl::interrupt::interrupt<Interrupt, Priority, SubPriority>>
+	: mcutl::interrupt::detail::interrupt_parser<Interrupt, interrupt_map, Priority, SubPriority> {};
 
 template<typename Interrupt>
-struct options_parser<interrupt::disable<Interrupt>> : options_parser<Interrupt>
-{
-	template<typename Option>
-	static constexpr void parse(Option& options) noexcept
-	{
-		options_parser<Interrupt>::parse(options);
-		interrupt_disabler<Interrupt>::disable(options);
-	}
-};
+struct options_parser<mcutl::interrupt::disabled<Interrupt>>
+	: mcutl::interrupt::detail::interrupt_parser<mcutl::interrupt::disabled<Interrupt>, interrupt_map> {};
 
 template<>
 struct options_parser<interrupt::enable_controller_interrupts>

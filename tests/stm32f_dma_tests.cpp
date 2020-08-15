@@ -249,7 +249,7 @@ TEST_F(dma_strict_test_fixture, ComplexConfigureEnableInterruptTest)
 		mcutl::interrupt::interrupt<mcutl::dma::interrupt::transfer_complete, 3>,
 		mcutl::interrupt::interrupt<mcutl::dma::interrupt::transfer_error, 3>,
 		mcutl::dma::interrupt::enable_controller_interrupts,
-		mcutl::dma::interrupt::disable<mcutl::dma::interrupt::half_transfer>,
+		mcutl::interrupt::disabled<mcutl::dma::interrupt::half_transfer>,
 		mcutl::dma::interrupt::disable_controller_interrupts,
 		mcutl::dma::source<mcutl::dma::data_size::halfword, mcutl::dma::address::memory,
 			mcutl::dma::pointer_increment::enabled>,
@@ -298,7 +298,7 @@ TEST_F(dma_strict_test_fixture, ComplexReConfigureTest)
 	expect_configure(DMA1_Channel5_BASE, new_ccr, 0, 0, 0, initial_ccr);
 	mcutl::dma::reconfigure_channel<mcutl::dma::dma1<5>,
 		mcutl::dma::interrupt::half_transfer,
-		mcutl::dma::interrupt::disable<mcutl::dma::interrupt::transfer_complete>,
+		mcutl::interrupt::disabled<mcutl::dma::interrupt::transfer_complete>,
 		mcutl::dma::mode::normal,
 		mcutl::dma::source<mcutl::dma::data_size::byte, mcutl::dma::address::peripheral,
 			mcutl::dma::pointer_increment::disabled>,
@@ -344,7 +344,7 @@ TEST_F(dma_strict_test_fixture, ReConfigureInterruptEnableDisableTest2)
 	expect_configure(DMA2_Channel4_BASE, new_ccr, DMA2_Channel4_IRQn,
 		mcutl::interrupt::default_priority, 0, initial_ccr);
 	mcutl::dma::reconfigure_channel<mcutl::dma::dma2<4>,
-		mcutl::dma::interrupt::disable<mcutl::dma::interrupt::transfer_complete>,
+		mcutl::interrupt::disabled<mcutl::dma::interrupt::transfer_complete>,
 		mcutl::dma::interrupt::enable_controller_interrupts,
 		mcutl::dma::interrupt::disable_controller_interrupts
 	>();
@@ -358,8 +358,8 @@ TEST_F(dma_strict_test_fixture, ReConfigureInterruptEnableDisableTest3)
 	
 	expect_configure(DMA2_Channel5_BASE, new_ccr, 0, 0, DMA2_Channel5_IRQn, initial_ccr);
 	mcutl::dma::reconfigure_channel<mcutl::dma::dma2<5>,
-		mcutl::dma::interrupt::disable<mcutl::dma::interrupt::transfer_complete>,
-		mcutl::dma::interrupt::disable<mcutl::dma::interrupt::transfer_error>,
+		mcutl::interrupt::disabled<mcutl::dma::interrupt::transfer_complete>,
+		mcutl::interrupt::disabled<mcutl::dma::interrupt::transfer_error>,
 		mcutl::dma::interrupt::enable_controller_interrupts,
 		mcutl::dma::interrupt::disable_controller_interrupts
 	>();

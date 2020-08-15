@@ -211,7 +211,7 @@ struct dma_channel_info
 {
 	uint32_t ccr = 0;
 	uint32_t ccr_mask = 0;
-	mcutl::dma::detail::interrupt_info interrupt_info {};
+	mcutl::interrupt::detail::interrupt_info interrupt_info {};
 };
 
 template<bool FullConfig, typename OptionsLambda>

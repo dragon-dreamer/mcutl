@@ -1,6 +1,5 @@
 #pragma once
 
-#include <stdint.h>
 #include "mcutl/device/device.h"
 
 #ifdef STM32F1

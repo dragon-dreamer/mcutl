@@ -11,3 +11,9 @@
 #else
 static_assert(false, "Please set the supported MCU type");
 #endif
+
+#ifdef __CORTEX_M
+#	if __CORTEX_M == 3
+#		define MCUTL_CORTEX_M3 1
+#	endif //__CORTEX_M == 3
+#endif //__CORTEX_M

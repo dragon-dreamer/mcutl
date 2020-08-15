@@ -24,6 +24,9 @@ struct interrupt
 template<typename Interrupt>
 struct disabled {};
 
+template<auto PriorityCount>
+struct priority_count {};
+
 namespace detail
 {
 

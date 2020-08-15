@@ -146,9 +146,16 @@ This function is available when `has_get_active` is `true`.
 ### disabled
 ```cpp
 template<typename Interrupt>
-struct disabled {};
+struct disabled;
 ```
 This is a helper structure to disable peripheral-specific interrupts. Please refer to peripherals documentation, which sometimes make use of this structure and provide examples of how to use it.
+
+### priority_count
+```cpp
+template<auto PriorityCount>
+struct priority_count;
+```
+This is a helper structure to set the priority count when enabling some peripheral-specific interrupts. Please refer to peripherals documentation, which sometimes make use of this structure and provide examples of how to use it.
 
 ## Processing interrupts
 To process an interrupt, you still have to define an interrupt handler for the MCU of your choice yourself. The MCUTL library does not define any handlers and does not change handler addresses dynamically.

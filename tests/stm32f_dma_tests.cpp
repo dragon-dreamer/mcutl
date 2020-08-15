@@ -415,7 +415,7 @@ TEST_F(dma_strict_test_fixture, ReConfigureInterruptEnableWithPrioritiesTest)
 	mcutl::dma::reconfigure_channel<mcutl::dma::dma2<5>,
 		mcutl::interrupt::interrupt<mcutl::dma::interrupt::transfer_complete, 3>,
 		mcutl::dma::interrupt::enable_controller_interrupts,
-		mcutl::dma::interrupt::priority_count<8>
+		mcutl::interrupt::priority_count<8>
 	>();
 }
 

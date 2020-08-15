@@ -65,9 +65,6 @@ struct global {};
 
 struct enable_controller_interrupts {};
 struct disable_controller_interrupts {};
-
-template<auto PriorityCount>
-struct priority_count {};
 } //namespace interrupt
 ```
 These structs are used to configure DMA interrupts.
@@ -77,9 +74,10 @@ These structs are used to configure DMA interrupts.
 * `global` - used to clear all DMA interrupt flags (see `clear_pending_flags` below).
 * `enable_controller_interrupts` - this options indicates, that the related [interrupt controller](interrupt.md) interrupts must be enabled.
 * `disable_controller_interrupts` - this options indicates, that the related [interrupt controller](interrupt.md) interrupts must be disabled.
-* `priority_count` - allows to set the priority count. Use this option if you explicitly changed the interrupt priority count when calling `mcutl::interrupt::initialize_controller`.
 
 To enable an interrupt, specify the related structure in the DMA configuration (see below for examples). To enable an interrupt and set its priority/subpriority, use `mcutl::interrupt::interrupt` [wrapper](interrupt.md). To disable an interrupt, wrap the related interrupt structure into the `mcutl::interrupt::disabled` wrapper structure. To additionally enable or disable the related interrupt controllers interrupts, use the `enable_controller_interrupts` or `disable_controller_interrupts` structs. Use interrupt structures (or `global`) with the `clear_pending_flags` function to clear the related pending DMA flags (see below for more information).
+
+Add the `mcutl::interrupt::priority_count` option to explicitly set the interrupt priority count. Use this option if you explicitly changed the interrupt priority count when calling `mcutl::interrupt::initialize_controller`.
 
 Some MCUs may support a different set of interrupts. There are several traits (described below) to determine the MCU capabilities.
 

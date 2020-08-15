@@ -64,9 +64,6 @@ struct global {}; //can be used only for clearing interrupt state
 struct enable_controller_interrupts {};
 struct disable_controller_interrupts {};
 
-template<auto PriorityCount>
-struct priority_count {};
-
 } //namespace interrupt
 
 namespace detail
@@ -261,7 +258,7 @@ struct options_parser<interrupt::disable_controller_interrupts>
 	: opts::base_option_parser<0, nullptr, &transfer_options::disable_controller_interrupts_set_count> {};
 
 template<auto PriorityCount>
-struct options_parser<interrupt::priority_count<PriorityCount>>
+struct options_parser<mcutl::interrupt::priority_count<PriorityCount>>
 	: opts::base_option_parser<PriorityCount, &transfer_options::priority_count,
 		&transfer_options::priority_count_set_count> {};
 

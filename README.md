@@ -82,7 +82,7 @@ RCC->CR &= ~RCC_CR_HSION;
 	<tr>
 		<th nowrap>MCU \\ Feature</th>
 		<th nowrap>Peripheral config</th><th nowrap>Clock config</th><th nowrap>GPIO</th><th nowrap>Interrupts</th><th nowrap>External interrupts</th>
-		<th nowrap>Hardware CRC</th><th nowrap>Backup domain</th><th nowrap>Low-power modes</th><th nowrap>DMA</th>
+		<th nowrap>Hardware CRC</th><th nowrap>Backup domain</th><th nowrap>Low-power modes</th><th nowrap>DMA</th><th nowrap>SYSTICK</th>
 	</tr>
 	<tr>
 		<td>STM32F101, STM32F102, STM32F103</td>
@@ -90,6 +90,7 @@ RCC->CR &= ~RCC_CR_HSION;
 		<td>Yes, except Clock Security System (CSS), clock-out capability, RTC and Watchdog clocks</td>
 		<td rowspan="2">Yes, except locking and remapping</td>
 		<td rowspan="2">Yes, except faults, vector table relocation or editing</td>
+		<td rowspan="2">Yes</td>
 		<td rowspan="2">Yes</td>
 		<td rowspan="2">Yes</td>
 		<td rowspan="2">Yes</td>

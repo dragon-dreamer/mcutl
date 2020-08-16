@@ -17,6 +17,7 @@ mcutl/external | Required external files (such as CMSIS or STM Device Peripheral
 [**mcutl/low_power**](low_power.md) | MCU low-power modes support
 [mcutl/memory](memory.md) | MCU testable memory access layer
 [**mcutl/periph**](periph.md) | MCU peripheral configuration
+[**mcutl/systick**](systick.md) | MCU SYSTICK timer facilities
 [mcutl/tests](tests.md) | Unit test layer (memory access and MCU-specific instructions mocks). Don't use directly, it's included automatically when required
 mcutl/utils | Helper files for different purposes (constexpr math, type helpers etc)
 

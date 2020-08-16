@@ -57,7 +57,7 @@ inline void clear_pending_flags_atomic() MCUTL_NOEXCEPT
 }
 
 template<typename T = void>
-inline auto get_value() MCUTL_NOEXCEPT
+[[nodiscard]] inline auto get_value() MCUTL_NOEXCEPT
 {
 	return device::systick::get_value<T>();
 }
@@ -69,7 +69,7 @@ inline void reset_value() MCUTL_NOEXCEPT
 }
 
 template<typename T = void>
-inline bool has_overflown() MCUTL_NOEXCEPT
+[[nodiscard]] inline bool has_overflown() MCUTL_NOEXCEPT
 {
 	return device::systick::has_overflown<T>();
 }
@@ -81,13 +81,13 @@ inline void clear_overflow_flag() MCUTL_NOEXCEPT
 }
 
 template<typename T = void>
-inline auto get_reload_value() MCUTL_NOEXCEPT
+[[nodiscard]] inline auto get_reload_value() MCUTL_NOEXCEPT
 {
 	return device::systick::get_reload_value<T>();
 }
 
 template<typename T = void>
-constexpr auto get_default_reload_value() MCUTL_NOEXCEPT
+[[nodiscard]] constexpr auto get_default_reload_value() MCUTL_NOEXCEPT
 {
 	return device::systick::get_default_reload_value<T>();
 }

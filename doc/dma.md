@@ -118,31 +118,31 @@ This typedef indicates the transfer size type which the DMA controller(s) can ha
 There are several traits available to determine the target MCU capabilities:
 ```cpp
 //True if the target MCU supports priority levels
-[[maybe_unused]] constexpr bool supports_priority_levels = ...;
+constexpr bool supports_priority_levels = ...;
 //True if the target MCU supports byte-sized transfers
-[[maybe_unused]] constexpr bool supports_byte_transfer = ...;
+constexpr bool supports_byte_transfer = ...;
 //True if the target MCU supports halfword-sized transfers
-[[maybe_unused]] constexpr bool supports_halfword_transfer = ...;
+constexpr bool supports_halfword_transfer = ...;
 //True if the target MCU supports word-sized transfers
-[[maybe_unused]] constexpr bool supports_word_transfer = ...;
+constexpr bool supports_word_transfer = ...;
 //True if the target MCU supports circular transfer mode
-[[maybe_unused]] constexpr bool supports_circular_mode = ...;
+constexpr bool supports_circular_mode = ...;
 //True if the target MCU supports memory-to-memory transfers
-[[maybe_unused]] constexpr bool supports_memory_to_memory_transfer = ...;
+constexpr bool supports_memory_to_memory_transfer = ...;
 //True if the target MCU supports memory-to-peripheral transfers
-[[maybe_unused]] constexpr bool supports_memory_to_periph_transfer = ...;
+constexpr bool supports_memory_to_periph_transfer = ...;
 //True if the target MCU supports peripheral-to-memory transfers
-[[maybe_unused]] constexpr bool supports_periph_to_memory_transfer = ...;
+constexpr bool supports_periph_to_memory_transfer = ...;
 //True if the target MCU supports peripheral-to-peripheral transfers
-[[maybe_unused]] constexpr bool supports_periph_to_periph_transfer = ...;
+constexpr bool supports_periph_to_periph_transfer = ...;
 //True if the target MCU supports transfer complete interrupt
-[[maybe_unused]] constexpr bool supports_transfer_complete_interrupt = ...;
+constexpr bool supports_transfer_complete_interrupt = ...;
 //True if the target MCU supports half transfer interrupt
-[[maybe_unused]] constexpr bool supports_half_transfer_interrupt = ...;
+constexpr bool supports_half_transfer_interrupt = ...;
 //True if the target MCU supports transfer error interrupt
-[[maybe_unused]] constexpr bool supports_transfer_error_interrupt = ...;
+constexpr bool supports_transfer_error_interrupt = ...;
 //True if the target MCU supports clear_pending_flags_atomic function
-[[maybe_unused]] constexpr bool supports_atomic_clear_pending_flags = ...;
+constexpr bool supports_atomic_clear_pending_flags = ...;
 ```
 
 ## configure_channel

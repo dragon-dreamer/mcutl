@@ -14,6 +14,8 @@ using value_type = device::systick::value_type;
 [[maybe_unused]] constexpr auto max_value = device::systick::max_value;
 [[maybe_unused]] constexpr auto supports_overflow_detection
 	= device::systick::supports_overflow_detection;
+[[maybe_unused]] constexpr auto overflow_flag_cleared_on_read
+	= device::systick::overflow_flag_cleared_on_read;
 [[maybe_unused]] constexpr auto supports_value_request
 	= device::systick::supports_value_request;
 [[maybe_unused]] constexpr auto supports_reload_value
@@ -70,6 +72,12 @@ template<typename T = void>
 inline bool has_overflown() MCUTL_NOEXCEPT
 {
 	return device::systick::has_overflown<T>();
+}
+
+template<typename T = void>
+inline void clear_overflow_flag() MCUTL_NOEXCEPT
+{
+	device::systick::clear_overflow_flag<T>();
 }
 
 template<typename T = void>

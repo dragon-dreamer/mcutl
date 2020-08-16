@@ -31,6 +31,7 @@ using value_type = uint32_t;
 [[maybe_unused]] constexpr auto supports_reload_value_change = true;
 [[maybe_unused]] constexpr auto supports_atomic_clear_pending_flags = true;
 [[maybe_unused]] constexpr auto supports_reset_value = true;
+[[maybe_unused]] constexpr auto overflow_flag_cleared_on_read = true;
 using peripheral_type = mcutl::periph::no_periph;
 
 struct options : mcutl::systick::detail::options {};
@@ -136,6 +137,12 @@ inline bool has_overflown() MCUTL_NOEXCEPT
 {
 	return mcutl::memory::get_register_flag<SysTick_CTRL_COUNTFLAG_Msk,
 		&SysTick_Type::CTRL, SysTick_BASE>();
+}
+
+template<typename T>
+inline void clear_overflow_flag() MCUTL_NOEXCEPT
+{
+	has_overflown<T>();
 }
 
 template<typename T>

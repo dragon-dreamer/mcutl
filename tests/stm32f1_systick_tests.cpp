@@ -34,6 +34,7 @@ TEST_F(systick_strict_test_fixture, TraitsTest)
 	EXPECT_TRUE(mcutl::systick::supports_reset_value);
 	EXPECT_TRUE(mcutl::systick::supports_reload_value_change);
 	EXPECT_TRUE(mcutl::systick::supports_atomic_clear_pending_flags);
+	EXPECT_TRUE(mcutl::systick::overflow_flag_cleared_on_read);
 }
 
 TEST_F(systick_strict_test_fixture, ClearPendingFlagTest)
@@ -92,7 +93,7 @@ TEST_F(systick_strict_test_fixture, ResetReloadValueTest)
 
 TEST_F(systick_strict_test_fixture, ResetValueTest)
 {
-	EXPECT_CALL(memory(), write(addr(&SysTick->VAL), 0u));
+	EXPECT_CALL(memory(), write(addr(&SysTick->VAL), ::testing::_));
 	mcutl::systick::reset_value();
 }
 
@@ -208,4 +209,10 @@ TEST_F(systick_strict_test_fixture, ReconfigureWithInterruptPriorityTest)
 		mcutl::interrupt::interrupt<mcutl::systick::interrupt::tick, 3, 5>,
 		mcutl::interrupt::priority_count<8>
 	>();
+}
+
+TEST_F(systick_strict_test_fixture, ClearOverflowFlagTest)
+{
+	EXPECT_CALL(memory(), read(addr(&SysTick->CTRL)));
+	mcutl::systick::clear_overflow_flag();
 }

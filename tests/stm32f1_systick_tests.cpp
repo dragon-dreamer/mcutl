@@ -7,7 +7,9 @@
 #include "mcutl/interrupt/interrupt.h"
 #include "mcutl/periph/periph_defs.h"
 #include "mcutl/systick/systick.h"
+#include "mcutl/systick/systick_wait.h"
 #include "mcutl/tests/mcu.h"
+#include "mcutl/utils/duration.h"
 
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
@@ -215,4 +217,33 @@ TEST_F(systick_strict_test_fixture, ClearOverflowFlagTest)
 {
 	EXPECT_CALL(memory(), read(addr(&SysTick->CTRL)));
 	mcutl::systick::clear_overflow_flag();
+}
+
+TEST_F(systick_strict_test_fixture, WaitIntervalsTests)
+{
+	EXPECT_EQ((mcutl::systick::detail::get_ticks_to_wait<
+		72'000'000u, mcutl::types::milliseconds<12>, uint32_t>()), 864000u);
+	EXPECT_EQ((mcutl::systick::detail::get_ticks_to_wait<
+		72'000'000u, mcutl::types::microseconds<25>, uint32_t>()), 1800u);
+	EXPECT_EQ((mcutl::systick::detail::get_ticks_to_wait<
+		72'000'000u, mcutl::types::nanoseconds<123>, uint32_t>()), 9u);
+	EXPECT_EQ((mcutl::systick::detail::get_ticks_to_wait<
+		72'000'000u, mcutl::types::seconds<3>, uint32_t>()), 216000000u);
+}
+
+TEST_F(systick_strict_test_fixture, WaitTest)
+{
+	memory().allow_reads(addr(&SysTick->LOAD));
+	memory().allow_reads(addr(&SysTick->VAL));
+	memory().set(addr(&SysTick->VAL), 10'000'000u);
+	memory().set(addr(&SysTick->LOAD),
+		mcutl::systick::get_default_reload_value());
+	
+	EXPECT_CALL(memory(), read(addr(&SysTick->CTRL)))
+		.Times(3)
+		.WillRepeatedly([] (auto) {
+			return SysTick_CTRL_COUNTFLAG_Msk;
+		});
+	
+	mcutl::systick::wait_msec<72'000'000u, 500u>(); //36'000'000 systicks
 }

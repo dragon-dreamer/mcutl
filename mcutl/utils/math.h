@@ -1,7 +1,9 @@
 #pragma once
 
+#include <limits>
 #include <limits.h>
 #include <stdint.h>
+#include <type_traits>
 
 namespace mcutl::math
 {
@@ -40,6 +42,68 @@ template<auto Value>
 	while (value >>= 1)
 		++res;
 	return res;
+}
+
+template<typename T, auto Val1, auto Val2>
+[[nodiscard]] constexpr bool mul_overflows() noexcept
+{
+	constexpr auto val1 = static_cast<T>(Val1);
+	constexpr auto val2 = static_cast<T>(Val2);
+	
+	if constexpr (std::is_unsigned_v<T>)
+	{
+		static_assert(std::is_unsigned_v<decltype(Val1)> || Val1 >= 0u,
+			"Val1 must be unsigned or positive to produce unsigned result");
+		static_assert(std::is_unsigned_v<decltype(Val2)> || Val2 >= 0u,
+			"Val2 must be unsigned or positive to produce unsigned result");
+		if constexpr (Val1 > (std::numeric_limits<T>::max)()
+			|| Val2 > (std::numeric_limits<T>::max)())
+		{
+			return true;
+		}
+		
+		constexpr T result = val1 * val2;
+		return val1 && result / val1 != val2;
+	}
+	else
+	{
+		if constexpr (Val1 > (std::numeric_limits<T>::max)()
+			|| Val1 < (std::numeric_limits<T>::min)())
+		{
+			return true;
+		}
+		if constexpr (Val2 > (std::numeric_limits<T>::max)()
+			|| Val2 < (std::numeric_limits<T>::min)())
+		{
+			return true;
+		}
+		
+		if constexpr (val1 == -1 && val2 == (std::numeric_limits<T>::min)())
+			return true;
+		else if constexpr (val2 == -1 && val1 == (std::numeric_limits<T>::min)())
+			return true;
+		else if constexpr (val1 > (std::numeric_limits<T>::max)() / val2)
+			return true;
+		else if constexpr (val1 < (std::numeric_limits<T>::min)() / val2)
+			return true;
+		else
+			return false;
+	}
+}
+
+template<typename T, auto Val1, auto Val2>
+[[nodiscard]] constexpr T mul_with_check() noexcept
+{
+	static_assert(!mul_overflows<T, Val1, Val2>(), "Multiplication overflows");
+	return static_cast<T>(Val1 * Val2);
+}
+
+template<auto Dividend, auto Divider>
+constexpr auto div_ceil() noexcept
+{
+	return Dividend % Divider == 0
+		? Dividend / Divider
+		: Dividend / Divider + 1;
 }
 
 } //namespace mcutl::math

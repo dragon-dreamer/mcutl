@@ -74,7 +74,7 @@ constexpr TickType get_ticks_to_wait() noexcept
 }
 
 template<auto Ticks>
-void wait_systicks() MCUTL_NOEXCEPT
+inline void wait_systicks() MCUTL_NOEXCEPT
 {
 	if constexpr (Ticks != 0)
 		wait_systicks(Ticks);
@@ -83,28 +83,28 @@ void wait_systicks() MCUTL_NOEXCEPT
 } //namespace detail
 
 template<uint64_t SysTickFrequency, uint16_t MSec, typename TickType = value_type>
-void wait_msec() MCUTL_NOEXCEPT
+inline void wait_msec() MCUTL_NOEXCEPT
 {
 	detail::wait_systicks<detail::get_ticks_to_wait<
 		SysTickFrequency, types::milliseconds<MSec>, TickType>()>();
 }
 
 template<uint64_t SysTickFrequency, uint16_t USec, typename TickType = value_type>
-void wait_usec() MCUTL_NOEXCEPT
+inline void wait_usec() MCUTL_NOEXCEPT
 {
 	detail::wait_systicks<detail::get_ticks_to_wait<
 		SysTickFrequency, types::microseconds<USec>, TickType>()>();
 }
 
 template<uint64_t SysTickFrequency, uint16_t NSec, typename TickType = value_type>
-void wait_nsec() MCUTL_NOEXCEPT
+inline void wait_nsec() MCUTL_NOEXCEPT
 {
 	detail::wait_systicks<detail::get_ticks_to_wait<
 		SysTickFrequency, types::nanoseconds<NSec>, TickType>()>();
 }
 
 template<uint64_t SysTickFrequency, typename ConstDuration, typename TickType = value_type>
-void wait() MCUTL_NOEXCEPT
+inline void wait() MCUTL_NOEXCEPT
 {
 	detail::wait_systicks<detail::get_ticks_to_wait<
 		SysTickFrequency, ConstDuration, TickType>()>();

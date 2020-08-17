@@ -185,3 +185,26 @@ template<typename T = void>
 void reset_reload_value() noexcept;
 ```
 Resets the SYSTICK reload value to its default. This value is loaded to SYSTICK every time when it overflows (or the value the SYSTICK count up to). Available when the `supports_reload_value_change` trait is `true`. Do not specity the `T` argument, it's used to make the function compile only when explicitly used.
+
+# Wait helpers (mcutl/systick/systick_wait.h)
+This header defines several helpers to synchronously wait for the defined period of time. These helpers utilize the SYSTICK timer and thus require it to be configured and enabled.
+
+## wait_msec, wait_usec, wait_nsec, wait
+```cpp
+template<uint64_t SysTickFrequency, uint16_t MSec, typename TickType = value_type>
+void wait_msec() noexcept;
+template<uint64_t SysTickFrequency, uint16_t USec, typename TickType = value_type>
+void wait_usec() noexcept;
+template<uint64_t SysTickFrequency, uint16_t NSec, typename TickType = value_type>
+void wait_nsec() noexcept;
+template<uint64_t SysTickFrequency, typename ConstDuration, typename TickType = value_type>
+void wait() noexcept;
+```
+These functions can be used to wait for a period of milliseconds, microseconds or nanoseconds. The last `wait` function is used to wait for a period of any units. These functions guarantee to synchronously delay execution for **at least** the specified period.
+
+They are generally not compatible with interrupts, especially when there are several OS threads synchronously waiting at the same time, as these functions change the state of the SYSTICK timer overflow flag. If this happens, the delay may be much longer than requested (as the interrupted wait call may miss the SYSTICK overflow event, and will have to wait for it again). You may use these functions in OS environment if you're good with extending the delay, but better use the OS-specific delay functions.
+
+* `SysTickFrequency` - the SYSTICK frequency in `Hertz`.
+* `MSec`, `USec`, `NSec` - a period in milliseconds, microseconds or nanoseconds.
+* `TickType` - type of the variable to hold the required amount ticks to wait. Must be at least of the `mcutl::systick::value_type` size. If you get an overflow error when trying to compile the code, you may want to make this type larger (or reduce the delay period).
+* `ConstDuration` - a `mcutl::types::duration` type or `mcutl::types::milliseconds`, `mcutl::types::microseconds`, `mcutl::types::nanoseconds` or `mcutl::types::seconds`  (see the `mcutl/utils/duration.h` header).

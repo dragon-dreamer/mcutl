@@ -384,3 +384,29 @@ TYPED_TEST(periph_reset_combine_test, PeriphResetCombineTest)
 	this->reset();
 	this->undo_reset();
 }
+
+class periph_strict_test_fixture
+	: public mcutl::tests::memory::strict_test_fixture_base
+{
+};
+
+TEST_F(periph_strict_test_fixture, ListPeriphTest)
+{
+	auto enr_addr = addr(&(RCC->APB1ENR));
+	auto mask = RCC_APB1ENR_PWREN | RCC_APB1ENR_BKPEN | RCC_APB1ENR_WWDGEN;
+	memory().set(enr_addr, 0x12345678 & ~mask);
+		
+	::testing::InSequence s;
+	EXPECT_CALL(memory(), read(enr_addr));
+	EXPECT_CALL(memory(), write(enr_addr, 0x12345678 | mask));
+	EXPECT_CALL(memory(), read(enr_addr));
+		
+	mcutl::periph::configure_peripheral<
+		mcutl::periph::enable<mcutl::types::list<
+			mcutl::periph::pwr,
+			mcutl::periph::bkp,
+			mcutl::periph::wwdg
+		>>,
+		mcutl::periph::enable<mcutl::periph::bkp>
+	>();
+}

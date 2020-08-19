@@ -2,6 +2,7 @@
 
 #include <stdint.h>
 #include <limits>
+#include <type_traits>
 
 #include "mcutl/utils/options_parser.h"
 
@@ -52,8 +53,8 @@ template<typename Interrupt, template <typename> typename InterruptMap,
 struct interrupt_parser
 	: opts::base_option_parser<0, nullptr, InterruptMap<Interrupt>::interrupt_set_count>
 {
-	template<typename Option>
-	static constexpr void parse(Option& options) noexcept
+	template<typename Options>
+	static constexpr void parse(Options& options) noexcept
 	{
 		options.*(InterruptMap<Interrupt>::interrupt_info)
 			= { Priority, SubPriority, false };
@@ -67,11 +68,65 @@ struct interrupt_parser<mcutl::interrupt::disabled<Interrupt>,
 	InterruptMap, Priority, SubPriority>
 	: opts::base_option_parser<0, nullptr, InterruptMap<Interrupt>::interrupt_set_count>
 {
-	template<typename Option>
-	static constexpr void parse(Option& options) noexcept
+	template<typename Options>
+	static constexpr void parse(Options& options) noexcept
 	{
 		(options.*(InterruptMap<Interrupt>::interrupt_info)).disable = true;
 		++(options.*(InterruptMap<Interrupt>::interrupt_set_count));
+	}
+};
+
+template<template <typename> typename InterruptMap,
+	typename ControllerInterruptTypeMap,
+	typename... Interrupts>
+struct interrupt_priority_conflict_checker
+{
+public:
+	template<typename Options>
+	static constexpr bool check(Options& options) noexcept
+	{
+		return check_interrupt<Interrupts...>(options);
+	}
+	
+private:
+	template<typename Options>
+	static constexpr bool check_interrupt(Options&) noexcept
+	{
+		return true;
+	}
+		
+	template<typename Interrupt, typename... OtherInterrupts, typename Options>
+	static constexpr bool check_interrupt(Options& options) noexcept
+	{
+		const auto& info = options.*(InterruptMap<Interrupt>::interrupt_info);
+		if (options.*(InterruptMap<Interrupt>::interrupt_set_count) != 0 && !info.disable)
+		{
+			if (!(... && check_interrupt<typename ControllerInterruptTypeMap::template type<Interrupt>,
+				OtherInterrupts>(options, info)))
+			{
+				return false;
+			}
+		}
+		
+		return check_interrupt<OtherInterrupts...>(options);
+	}
+	
+	template<typename ControllerInterrupt,
+		typename Interrupt, typename Options, typename InterruptInfo>
+	static constexpr bool check_interrupt(Options& options, const InterruptInfo& info) noexcept
+	{
+		if constexpr (std::is_same_v<ControllerInterrupt,
+			typename ControllerInterruptTypeMap::template type<Interrupt>>)
+		{
+			const auto& other_info = options.*(InterruptMap<Interrupt>::interrupt_info);
+			if (options.*(InterruptMap<Interrupt>::interrupt_set_count) != 0 && !other_info.disable)
+			{
+				return other_info.priority == info.priority
+					&& other_info.subpriority == info.subpriority;
+			}
+		}
+		
+		return true;
 	}
 };
 

@@ -47,10 +47,23 @@ struct backup_write_enabler_base : types::noncopymovable
 		enable_backup_writes();
 	}
 	
+#ifdef MCUTL_TEST
+	inline ~backup_write_enabler_base() MCUTL_NOEXCEPT
+	{
+		try
+		{
+			disable_backup_writes();
+		}
+		catch (...)
+		{
+		}
+	}
+#else //MCUTL_TEST
 	inline ~backup_write_enabler_base() MCUTL_NOEXCEPT
 	{
 		disable_backup_writes();
 	}
+#endif //MCUTL_TEST
 };
 
 template<>
@@ -63,11 +76,25 @@ public:
 	{
 	}
 	
+#ifdef MCUTL_TEST
+	inline ~backup_write_enabler_base() MCUTL_NOEXCEPT
+	{
+		try
+		{
+			if (was_enabled_)
+				disable_backup_writes();
+		}
+		catch (...)
+		{
+		}
+	}
+#else
 	inline ~backup_write_enabler_base() MCUTL_NOEXCEPT
 	{
 		if (was_enabled_)
 			disable_backup_writes();
 	}
+#endif 
 	
 private:
 	bool was_enabled_ = false;
@@ -105,7 +132,7 @@ inline void write_backup(backup_register_type value) MCUTL_NOEXCEPT
 }
 
 template<write_disable_policy DisablePolicy = write_disable_policy::disable_only_if_enabled>
-struct backup_write_enabler : detail::backup_write_enabler_base<DisablePolicy>
+struct backup_write_enabler
 {
 public:
 	template<backup_index_type Index>
@@ -119,6 +146,9 @@ public:
 	{
 		write_backup<Index, false>(value);
 	}
+	
+private:
+	detail::backup_write_enabler_base<DisablePolicy> base_;
 };
 
 } //namespace mcutl::backup

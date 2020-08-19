@@ -5,6 +5,7 @@
 #include "mcutl/device/dma/device_dma.h"
 #include "mcutl/dma/dma_defs.h"
 #include "mcutl/utils/definitions.h"
+#include "mcutl/utils/options_parser.h"
 
 namespace mcutl::dma
 {

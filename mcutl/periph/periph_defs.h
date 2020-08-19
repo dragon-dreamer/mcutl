@@ -16,15 +16,28 @@ struct disable {};
 struct reset {};
 struct undo_reset {};
 
+template<typename Peripheral>
+struct peripheral_checker
+{
+	static_assert(std::is_base_of_v<detail::peripheral_base, Peripheral>,
+		"Invalid peripheral");
+	using type = Peripheral;
+};
+
+template<typename... Peripheral>
+struct peripheral_checker<types::list<Peripheral...>>
+{
+	static_assert((... && std::is_base_of_v<detail::peripheral_base, Peripheral>),
+		"Invalid peripheral");
+	using type = types::list<Peripheral...>;
+};
+
 template<typename Peripheral, typename ConfigType>
 struct peripheral_configuration
 {
 	peripheral_configuration() = delete;
 	
-	static_assert(std::is_base_of_v<detail::peripheral_base, Peripheral>,
-		"Invalid peripheral");
-	
-	using peripheral_type = Peripheral;
+	using peripheral_type = typename peripheral_checker<Peripheral>::type;
 	using config_type = ConfigType;
 };
 
@@ -56,13 +69,23 @@ struct peripheral_configurer
 	}
 };
 
+template<typename... Peripheral>
+struct peripheral_configurer<types::list<Peripheral...>>
+{
+	template<typename Configuration, typename ConfigStruct>
+	static constexpr void execute(ConfigStruct& config) noexcept
+	{
+		(..., peripheral_configurer<Peripheral>::template execute<Configuration>(config));
+	}
+};
+
 template<typename PeripheralConfig>
 struct peripheral_configurer_selector
 {
 	template<typename ConfigStruct>
-	static constexpr auto configure(ConfigStruct& config) noexcept
+	static constexpr void configure(ConfigStruct& config) noexcept
 	{
-		return peripheral_configurer<typename PeripheralConfig::peripheral_type>
+		peripheral_configurer<typename PeripheralConfig::peripheral_type>
 			::template execute<typename PeripheralConfig::config_type>(config);
 	}
 };

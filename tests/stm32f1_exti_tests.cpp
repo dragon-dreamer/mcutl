@@ -7,56 +7,7 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
-using exti_strict_test_fixture_base = mcutl::tests::mcu::strict_test_fixture_base;
-
-class exti_interrupt_test_fixture : public exti_strict_test_fixture_base
-{
-public:
-	void expect_enable(uint32_t irqn)
-	{
-		::testing::InSequence s;
-		EXPECT_CALL(instruction(), run(instr<mcutl::device::instruction::type::dmb>(),
-			::testing::IsEmpty()));
-		EXPECT_CALL(memory(), write(addr(&(NVIC->ISER[irqn / 32])), (1 << (irqn % 32))));
-	}
-	
-	void expect_disable(uint32_t irqn)
-	{
-		::testing::InSequence s;
-		EXPECT_CALL(memory(), write(addr(&(NVIC->ICER[irqn / 32])), (1 << (irqn % 32))));
-		EXPECT_CALL(instruction(), run(instr<mcutl::device::instruction::type::dsb>(),
-				::testing::IsEmpty()));
-		EXPECT_CALL(instruction(), run(instr<mcutl::device::instruction::type::isb>(),
-				::testing::IsEmpty()));
-	}
-	
-	void expect_enable(uint32_t irqn, uint32_t priority, uint32_t subpriority)
-	{
-		::testing::InSequence s;
-		expect_set_priority(irqn, priority, subpriority);
-		expect_enable(irqn);
-	}
-	
-	void expect_set_priority(uint32_t irqn, uint32_t priority, uint32_t subpriority)
-	{
-		::testing::InSequence s;
-		if (priority != mcutl::interrupt::default_priority)
-		{
-			priority <<= 4;
-			if (subpriority != mcutl::interrupt::default_priority)
-				priority |= subpriority;
-			
-			EXPECT_CALL(memory(), write(addr(&(NVIC->IP[irqn])), priority));
-			EXPECT_CALL(instruction(), run(instr<mcutl::device::instruction::type::isb>(),
-				::testing::IsEmpty()));
-		}
-	}
-	
-	void expect_clear_pending(uint32_t irqn)
-	{
-		EXPECT_CALL(memory(), write(addr(&(NVIC->ICPR[irqn / 32])), (1 << (irqn % 32))));
-	}
-};
+#include "tests/stm32f1_exti_interrupt_test_fixture.h"
 
 class enable_disable_test_fixture
 	: public exti_strict_test_fixture_base
@@ -326,7 +277,7 @@ TEST_P(software_trigger_test_fixture, SoftwareTriggerEmptyTest)
 
 TEST_F(exti_interrupt_test_fixture, EnableInterruptsSimpleTest)
 {
-	expect_enable(EXTI15_10_IRQn);
+	expect_enable_interrupt(EXTI15_10_IRQn);
 	
 	mcutl::exti::enable_interrupts<
 		mcutl::exti::line_interrupt_options<
@@ -337,7 +288,7 @@ TEST_F(exti_interrupt_test_fixture, EnableInterruptsSimpleTest)
 
 TEST_F(exti_interrupt_test_fixture, DisableInterruptsSimpleTest)
 {
-	expect_disable(EXTI15_10_IRQn);
+	expect_disable_interrupt(EXTI15_10_IRQn);
 	
 	mcutl::exti::disable_interrupts<
 		mcutl::exti::line_interrupt_options<
@@ -371,9 +322,9 @@ TEST_F(exti_interrupt_test_fixture, EnableInterruptsComplexConfigTest)
 		>
 	>;
 	
-	expect_enable(EXTI15_10_IRQn);
-	expect_enable(EXTI9_5_IRQn, 5, 3);
-	expect_enable(EXTI1_IRQn, 10, mcutl::interrupt::default_priority);
+	expect_enable_interrupt(EXTI15_10_IRQn);
+	expect_enable_interrupt(EXTI9_5_IRQn, 5, 3);
+	expect_enable_interrupt(EXTI1_IRQn, 10, mcutl::interrupt::default_priority);
 	
 	mcutl::exti::enable_interrupts<config>();
 }
@@ -403,9 +354,9 @@ TEST_F(exti_interrupt_test_fixture, DisableInterruptsComplexConfigTest)
 		>
 	>;
 	
-	expect_disable(EXTI15_10_IRQn);
-	expect_disable(EXTI9_5_IRQn);
-	expect_disable(EXTI0_IRQn);
+	expect_disable_interrupt(EXTI15_10_IRQn);
+	expect_disable_interrupt(EXTI9_5_IRQn);
+	expect_disable_interrupt(EXTI0_IRQn);
 	
 	mcutl::exti::disable_interrupts<config>();
 }
@@ -435,8 +386,8 @@ TEST_F(exti_interrupt_test_fixture, SetInterruptProiritiesComplexConfigTest)
 		>
 	>;
 	
-	expect_set_priority(EXTI9_5_IRQn, 5, 3);
-	expect_set_priority(EXTI1_IRQn, 10, mcutl::interrupt::default_priority);
+	expect_set_interrupt_priority(EXTI9_5_IRQn, 5, 3);
+	expect_set_interrupt_priority(EXTI1_IRQn, 10, mcutl::interrupt::default_priority);
 	
 	mcutl::exti::set_interrupt_prioritites<config>();
 }
@@ -466,15 +417,15 @@ TEST_F(exti_interrupt_test_fixture, SetInterruptProiritiesComplexConfig2Test)
 		>
 	>;
 	
-	expect_set_priority(EXTI9_5_IRQn, 5 << 1, 3);
-	expect_set_priority(EXTI1_IRQn, 6 << 1, mcutl::interrupt::default_priority);
+	expect_set_interrupt_priority(EXTI9_5_IRQn, 5 << 1, 3);
+	expect_set_interrupt_priority(EXTI1_IRQn, 6 << 1, mcutl::interrupt::default_priority);
 	
 	mcutl::exti::set_interrupt_prioritites<8, config>();
 }
 
 TEST_F(exti_interrupt_test_fixture, ClearPendingInterruptsSimpleTest)
 {
-	expect_clear_pending(EXTI4_IRQn);
+	expect_clear_pending_interrupt(EXTI4_IRQn);
 	
 	mcutl::exti::clear_pending_interrupts<
 		mcutl::exti::line_interrupt_options<
@@ -508,9 +459,9 @@ TEST_F(exti_interrupt_test_fixture, ClearPendingInterruptsComplexConfigTest)
 		>
 	>;
 	
-	expect_clear_pending(EXTI9_5_IRQn);
-	expect_clear_pending(EXTI15_10_IRQn);
-	expect_clear_pending(EXTI3_IRQn);
+	expect_clear_pending_interrupt(EXTI9_5_IRQn);
+	expect_clear_pending_interrupt(EXTI15_10_IRQn);
+	expect_clear_pending_interrupt(EXTI3_IRQn);
 	
 	mcutl::exti::clear_pending_interrupts<config>();
 }

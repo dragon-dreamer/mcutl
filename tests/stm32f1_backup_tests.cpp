@@ -6,56 +6,12 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
-class backup_strict_test_fixture :
-	public mcutl::tests::memory::strict_test_fixture_base,
-	public ::testing::WithParamInterface<bool>
-{
-public:
-	void expect_enable(bool was_enabled)
-	{
-		uint32_t initial_pwr_cr_value = initial_pwr_cr_value_;
-		if (was_enabled)
-			initial_pwr_cr_value |= PWR_CR_DBP;
-		else
-			initial_pwr_cr_value &= ~PWR_CR_DBP;
-		
-		memory().set(addr(&PWR->CR), initial_pwr_cr_value);
-		memory().allow_reads(addr(&PWR->CR));
-		if (!was_enabled)
-		{
-			EXPECT_CALL(memory(), write(addr(&PWR->CR),
-				(initial_pwr_cr_value & ~PWR_CR_DBP_Msk) | PWR_CR_DBP));
-		}
-	}
-	
-	void expect_disable(bool was_enabled, bool rtc_hse_used)
-	{
-		if (!was_enabled)
-			return;
-		
-		if (rtc_hse_used)
-			memory().set(addr(&RCC->BDCR), RCC_BDCR_RTCSEL_HSE);
-		memory().allow_reads(addr(&PWR->CR));
-		memory().allow_reads(addr(&RCC->BDCR));
-	
-		if (!rtc_hse_used)
-		{
-			EXPECT_CALL(memory(), write(addr(&PWR->CR), ::testing::_))
-				.WillOnce([this] (auto address, auto value) {
-					EXPECT_EQ(value, memory().get(address) & ~PWR_CR_DBP);
-					memory().set(address, value);
-				});
-		}
-	}
-	
-private:
-	static constexpr uint32_t initial_pwr_cr_value_ = 0x89abcdefu;
-};
+#include "tests/stm32f1_backup_test_fixture.h"
 
 TEST_P(backup_strict_test_fixture, EnableWritesTest)
 {
 	bool was_enabled = GetParam();
-	expect_enable(was_enabled);
+	expect_enable_backup_writes(was_enabled);
 	if (was_enabled)
 		EXPECT_FALSE(mcutl::backup::enable_backup_writes());
 	else
@@ -65,7 +21,7 @@ TEST_P(backup_strict_test_fixture, EnableWritesTest)
 TEST_P(backup_strict_test_fixture, DisableWritesTest)
 {
 	bool hse_rtc_used = GetParam();
-	expect_disable(true, hse_rtc_used);
+	expect_disable_backup_writes(true, hse_rtc_used);
 	if (hse_rtc_used)
 		EXPECT_FALSE(mcutl::backup::disable_backup_writes());
 	else
@@ -115,9 +71,9 @@ TEST_P(backup_strict_test_fixture, BackupWriteEnableDisableAlwaysTest)
 	
 	memory().allow_reads(addr(&PWR->CR));
 	::testing::InSequence s;
-	expect_enable(GetParam());
+	expect_enable_backup_writes(GetParam());
 	EXPECT_CALL(memory(), write(addr(&BKP->DR7), dr7_value));
-	expect_disable(true, false);
+	expect_disable_backup_writes(true, false);
 	
 	mcutl::backup::write_backup<7, true,
 		mcutl::backup::write_disable_policy::disable_always>(dr7_value);
@@ -131,9 +87,9 @@ TEST_P(backup_strict_test_fixture, BackupWriteEnableDisableIfEnabledTest)
 	memory().allow_reads(addr(&PWR->CR));
 	::testing::InSequence s;
 	bool was_enabled = GetParam();
-	expect_enable(was_enabled);
+	expect_enable_backup_writes(was_enabled);
 	EXPECT_CALL(memory(), write(addr(&BKP->DR7), dr7_value));
-	expect_disable(!was_enabled, false);
+	expect_disable_backup_writes(!was_enabled, false);
 	
 	mcutl::backup::write_backup<7, true,
 		mcutl::backup::write_disable_policy::disable_only_if_enabled>(dr7_value);
@@ -147,10 +103,10 @@ TEST_P(backup_strict_test_fixture, BackupWriteEnablerDisableAlwaysTest)
 	
 	memory().allow_reads(addr(&PWR->CR));
 	::testing::InSequence s;
-	expect_enable(GetParam());
+	expect_enable_backup_writes(GetParam());
 	EXPECT_CALL(memory(), write(addr(&BKP->DR7), dr7_value));
 	EXPECT_CALL(memory(), write(addr(&BKP->DR25), dr25_value));
-	expect_disable(true, false);
+	expect_disable_backup_writes(true, false);
 	
 	mcutl::backup::backup_write_enabler<
 		mcutl::backup::write_disable_policy::disable_always> bkp;
@@ -167,10 +123,10 @@ TEST_P(backup_strict_test_fixture, BackupWriteEnablerDisableIfEnabledTest)
 	memory().allow_reads(addr(&PWR->CR));
 	::testing::InSequence s;
 	bool was_enabled = GetParam();
-	expect_enable(was_enabled);
+	expect_enable_backup_writes(was_enabled);
 	EXPECT_CALL(memory(), write(addr(&BKP->DR7), dr7_value));
 	EXPECT_CALL(memory(), write(addr(&BKP->DR25), dr25_value));
-	expect_disable(!was_enabled, false);
+	expect_disable_backup_writes(!was_enabled, false);
 	
 	mcutl::backup::backup_write_enabler<
 		mcutl::backup::write_disable_policy::disable_only_if_enabled> bkp;

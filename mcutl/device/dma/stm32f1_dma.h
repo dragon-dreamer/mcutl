@@ -212,9 +212,17 @@ struct dma_channel_info
 	uint32_t ccr = 0;
 	uint32_t ccr_mask = 0;
 	mcutl::interrupt::detail::interrupt_info interrupt_info {};
+	bool priority_conflict = false;
 };
 
-template<bool FullConfig, typename OptionsLambda>
+template<typename Channel>
+struct controller_interrupt_map
+{
+	template<typename Interrupt>
+	using type = mcutl::dma::interrupt_type<Interrupt, Channel>;
+};
+
+template<typename Channel, bool FullConfig, typename OptionsLambda>
 constexpr dma_channel_info get_channel_info(OptionsLambda opts_lambda) noexcept
 {
 	dma_channel_info result {};
@@ -306,29 +314,24 @@ constexpr dma_channel_info get_channel_info(OptionsLambda opts_lambda) noexcept
 		}
 	}
 	
+	result.priority_conflict
+		= !mcutl::interrupt::detail::interrupt_priority_conflict_checker<
+			mcutl::dma::detail::interrupt_map,
+			controller_interrupt_map<Channel>,
+			mcutl::dma::interrupt::half_transfer,
+			mcutl::dma::interrupt::transfer_complete,
+			mcutl::dma::interrupt::transfer_error
+		>::check(opts);
+	
 	return result;
 }
 
-template<bool FullConfig, typename OptionsLambda>
+template<typename Channel, bool FullConfig, typename OptionsLambda>
 constexpr auto get_validated_channel_info(OptionsLambda opts_lambda) noexcept
 {
-	constexpr auto channel_info = get_channel_info<FullConfig>(opts_lambda);
-	constexpr auto opts = opts_lambda();
-	static_assert(!opts.transfer_complete_set_count
-		|| opts.transfer_complete.disable
-		|| (opts.transfer_complete.priority == channel_info.interrupt_info.priority
-			&& opts.transfer_complete.subpriority == channel_info.interrupt_info.subpriority),
-		"Conflicting transfer complete interrupt priority or subpriority");
-	static_assert(!opts.half_transfer_set_count
-		|| opts.half_transfer.disable
-		|| (opts.half_transfer.priority == channel_info.interrupt_info.priority
-			&& opts.half_transfer.subpriority == channel_info.interrupt_info.subpriority),
-		"Conflicting half transfer interrupt priority or subpriority");
-	static_assert(!opts.transfer_error_set_count
-		|| opts.transfer_error.disable
-		|| (opts.transfer_error.priority == channel_info.interrupt_info.priority
-			&& opts.transfer_error.subpriority == channel_info.interrupt_info.subpriority),
-		"Conflicting transfer error interrupt priority or subpriority");
+	constexpr auto channel_info = get_channel_info<Channel, FullConfig>(opts_lambda);
+	static_assert(!channel_info.priority_conflict,
+		"Conflicting interrupt priority or subpriority");
 	return channel_info;
 }
 
@@ -338,7 +341,7 @@ void configure_dma(OptionsLambda opts_lambda) MCUTL_NOEXCEPT
 	set_dma_ccr_bits<Channel::dma_index, Channel::channel_number,
 		DMA_CCR_EN_Msk, static_cast<uint32_t>(~DMA_CCR_EN)>();
 	
-	constexpr auto channel_info = get_validated_channel_info<true>(opts_lambda);
+	constexpr auto channel_info = get_validated_channel_info<Channel, true>(opts_lambda);
 	constexpr auto opts = opts_lambda();
 	if constexpr (opts.enable_controller_interrupts_set_count != 0)
 	{
@@ -385,7 +388,7 @@ void reconfigure_dma(OptionsLambda opts_lambda) MCUTL_NOEXCEPT
 	set_dma_register_bits<Channel::dma_index, Channel::channel_number,
 		mcutl::memory::max_bitmask<uint32_t>, &DMA_Channel_TypeDef::CCR>(ccr);
 	
-	constexpr auto channel_info = get_validated_channel_info<false>(opts_lambda);
+	constexpr auto channel_info = get_validated_channel_info<Channel, false>(opts_lambda);
 	constexpr auto opts = opts_lambda();
 	
 	if constexpr (channel_info.ccr_mask != 0)

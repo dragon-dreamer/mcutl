@@ -9,7 +9,7 @@ using crc_input_type = ...;
 constexpr crc_input_type crc_initial_value = ...;
 //CRC polynomial value
 constexpr crc_input_type crc_polynomial = ...;
-//CRC peripheral (or mcutl::periph::no_periph, if there's no separate peripheral)
+//CRC peripheral type or type list (or mcutl::periph::no_periph, if there's no separate peripheral)
 using peripheral_type = ...;
 ```
 

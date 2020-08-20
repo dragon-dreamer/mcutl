@@ -26,6 +26,16 @@ mcutl::periph::configure_peripheral<periph_config>();
 
 There is a special peripheral `mcutl::periph::no_periph`, which is a no-op and can be passed to `enable`, `disable`, `reset` and `undo_reset` functions.
 
+You can also use the `mcutl::types::list` template (defined in `mcutl/utils/type_helpers.h`) to specify a list of peripherals to configure in a similar fashion, for example:
+```cpp
+mcutl::periph::configure_peripheral<
+	mcutl::periph::enable<mcutl::types::list<
+		mcutl::periph::adc1, mcutl::periph::gpiob, mcutl::periph::dma1
+	>>,
+	mcutl::periph::disable<mcutl::periph::dma2>
+>();
+```
+
 ## STM32F101, STM32F102, STM32F103, STM32F105, STM32F107 peripherals
 Here is the list of the peripherals that may be present on these MCUs:
 * ADC: `adc1`, `adc2`, `adc3`

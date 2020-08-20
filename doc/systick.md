@@ -39,7 +39,7 @@ This typedef indicates a corresponding [interrupt controller](interrupt.md) inte
 template<typename Channel>
 using peripheral_type = ...;
 ```
-This typedef indicates a corresponding [peripheral](peripheral.md) type (or `mcutl::periph::no_periph`) for the SYSTICK hardware. This peripheral must be enabled before accessing SYSTICK.
+This typedef indicates a corresponding [peripheral](peripheral.md) type or type list (or `mcutl::periph::no_periph`) for the SYSTICK hardware. This peripheral must be enabled before accessing SYSTICK.
 
 ```cpp
 using value_type = device::systick::value_type;

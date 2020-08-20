@@ -42,7 +42,7 @@ constexpr bool supports_stop_all_clocks = ...;
 //True if the target MCU supports 'power_off' sleep mode
 constexpr bool supports_power_off = ...;
 
-//Peripheral type to enable before using low-power modes, or
+//Peripheral type or type list to enable before using low-power modes, or
 //mcutl::periph::no_periph.
 using peripheral_type = ...;
 ```

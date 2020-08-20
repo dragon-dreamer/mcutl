@@ -107,7 +107,7 @@ This typedef indicates a corresponding [interrupt controller](interrupt.md) inte
 template<typename Channel>
 using peripheral_type = ...;
 ```
-This typedef indicates a corresponding [peripheral](peripheral.md) type (or `mcutl::periph::no_periph`) for the specified DMA channel. This peripheral must be enabled before accessing a channel.
+This typedef indicates a corresponding [peripheral](peripheral.md) type or type list (or `mcutl::periph::no_periph`) for the specified DMA channel. This peripheral must be enabled before accessing a channel.
 
 ```cpp
 using size_type = ...;

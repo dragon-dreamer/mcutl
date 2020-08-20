@@ -11,7 +11,7 @@ constexpr auto max_register_index = ...;
 using backup_index_type = ...;
 //Backup register type
 using backup_register_type = ...;
-//Backup peripheral type (or mcutl::periph::no_periph)
+//Backup peripheral type, type list, or mcutl::periph::no_periph
 using peripheral_type = ...;
 ```
 To access the backup domain, you need to enable its [peripheral](periph.md) (`peripheral_type`). `min_register_index` and `max_register_index` indicate which backup register indices are accessible (inclusive).

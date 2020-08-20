@@ -10,12 +10,19 @@ namespace mcutl::datetime
 
 using timestamp_t = uint32_t;
 
-[[maybe_unused]] constexpr uint8_t max_hour = 23;
-[[maybe_unused]] constexpr uint8_t max_minute = 59;
-[[maybe_unused]] constexpr uint8_t max_second = 59;
-[[maybe_unused]] constexpr uint8_t min_hour = 0;
-[[maybe_unused]] constexpr uint8_t min_minute = 0;
-[[maybe_unused]] constexpr uint8_t min_second = 0;
+using year_type = uint16_t;
+using month_type = uint8_t;
+using day_type = uint8_t;
+using hour_type = uint8_t;
+using minute_type = uint8_t;
+using second_type = uint8_t;
+
+[[maybe_unused]] constexpr hour_type max_hour = 23;
+[[maybe_unused]] constexpr minute_type max_minute = 59;
+[[maybe_unused]] constexpr second_type max_second = 59;
+[[maybe_unused]] constexpr hour_type min_hour = 0;
+[[maybe_unused]] constexpr minute_type min_minute = 0;
+[[maybe_unused]] constexpr second_type min_second = 0;
 
 enum class weekday : uint8_t
 {
@@ -30,7 +37,7 @@ enum class weekday : uint8_t
 	max_value
 };
 
-enum class month : uint8_t
+enum class month : month_type
 {
 	january   = 1,
 	february,
@@ -48,23 +55,23 @@ enum class month : uint8_t
 	max_value
 };
 
-[[maybe_unused]] constexpr uint8_t min_month = static_cast<uint8_t>(month::january);
-[[maybe_unused]] constexpr uint8_t max_month = static_cast<uint8_t>(month::december);
-[[maybe_unused]] constexpr uint8_t min_day = 1;
-[[maybe_unused]] constexpr uint8_t max_day = 31;
+[[maybe_unused]] constexpr month_type min_month = static_cast<month_type>(month::january);
+[[maybe_unused]] constexpr month_type max_month = static_cast<month_type>(month::december);
+[[maybe_unused]] constexpr day_type min_day = 1;
+[[maybe_unused]] constexpr day_type max_day = 31;
 
 struct date_value
 {
-	uint16_t year;
-	uint8_t month;
-	uint8_t day;
+	year_type year;
+	month_type month;
+	day_type day;
 };
 
 struct time_value
 {
-	uint8_t hour;
-	uint8_t minute;
-	uint8_t second;
+	hour_type hour;
+	minute_type minute;
+	second_type second;
 };
 
 struct date_time : date_value, time_value
@@ -137,24 +144,24 @@ struct date_time_with_timestamp : date_time
 	return timestamp;
 }
 
-[[nodiscard]] constexpr bool is_leap(uint32_t year) noexcept
+[[nodiscard]] constexpr bool is_leap(year_type year) noexcept
 {
 	return year % 4 == 0 && (year % 100 != 0 || year % 400 == 0);
 }
 
-[[nodiscard]] uint32_t get_number_of_days(uint32_t year, uint32_t month) noexcept
+[[nodiscard]] day_type get_number_of_days(year_type year, month_type month) noexcept
 {
 	static constexpr const uint8_t days_in_month[] { 0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
 	return month != 2 || !is_leap(year) ? days_in_month[month] : 29u;
 }
 
-[[maybe_unused]] constexpr uint16_t min_year = 2020;
+[[maybe_unused]] constexpr year_type min_year = 2020;
 [[maybe_unused]] constexpr auto max_date = static_cast<date_value>(
 	date_time_from_timestamp((std::numeric_limits<timestamp_t>::max)()));
-[[maybe_unused]] constexpr uint16_t max_year = max_date.year;
+[[maybe_unused]] constexpr year_type max_year = max_date.year;
 [[maybe_unused]] constexpr date_value min_date = { min_year, min_month, min_day };
 
-constexpr bool operator<(date_value left, date_value right) noexcept
+[[nodiscard]] constexpr bool operator<(date_value left, date_value right) noexcept
 {
 	if (left.year < right.year)
 		return true;
@@ -168,9 +175,74 @@ constexpr bool operator<(date_value left, date_value right) noexcept
 	return left.day < right.day;
 }
 
-constexpr bool operator>(date_value left, date_value right) noexcept
+[[nodiscard]] constexpr bool operator>(date_value left, date_value right) noexcept
 {
 	return right < left;
+}
+
+[[nodiscard]] constexpr bool operator<=(date_value left, date_value right) noexcept
+{
+	return !(left > right);
+}
+
+[[nodiscard]] constexpr bool operator>=(date_value left, date_value right) noexcept
+{
+	return !(left < right);
+}
+
+[[nodiscard]] constexpr bool operator<(time_value left, time_value right) noexcept
+{
+	if (left.hour < right.hour)
+		return true;
+	if (left.hour > right.hour)
+		return false;
+	if (left.minute < right.minute)
+		return true;
+	if (left.minute > right.minute)
+		return false;
+	
+	return left.second < right.second;
+}
+
+[[nodiscard]] constexpr bool operator>(time_value left, time_value right) noexcept
+{
+	return right < left;
+}
+
+[[nodiscard]] constexpr bool operator<=(time_value left, time_value right) noexcept
+{
+	return !(left > right);
+}
+
+[[nodiscard]] constexpr bool operator>=(time_value left, time_value right) noexcept
+{
+	return !(left < right);
+}
+
+[[nodiscard]] constexpr bool operator<(const date_time& left, const date_time& right) noexcept
+{
+	if (static_cast<const date_value&>(left) < static_cast<const date_value&>(right))
+		return true;
+	
+	if (left.day > right.day)
+		return false;
+	
+	return static_cast<const time_value&>(left) < static_cast<const time_value&>(right);
+}
+
+[[nodiscard]] constexpr bool operator>(const date_time& left, const date_time& right) noexcept
+{
+	return right < left;
+}
+
+[[nodiscard]] constexpr bool operator<=(const date_time& left, const date_time& right) noexcept
+{
+	return !(left > right);
+}
+
+[[nodiscard]] constexpr bool operator>=(const date_time& left, const date_time& right) noexcept
+{
+	return !(left < right);
 }
 
 namespace traits

@@ -19,11 +19,13 @@ namespace mcutl::device::rtc
 
 using peripheral_type = types::list<mcutl::periph::pwr, mcutl::periph::bkp>;
 
-[[maybe_unused]] constexpr auto supports_alarm = true;
-[[maybe_unused]] constexpr auto supports_second_interrupt = true;
-[[maybe_unused]] constexpr auto supports_overflow_interrupt = true;
-[[maybe_unused]] constexpr auto supports_internal_clock_source = true;
-[[maybe_unused]] constexpr auto supports_atomic_clear_pending_flags = false;
+[[maybe_unused]] constexpr bool supports_prescalers = true;
+[[maybe_unused]] constexpr bool supports_alarm = true;
+[[maybe_unused]] constexpr bool supports_second_interrupt = true;
+[[maybe_unused]] constexpr bool supports_overflow_interrupt = true;
+[[maybe_unused]] constexpr bool supports_internal_clock_source = true;
+[[maybe_unused]] constexpr bool supports_atomic_clear_pending_flags = false;
+[[maybe_unused]] constexpr bool supports_clock_source_reconfiguration = false;
 
 struct options : mcutl::rtc::detail::options
 {
@@ -635,11 +637,14 @@ struct exti_pending_alarm<mcutl::rtc::interrupt::external_alarm>
 };
 
 template<typename... Interrupts>
+[[maybe_unused]] constexpr auto pending_flags_v = (... | interrupt_info<Interrupts>::value);
+
+template<typename... Interrupts>
 void clear_pending_flags() MCUTL_NOEXCEPT
 {
 	constexpr uint32_t flags_to_set
 		= (RTC_CRL_SECF | RTC_CRL_OWF | RTC_CRL_RSF | RTC_CRL_ALRF)
-		& ~(... | interrupt_info<Interrupts>::value);
+		& ~pending_flags_v<Interrupts...>;
 	(exti_pending_alarm<Interrupts>::clear(), ...);
 	rtc_config_enabler<false> enabler;
 	mcutl::memory::set_register_value<flags_to_set, &RTC_TypeDef::CRL, RTC_BASE>();
@@ -658,11 +663,18 @@ inline bool is_enabled() MCUTL_NOEXCEPT
 	return (bdcr_value & RCC_BDCR_RTCEN) && (bdcr_value & RCC_BDCR_RTCSEL);
 }
 
+template<typename... Interrupts>
+auto get_pending_flags() MCUTL_NOEXCEPT
+{
+	wait_rtc_sync();
+	return pending_flags_v<Interrupts...>
+		& mcutl::memory::get_register_bits<&RTC_TypeDef::CRL, RTC_BASE>();
+}
+
 template<typename T>
 [[nodiscard]] inline bool has_alarmed() MCUTL_NOEXCEPT
 {
-	wait_rtc_sync();
-	return mcutl::memory::get_register_flag<RTC_CRL_ALRF, &RTC_TypeDef::CRL, RTC_BASE>();
+	return get_pending_flags<mcutl::rtc::interrupt::alarm>() != 0u;
 }
 
 inline uint32_t get_rtc_counter() MCUTL_NOEXCEPT

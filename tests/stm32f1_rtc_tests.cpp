@@ -21,6 +21,14 @@ class rtc_strict_test_fixture : public backup_strict_test_fixture,
 	public exti_interrupt_test_fixture
 {
 public:
+	void expect_single_crl_read(uint32_t crl)
+	{
+		::testing::InSequence s;
+		expect_enable_rtc_config(false);
+		EXPECT_CALL(memory(), read(addr(&RTC->CRL)))
+			.WillOnce([crl] (auto) { return crl; });
+	}
+	
 	void enable_interrupt(uint32_t irqn)
 	{
 		memory().allow_reads(addr(&(NVIC->ISER[RTC_IRQn / 32])));
@@ -228,6 +236,8 @@ TEST_F(rtc_strict_test_fixture, TraitsTest)
 	EXPECT_TRUE(mcutl::rtc::supports_overflow_interrupt);
 	EXPECT_TRUE(mcutl::rtc::supports_internal_clock_source);
 	EXPECT_FALSE(mcutl::rtc::supports_atomic_clear_pending_flags);
+	EXPECT_FALSE(mcutl::rtc::supports_clock_source_reconfiguration);
+	EXPECT_TRUE(mcutl::rtc::supports_prescalers);
 	EXPECT_EQ(mcutl::rtc::min_prescaler, 1u);
 	EXPECT_EQ(mcutl::rtc::max_prescaler, 0xfffffu);
 	EXPECT_FALSE(mcutl::rtc::prescaler_supported<0>);
@@ -301,16 +311,10 @@ TEST_F(rtc_strict_test_fixture, IsEnabledTest)
 
 TEST_F(rtc_strict_test_fixture, HasAlarmedTest)
 {
-	::testing::InSequence s;
-	
-	expect_enable_rtc_config(false);
-	EXPECT_CALL(memory(), read(addr(&RTC->CRL)))
-		.WillOnce([] (auto) { return 0; });
+	expect_single_crl_read(0);
 	EXPECT_FALSE(mcutl::rtc::has_alarmed());
 	
-	expect_enable_rtc_config(false);
-	EXPECT_CALL(memory(), read(addr(&RTC->CRL)))
-		.WillOnce([] (auto) { return RTC_CRL_ALRF; });
+	expect_single_crl_read(RTC_CRL_ALRF);
 	EXPECT_TRUE(mcutl::rtc::has_alarmed());
 }
 
@@ -517,7 +521,7 @@ TEST_F(rtc_strict_test_fixture, ConfigureWithBaseConfigComplexTest3)
 	expect_disable_rtc_config(true);
 	expect_disable_backup_writes(true, false);
 	
-	mcutl::rtc::configure <
+	mcutl::rtc::configure<
 		mcutl::rtc::clock::lse_bypass,
 		mcutl::rtc::clock::one_second_prescaler,
 		mcutl::rtc::base_configuration_is_currently_present,
@@ -1138,4 +1142,27 @@ TEST_F(rtc_strict_test_fixture, ReConfigureInterruptsTest12)
 		mcutl::interrupt::interrupt<mcutl::rtc::interrupt::external_alarm, 2, 3>,
 		mcutl::rtc::interrupt::alarm
 	>();
+}
+
+TEST_F(rtc_strict_test_fixture, GetPendingFlagsTest)
+{
+	expect_single_crl_read(RTC_CRL_ALRF | RTC_CRL_SECF);
+	EXPECT_EQ(mcutl::rtc::get_pending_flags<mcutl::rtc::interrupt::second>(),
+		mcutl::rtc::pending_flags_v<mcutl::rtc::interrupt::second>);
+	
+	expect_single_crl_read(RTC_CRL_ALRF | RTC_CRL_SECF);
+	EXPECT_EQ(mcutl::rtc::get_pending_flags<mcutl::rtc::interrupt::overflow>(), 0u);
+	
+	expect_single_crl_read(RTC_CRL_ALRF | RTC_CRL_SECF);
+	EXPECT_EQ(mcutl::rtc::get_pending_flags<mcutl::rtc::interrupt::alarm>(),
+		mcutl::rtc::pending_flags_v<mcutl::rtc::interrupt::alarm>);
+	
+	expect_single_crl_read(RTC_CRL_ALRF | RTC_CRL_SECF);
+	EXPECT_EQ((mcutl::rtc::get_pending_flags<
+		mcutl::rtc::interrupt::alarm,
+		mcutl::rtc::interrupt::overflow,
+		mcutl::rtc::interrupt::second>()),
+		(mcutl::rtc::pending_flags_v<
+		mcutl::rtc::interrupt::alarm,
+		mcutl::rtc::interrupt::second>));
 }

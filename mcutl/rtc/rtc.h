@@ -12,6 +12,7 @@ namespace mcutl::rtc
 
 using peripheral_type = device::rtc::peripheral_type;
 
+
 template<uint32_t PrescalerValue>
 [[maybe_unused]] constexpr bool prescaler_supported
 	= device::rtc::prescaler_supported<PrescalerValue>;
@@ -19,15 +20,18 @@ template<uint32_t PrescalerValue>
 [[maybe_unused]] constexpr auto min_prescaler = device::rtc::min_prescaler;
 [[maybe_unused]] constexpr auto max_prescaler = device::rtc::max_prescaler;
 
-[[maybe_unused]] constexpr auto supports_alarm = device::rtc::supports_alarm;
-[[maybe_unused]] constexpr auto supports_second_interrupt
+[[maybe_unused]] constexpr bool supports_prescalers = device::rtc::supports_prescalers;
+[[maybe_unused]] constexpr bool supports_alarm = device::rtc::supports_alarm;
+[[maybe_unused]] constexpr bool supports_second_interrupt
 	= device::rtc::supports_second_interrupt;
-[[maybe_unused]] constexpr auto supports_overflow_interrupt
+[[maybe_unused]] constexpr bool supports_overflow_interrupt
 	= device::rtc::supports_overflow_interrupt;
-[[maybe_unused]] constexpr auto supports_internal_clock_source
+[[maybe_unused]] constexpr bool supports_internal_clock_source
 	= device::rtc::supports_internal_clock_source;
-[[maybe_unused]] constexpr auto supports_atomic_clear_pending_flags
+[[maybe_unused]] constexpr bool supports_atomic_clear_pending_flags
 	= device::rtc::supports_atomic_clear_pending_flags;
+[[maybe_unused]] constexpr bool supports_clock_source_reconfiguration
+	= device::rtc::supports_clock_source_reconfiguration;
 
 namespace detail
 {
@@ -71,6 +75,15 @@ inline void clear_pending_flags_atomic() MCUTL_NOEXCEPT
 {
 	device::rtc::clear_pending_flags_atomic<Interrupts...>();
 }
+
+template<typename... Interrupts>
+inline auto get_pending_flags() MCUTL_NOEXCEPT
+{
+	return device::rtc::get_pending_flags<Interrupts...>();
+}
+
+template<typename... Interrupts>
+[[maybe_unused]] constexpr auto pending_flags_v = device::rtc::pending_flags_v<Interrupts...>;
 
 [[nodiscard]] inline bool is_enabled() MCUTL_NOEXCEPT
 {

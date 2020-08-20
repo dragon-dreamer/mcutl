@@ -1,7 +1,7 @@
 # Modern C++17 template header-only library for microcontrollers (MCUTL)
 
 ## What's this?
-This is a modern C++17 header-only template library for microcontrollers. The basic idea is to provide access to microcontroller features and peripherals via a uniform interface and precompute as much as possible during compilation. Bonus: it supports unit-testing!
+This is a modern C++17 header-only template library for microcontrollers. The basic idea is to provide access to microcontroller features and peripherals via a uniform interface and precompute as much as possible during compilation. In other words, it is a thin template-based highly optimized HAL (hardware abstraction layer). Bonus: it supports unit-testing!
 
 As this is my hobby project, it currently supports some features of Cortex-M3 STM32F101, STM32F102, STM32F103 and partially STM32F104 and STM32F105 controllers only, but I may add more in the future. The library does not guarantee stability of its interface, as this is a work in progress. However, there are already some remarkable pieces of code, so you may want to use them or learn them anyway.
 
@@ -82,14 +82,15 @@ RCC->CR &= ~RCC_CR_HSION;
 	<tr>
 		<th nowrap>MCU \\ Feature</th>
 		<th nowrap>Peripheral config</th><th nowrap>Clock config</th><th nowrap>GPIO</th><th nowrap>Interrupts</th><th nowrap>External interrupts</th>
-		<th nowrap>Hardware CRC</th><th nowrap>Backup domain</th><th nowrap>Low-power modes</th><th nowrap>DMA</th><th nowrap>SYSTICK</th>
+		<th nowrap>Hardware CRC</th><th nowrap>Backup domain</th><th nowrap>Low-power modes</th><th nowrap>DMA</th><th nowrap>SYSTICK</th><th nowrap>Real-time clock</th>
 	</tr>
 	<tr>
 		<td>STM32F101, STM32F102, STM32F103</td>
 		<td rowspan="2">Full (enable, disable, reset, clear reset)</td>
-		<td>Yes, except Clock Security System (CSS), clock-out capability, RTC and Watchdog clocks</td>
+		<td>Yes, except Clock Security System (CSS), clock-out capability, Watchdog clock</td>
 		<td rowspan="2">Yes, except locking and remapping</td>
 		<td rowspan="2">Yes, except faults, vector table relocation or editing</td>
+		<td rowspan="2">Yes</td>
 		<td rowspan="2">Yes</td>
 		<td rowspan="2">Yes</td>
 		<td rowspan="2">Yes</td>

@@ -77,7 +77,7 @@ These structs are used to configure DMA interrupts.
 
 To enable an interrupt, specify the related structure in the DMA configuration (see below for examples). To enable an interrupt and set its priority/subpriority, use `mcutl::interrupt::interrupt` [wrapper](interrupt.md). To disable an interrupt, wrap the related interrupt structure into the `mcutl::interrupt::disabled` wrapper structure. To additionally enable or disable the related interrupt controllers interrupts, use the `enable_controller_interrupts` or `disable_controller_interrupts` structs. Use interrupt structures (or `global`) with the `clear_pending_flags` function to clear the related pending DMA flags (see below for more information).
 
-These `enable_controller_interrupts` switch will enable all the required for the selected configuration interrupts. The `disable_controller_interrupts` switch will disable the interrupt controller interrupts which are not used in the current DMA configuration, leaving all used interrupts enabled.
+The `enable_controller_interrupts` switch will enable all the required for the selected configuration interrupts. The `disable_controller_interrupts` switch will disable the interrupt controller interrupts which are not used in the current DMA configuration, leaving all used interrupts enabled.
 
 Add the `mcutl::interrupt::priority_count` option to explicitly set the interrupt priority count. Use this option if you explicitly changed the interrupt priority count when calling `mcutl::interrupt::initialize_controller`.
 

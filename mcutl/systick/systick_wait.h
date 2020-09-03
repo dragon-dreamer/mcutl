@@ -46,8 +46,11 @@ void wait_systicks(TickType ticks) MCUTL_NOEXCEPT
 	ticks = initial_value - ticks;
 	if constexpr (!overflow_flag_cleared_on_read)
 		clear_overflow_flag();
-	while (!has_overflown() && get_value() > ticks)
+	if (ticks)
 	{
+		while (!has_overflown() && get_value() > ticks)
+		{
+		}
 	}
 }
 

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstddef>
 #include <type_traits>
 
 namespace mcutl::types
@@ -262,5 +263,64 @@ struct first_type<T, Ts...>
 
 template<typename... T>
 using first_type_t = typename detail::first_type<T...>::type;
+
+namespace detail
+{
+
+template<typename T, typename List>
+struct type_index
+{
+	static_assert(always_false<T>::value, "Invalid type list type");
+};
+
+template<typename T, template <typename...> typename List>
+struct type_index<T, List<>>
+{
+	static_assert(always_false<T>::value, "No type T in given type list");
+};
+
+template<typename T, template <typename...> typename List, typename... Types>
+struct type_index<T, List<T, Types...>>
+{
+	static constexpr std::size_t value = 0;
+};
+
+template<typename T, template <typename...> typename List, typename U, typename... Types>
+struct type_index<T, List<U, Types...>>
+{
+	static constexpr std::size_t value = 1 + type_index<T, List<Types...>>::value;
+};
+
+} //namespace detail
+
+template<typename T, typename TypeList>
+[[maybe_unused]] constexpr auto type_index_v = detail::type_index<T, TypeList>::value;
+
+namespace detail
+{
+
+template<std::size_t Index, typename List>
+struct type_by_index
+{
+	static_assert(always_false<List>::value, "Invalid type list type");
+};
+
+template<std::size_t Index, template <typename...> typename List>
+struct type_by_index<Index, List<>>
+{
+	static_assert(value_always_false<Index>::value, "Too large index value");
+};
+
+template<std::size_t Index, template <typename...> typename List, typename Type, typename... Types>
+struct type_by_index<Index, List<Type, Types...>>
+{
+	using type = typename std::conditional_t<Index == 0,
+		identity<Type>, type_by_index<Index - 1, List<Types...>>>::type;
+};
+
+} //namespace detail
+
+template<std::size_t Index, typename List>
+using type_by_index_t = typename detail::type_by_index<Index, List>::type;
 
 } //namespace mcutl::types

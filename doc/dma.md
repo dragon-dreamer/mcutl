@@ -217,7 +217,7 @@ template<typename Channel>
 void start_transfer(const volatile void* from,
 	volatile void* to, size_type size) noexcept;
 ```
-Starts the DMA transfer for the previously configured `Channel` from the `from` address to the `to` address of the size `size`.
+Starts the DMA transfer for the previously configured `Channel` from the `from` address to the `to` address. Here `size` indicates **the number of transfers to be done**, not the number of bytes to be transferred.
 
 ## wait_transfer
 ```cpp

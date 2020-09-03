@@ -77,7 +77,7 @@ inline void clear_pending_flags_atomic() MCUTL_NOEXCEPT
 }
 
 template<typename... Interrupts>
-inline auto get_pending_flags() MCUTL_NOEXCEPT
+[[nodiscard]] inline auto get_pending_flags() MCUTL_NOEXCEPT
 {
 	return device::rtc::get_pending_flags<Interrupts...>();
 }

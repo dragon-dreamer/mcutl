@@ -82,7 +82,7 @@ RCC->CR &= ~RCC_CR_HSION;
 	<tr>
 		<th nowrap>MCU \\ Feature</th>
 		<th nowrap>Peripheral config</th><th nowrap>Clock config</th><th nowrap>GPIO</th><th nowrap>Interrupts</th><th nowrap>External interrupts</th>
-		<th nowrap>Hardware CRC</th><th nowrap>Backup domain</th><th nowrap>Low-power modes</th><th nowrap>DMA</th><th nowrap>SYSTICK</th><th nowrap>Real-time clock</th>
+		<th nowrap>Hardware CRC</th><th nowrap>Backup domain</th><th nowrap>Low-power modes</th><th nowrap>DMA</th><th nowrap>SYSTICK</th><th nowrap>Real-time clock</th><th nowrap>ADC</th>
 	</tr>
 	<tr>
 		<td>STM32F101, STM32F102, STM32F103</td>
@@ -97,6 +97,7 @@ RCC->CR &= ~RCC_CR_HSION;
 		<td rowspan="2">Yes</td>
 		<td rowspan="2">Yes</td>
 		<td rowspan="2">Yes</td>
+		<td rowspan="2">Partial</td>
 	</tr>
 	<tr>
 		<td>STM32F105, STM32F107</td>

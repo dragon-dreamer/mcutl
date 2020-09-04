@@ -32,6 +32,8 @@ template<typename Adc>
 [[maybe_unused]] constexpr bool supports_input_impedance_option = true;
 template<typename Adc>
 [[maybe_unused]] constexpr bool supports_atomic_clear_pending_flags = true;
+template<typename Adc>
+[[maybe_unused]] constexpr bool supports_data_alignment = true;
 
 template<uint8_t Index, typename Peripheral, uint8_t ResolutionBits, typename ConversionResultType,
 	uint32_t Base, mcutl::interrupt::irqn_t Irqn>

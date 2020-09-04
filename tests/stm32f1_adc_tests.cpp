@@ -119,6 +119,9 @@ TEST_F(adc_strict_test_fixture_base, TraitsTest)
 	EXPECT_TRUE(mcutl::adc::supports_atomic_clear_pending_flags<mcutl::adc::adc1>);
 	EXPECT_TRUE(mcutl::adc::supports_atomic_clear_pending_flags<mcutl::adc::adc2>);
 	EXPECT_TRUE(mcutl::adc::supports_atomic_clear_pending_flags<mcutl::adc::adc3>);
+	EXPECT_TRUE(mcutl::adc::supports_data_alignment<mcutl::adc::adc1>);
+	EXPECT_TRUE(mcutl::adc::supports_data_alignment<mcutl::adc::adc2>);
+	EXPECT_TRUE(mcutl::adc::supports_data_alignment<mcutl::adc::adc3>);
 	
 	EXPECT_TRUE((std::is_same_v<mcutl::adc::peripheral_type<mcutl::adc::adc1>, mcutl::periph::adc1>));
 	EXPECT_TRUE((std::is_same_v<mcutl::adc::peripheral_type<mcutl::adc::adc2>, mcutl::periph::adc2>));

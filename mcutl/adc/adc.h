@@ -23,6 +23,9 @@ template<typename Adc>
 template<typename Adc>
 [[maybe_unused]] constexpr bool supports_atomic_clear_pending_flags
 	= device::adc::supports_atomic_clear_pending_flags<Adc>;
+template<typename Adc>
+[[maybe_unused]] constexpr bool supports_data_alignment
+	= device::adc::supports_data_alignment<Adc>;
 
 template<typename Adc, typename... Interrupts>
 inline void clear_pending_flags() MCUTL_NOEXCEPT

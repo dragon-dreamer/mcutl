@@ -99,11 +99,84 @@ template<typename T, auto Val1, auto Val2>
 }
 
 template<auto Dividend, auto Divider>
-constexpr auto div_ceil() noexcept
+[[nodiscard]] constexpr auto div_ceil() noexcept
 {
 	return Dividend % Divider == 0
 		? Dividend / Divider
 		: Dividend / Divider + 1;
+}
+
+template<typename Ratio>
+[[nodiscard]] constexpr auto round() noexcept
+{
+	return (Ratio::num + (Ratio::den / 2)) / Ratio::den;
+}
+
+namespace detail
+{
+
+template<typename T>
+constexpr T sqrt_helper(T x, T lo, T hi) noexcept
+{
+	if (lo == hi)
+		return lo;
+
+	const T mid = (lo + hi + 1) / 2;
+
+	if (x / mid < mid)
+		return sqrt_helper<T>(x, lo, mid - 1);
+	else
+		return sqrt_helper(x, mid, hi);
+}
+
+} //namespace detail
+
+template<typename T>
+[[nodiscard]] constexpr T sqrt(T x) noexcept
+{
+	return detail::sqrt_helper<T>(x, 0, x / 2 + 1);
+}
+
+template<typename T, T Value> 
+[[nodiscard]] constexpr T max_value() noexcept
+{
+	return Value;
+}
+
+template<typename T, T Value1, T Value2> 
+[[nodiscard]] constexpr T max_value() noexcept
+{
+	if constexpr (Value1 > Value2)
+		return Value1;
+	else
+		return Value2;
+}
+
+template<typename T, T Value1, T Value2, T Value3, T... Values> 
+[[nodiscard]] constexpr T max_value() noexcept
+{
+	return max_value<T, max_value<T, Value1, Value2>(), Value3, Values...>();
+}
+
+template<typename T, T Value> 
+[[nodiscard]] constexpr T min_value() noexcept
+{
+	return Value;
+}
+
+template<typename T, T Value1, T Value2> 
+[[nodiscard]] constexpr T min_value() noexcept
+{
+	if constexpr (Value1 < Value2)
+		return Value1;
+	else
+		return Value2;
+}
+
+template<typename T, T Value1, T Value2, T Value3, T... Values> 
+[[nodiscard]] constexpr T min_value() noexcept
+{
+	return min_value<T, min_value<T, Value1, Value2>(), Value3, Values...>();
 }
 
 } //namespace mcutl::math

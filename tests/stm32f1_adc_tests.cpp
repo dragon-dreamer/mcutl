@@ -48,7 +48,7 @@ class adc_strict_test_fixture : public adc_strict_test_fixture_base
 public:
 	using adc = Adc;
 	
-	auto get_adc() noexcept
+	static auto get_adc() noexcept
 	{
 		if constexpr (std::is_same_v<Adc, mcutl::adc::adc1>)
 			return ADC1;
@@ -270,7 +270,7 @@ TYPED_TEST(adc_list_test_fixture, ClearPendingFlagsTest)
 	this->memory().set(this->addr(&this->get_adc()->SR), initial_sr);
 	
 	EXPECT_CALL(this->memory(), write(this->addr(&this->get_adc()->SR),
-		initial_sr & ~ADC_SR_EOS));
+		ADC_SR_STRT | ADC_SR_JSTRT | ADC_SR_JEOC | ADC_SR_AWD));
 	
 	mcutl::adc::clear_pending_flags<adc,
 		mcutl::adc::init::interrupt::conversion_complete>();
@@ -278,7 +278,7 @@ TYPED_TEST(adc_list_test_fixture, ClearPendingFlagsTest)
 	this->memory().set(this->addr(&this->get_adc()->SR), initial_sr);
 	
 	EXPECT_CALL(this->memory(), write(this->addr(&this->get_adc()->SR),
-		initial_sr & ~ADC_SR_EOS));
+		ADC_SR_STRT | ADC_SR_JSTRT | ADC_SR_JEOC | ADC_SR_AWD));
 	
 	mcutl::adc::clear_pending_flags_atomic<adc,
 		mcutl::adc::init::interrupt::conversion_complete>();

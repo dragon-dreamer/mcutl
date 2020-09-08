@@ -396,7 +396,7 @@ void clear_pending_flags() MCUTL_NOEXCEPT
 			mcutl::adc::init::interrupt::conversion_complete>,
 			"Unsupported interrupt for ADC clear_pending_flags");
 		
-		mcutl::memory::set_register_value<static_cast<uint32_t>(~ADC_SR_EOS_Msk),
+		mcutl::memory::set_register_value<ADC_SR_STRT | ADC_SR_JSTRT | ADC_SR_JEOC | ADC_SR_AWD,
 			&ADC_TypeDef::SR, Adc::base>();
 	}
 }

@@ -37,7 +37,7 @@ namespace master_mode
 struct none {};
 struct output_enable {};
 struct output_update {};
-	
+
 } //namespace master_mode
 
 namespace interrupt
@@ -805,5 +805,7 @@ template<typename Timer>
 [[maybe_unused]] constexpr auto default_count_direction = mcutl::timer::count_direction::up;
 template<typename Timer>
 [[maybe_unused]] constexpr bool supports_atomic_clear_pending_flags = true;
+template<typename Timer>
+[[maybe_unused]] constexpr uint32_t default_reload_value = 0xffffu + 1u;
 
 } //namespace mcutl::device::timer

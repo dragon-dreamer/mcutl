@@ -110,9 +110,14 @@ TYPED_TEST(timer_list_test_fixture, TraitsTest)
 	EXPECT_EQ(mcutl::timer::default_count_direction<timer>, mcutl::timer::count_direction::up);
 	EXPECT_TRUE((std::is_same_v<mcutl::timer::counter_type<timer>, uint16_t>));
 	EXPECT_EQ(mcutl::timer::max_value<timer>, 0xffffu);
+	EXPECT_EQ(mcutl::timer::default_reload_value<timer>, 0xffffu + 1u);
 	EXPECT_TRUE((std::is_same_v<mcutl::timer::peripheral_type<timer>, typename timer_map<timer>::periph>));
 	EXPECT_TRUE((std::is_same_v<mcutl::timer::interrupt_type<timer, mcutl::timer::interrupt::overflow>,
 		typename timer_map<timer>::overflow>));
+	EXPECT_TRUE((mcutl::timer::prescaler_supported<timer, 123>));
+	EXPECT_FALSE((mcutl::timer::prescaler_supported<timer, 0>));
+	EXPECT_FALSE((mcutl::timer::prescaler_supported<timer, 0xfffff>));
+	EXPECT_TRUE((std::is_same_v<mcutl::timer::reload_value_limits<timer>, mcutl::types::limits<2, 65536>>));
 }
 
 TYPED_TEST(timer_list_test_fixture, GetCountTest)

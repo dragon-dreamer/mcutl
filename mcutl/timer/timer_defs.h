@@ -687,4 +687,11 @@ template<typename Timer>
 template<typename Timer, typename Interrupt>
 using interrupt_type = typename detail::interrupt_type_helper<Timer, Interrupt>::type;
 
+template<typename Timer, uint64_t Prescaler>
+[[maybe_unused]] constexpr bool prescaler_supported
+	= detail::timer_traits<Timer>::template has_prescaler<Prescaler>();
+
+template<typename Timer>
+using reload_value_limits = typename detail::timer_traits<Timer>::reload_value_limits;
+
 } //namespace mcutl::timer

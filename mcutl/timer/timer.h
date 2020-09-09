@@ -38,6 +38,9 @@ template<typename Timer>
 template<typename Timer>
 [[maybe_unused]] constexpr bool supports_atomic_clear_pending_flags
 	= device::timer::supports_atomic_clear_pending_flags<Timer>;
+template<typename Timer>
+[[maybe_unused]] constexpr auto default_reload_value
+	= device::timer::default_reload_value<Timer>;
 
 template<typename Timer, typename... Options>
 void configure() MCUTL_NOEXCEPT

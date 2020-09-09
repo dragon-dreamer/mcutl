@@ -21,6 +21,7 @@ mcutl/external | Required external files (such as CMSIS or STM Device Peripheral
 [**mcutl/periph**](periph.md) | MCU peripheral configuration
 [**mcutl/rtc**](rtc.md) | MCU real-time clock configuration
 [**mcutl/systick**](systick.md) | MCU SYSTICK timer facilities
+[**mcutl/timer**](timer.md) | MCU timers configuration and access
 [mcutl/tests](tests.md) | Unit test layer (memory access and MCU-specific instructions mocks). Don't use directly, it's included automatically when required
 mcutl/utils | Helper files for different purposes (constexpr math, type helpers etc)
 

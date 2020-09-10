@@ -151,6 +151,15 @@ struct pop_front_helper<Container<Type, Types...>>
 	using type = Container<Types...>;
 };
 
+template<typename Container, typename Type>
+struct push_back_helper {};
+
+template<template <typename...> typename Container, typename... Types, typename Type>
+struct push_back_helper<Container<Types...>, Type>
+{
+	using type = Container<Types..., Type>;
+};
+
 } //namespace detail
 
 template<template <typename...> typename Container, typename... Containers>
@@ -179,6 +188,15 @@ struct pop_front
 
 template<typename Container>
 using pop_front_t = typename pop_front<Container>::type;
+
+template<typename Container, typename Type>
+struct push_back
+{
+	using type = typename detail::push_back_helper<Container, Type>::type;
+};
+
+template<typename Container, typename Type>
+using push_back_t = typename push_back<Container, Type>::type;
 
 namespace detail
 {

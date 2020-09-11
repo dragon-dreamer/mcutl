@@ -330,8 +330,15 @@ template<auto BitMask, auto Reg, uintptr_t RegStructBase>
 	using reg_type = std::remove_cv_t<types::type_of_member_pointer_t<Reg>>;
 	using class_t = mcutl::types::class_of_member_pointer_t<Reg>;
 	constexpr auto unsigned_bitmask = static_cast<std::make_unsigned_t<reg_type>>(BitMask);
-	return static_cast<reg_type>(
-		get_register_bits<Reg>(volatile_memory<class_t, RegStructBase>()) & unsigned_bitmask);
+	if constexpr (!!unsigned_bitmask)
+	{
+		return static_cast<reg_type>(
+			get_register_bits<Reg>(volatile_memory<class_t, RegStructBase>()) & unsigned_bitmask);
+	}
+	else
+	{
+		return reg_type {};
+	}
 }
 
 template<auto BitMask, auto Reg, typename RegStruct>
@@ -339,7 +346,10 @@ template<auto BitMask, auto Reg, typename RegStruct>
 {
 	using reg_type = std::remove_cv_t<types::type_of_member_pointer_t<Reg>>;
 	constexpr auto unsigned_bitmask = static_cast<std::make_unsigned_t<reg_type>>(BitMask);
-	return static_cast<reg_type>(get_register_bits<Reg>(ptr) & unsigned_bitmask);
+	if constexpr (!!unsigned_bitmask)
+		return static_cast<reg_type>(get_register_bits<Reg>(ptr) & unsigned_bitmask);
+	else
+		return reg_type{};
 }
 
 template<auto BitMask, auto BitValues, typename RegType, typename RegStruct>
@@ -412,8 +422,15 @@ template<auto BitMask, uintptr_t RegStructBase, typename RegType, typename RegSt
 {
 	using reg_type = std::remove_cv_t<RegType>;
 	constexpr auto unsigned_bitmask = static_cast<std::make_unsigned_t<reg_type>>(BitMask);
-	return static_cast<reg_type>(
-		get_register_bits(reg_ptr, volatile_memory<RegStruct, RegStructBase>()) & unsigned_bitmask);
+	if constexpr (!!unsigned_bitmask)
+	{
+		return static_cast<reg_type>(
+			get_register_bits(reg_ptr, volatile_memory<RegStruct, RegStructBase>()) & unsigned_bitmask);
+	}
+	else
+	{
+		return reg_type{};
+	}
 }
 
 template<auto BitMask, typename RegType, typename RegStruct>
@@ -422,7 +439,10 @@ template<auto BitMask, typename RegType, typename RegStruct>
 {
 	using reg_type = std::remove_cv_t<RegType>;
 	constexpr auto unsigned_bitmask = static_cast<std::make_unsigned_t<reg_type>>(BitMask);
-	return static_cast<reg_type>(get_register_bits(reg_ptr, ptr) & unsigned_bitmask);
+	if constexpr (!!unsigned_bitmask)
+		return static_cast<reg_type>(get_register_bits(reg_ptr, ptr) & unsigned_bitmask);
+	else
+		return reg_type{};
 }
 
 template<auto BitMask, auto BitValues, auto Reg, size_t RegArrIndex, typename RegStruct>
@@ -501,8 +521,15 @@ template<auto BitMask, auto Reg, size_t RegArrIndex, uintptr_t RegStructBase>
 	using reg_type = std::remove_cv_t<std::remove_all_extents_t<types::type_of_member_pointer_t<Reg>>>;
 	using class_t = mcutl::types::class_of_member_pointer_t<Reg>;
 	constexpr auto unsigned_bitmask = static_cast<std::make_unsigned_t<reg_type>>(BitMask);
-	return static_cast<reg_type>(
-		get_register_array_bits<Reg, RegArrIndex>(volatile_memory<class_t, RegStructBase>()) & unsigned_bitmask);
+	if constexpr (!!unsigned_bitmask)
+	{
+		return static_cast<reg_type>(
+			get_register_array_bits<Reg, RegArrIndex>(volatile_memory<class_t, RegStructBase>()) & unsigned_bitmask);
+	}
+	else
+	{
+		return reg_type{};
+	}
 }
 
 template<auto BitMask, auto Reg, size_t RegArrIndex, typename RegStruct>
@@ -510,7 +537,10 @@ template<auto BitMask, auto Reg, size_t RegArrIndex, typename RegStruct>
 {
 	using reg_type = std::remove_cv_t<std::remove_all_extents_t<types::type_of_member_pointer_t<Reg>>>;
 	constexpr auto unsigned_bitmask = static_cast<std::make_unsigned_t<reg_type>>(BitMask);
-	return static_cast<reg_type>(get_register_array_bits<Reg, RegArrIndex>(ptr) & unsigned_bitmask);
+	if constexpr (!!unsigned_bitmask)
+		return static_cast<reg_type>(get_register_array_bits<Reg, RegArrIndex>(ptr) & unsigned_bitmask);
+	else
+		return reg_type{};
 }
 
 template<auto BitMask, auto BitValues, size_t RegArrIndex, typename RegType, typename RegStruct>
@@ -591,8 +621,15 @@ template<auto BitMask, size_t RegArrIndex, uintptr_t RegStructBase,
 {
 	using reg_type = std::remove_cv_t<std::remove_all_extents_t<RegType>>;
 	constexpr auto unsigned_bitmask = static_cast<std::make_unsigned_t<reg_type>>(BitMask);
-	return static_cast<reg_type>(get_register_array_bits<RegArrIndex>(reg_ptr,
-		volatile_memory<RegStruct, RegStructBase>()) & unsigned_bitmask);
+	if constexpr (!!unsigned_bitmask)
+	{
+		return static_cast<reg_type>(get_register_array_bits<RegArrIndex>(reg_ptr,
+			volatile_memory<RegStruct, RegStructBase>()) & unsigned_bitmask);
+	}
+	else
+	{
+		return reg_type{};
+	}
 }
 
 template<auto BitMask, size_t RegArrIndex, typename RegType, typename RegStruct>
@@ -601,7 +638,10 @@ template<auto BitMask, size_t RegArrIndex, typename RegType, typename RegStruct>
 {
 	using reg_type = std::remove_cv_t<std::remove_all_extents_t<RegType>>;
 	constexpr auto unsigned_bitmask = static_cast<std::make_unsigned_t<reg_type>>(BitMask);
-	return static_cast<reg_type>(get_register_array_bits<RegArrIndex>(reg_ptr, ptr) & unsigned_bitmask);
+	if constexpr (!!unsigned_bitmask)
+		return static_cast<reg_type>(get_register_array_bits<RegArrIndex>(reg_ptr, ptr) & unsigned_bitmask);
+	else
+		return reg_type{};
 }
 
 } //namespace mcutl::device::memory

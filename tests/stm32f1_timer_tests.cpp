@@ -6,10 +6,10 @@
 #include <type_traits>
 
 #include "mcutl/clock/clock.h"
-#include "mcutl/timer/timer.h"
 #include "mcutl/interrupt/interrupt.h"
 #include "mcutl/periph/periph.h"
 #include "mcutl/tests/mcu.h"
+#include "mcutl/timer/timer.h"
 #include "mcutl/utils/type_helpers.h"
 
 #include "gtest/gtest.h"

@@ -124,7 +124,7 @@ There are several traits to determine the characteristics and capabilities of th
 
 ```cpp
 template<typename Timer>
-using peripheral_type = typename detail::timer_traits<Timer>::peripheral;
+using peripheral_type = ...;
 ```
 This typedef indicates the [peripheral type](periph.md) which must be enabled before the timer configuration or conversions. This may also be a `mcutl::types::list` list of peripherals, or the `mcutl::periph::no_periph` type. This peripheral can be enabled or disabled automatically when configuring using the `enable_peripheral` option (see above).
 
@@ -132,7 +132,7 @@ This typedef indicates the [peripheral type](periph.md) which must be enabled be
 
 ```cpp
 template<typename Timer>
-using counter_type = typename detail::timer_traits<Timer>::counter_type;
+using counter_type = ...;
 ```
 This typedef indicates the counter type of the `Timer`. This is an unsigned integer type sufficient to keep the timer counter value. For example, for a 16-bit timer, this type may be `uint16_t`.
 
@@ -140,7 +140,7 @@ This typedef indicates the counter type of the `Timer`. This is an unsigned inte
 
 ```cpp
 template<typename Timer>
-constexpr auto max_value = detail::timer_traits<Timer>::max_value;
+constexpr auto max_value = ...;
 ```
 This constant indicates the maximum possible timer counter value.
 
@@ -148,7 +148,7 @@ This constant indicates the maximum possible timer counter value.
 
 ```cpp
 template<typename Timer, typename Interrupt>
-using interrupt_type = typename detail::interrupt_type_helper<Timer, Interrupt>::type;
+using interrupt_type = ...;
 ```
 This typedef indicates the [interrupt controller interrupt type](interrupt.md) of the related `Timer` `Interrupt`. You may pass `mcutl::timer::interrupt::overflow` or other timer interrupt type to the `Interrupt` parameter.
 
@@ -164,7 +164,7 @@ This constant indicates if the `Prescaler` is supported for the `Timer`. This tr
 
 ```cpp
 template<typename Timer>
-using reload_value_limits = typename detail::timer_traits<Timer>::reload_value_limits;
+using reload_value_limits = ...;
 ```
 This type indicates the limits of the timer reload value. It is avaliable only when the `supports_reload_value` trait is `true`. It has the type of `mcutl::types::limits<From, To>`.
 

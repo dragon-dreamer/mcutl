@@ -236,6 +236,8 @@ TYPED_TEST(spi_list_test_fixture, TraitsTest)
 		typename spi_map<spi>::interrupt>));
 	EXPECT_TRUE((std::is_same_v<mcutl::spi::interrupt_type<spi, mcutl::spi::interrupt::recieve_buffer_not_empty>,
 		typename spi_map<spi>::interrupt>));
+	EXPECT_TRUE((std::is_same_v<mcutl::spi::supported_data_types<spi>,
+		mcutl::types::list<uint8_t, int8_t, uint16_t, std::byte>>));
 }
 
 TYPED_TEST(spi_list_test_fixture, PendingFlagsTest)

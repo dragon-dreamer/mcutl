@@ -230,7 +230,7 @@ struct spi_traits
 
 template<uint8_t SpiIndex, typename Peripheral,
 	typename MisoPin, typename MosiPin, typename SckPin, typename SsPin,
-	typename DefaultSlaveManagementMode>
+	typename DefaultSlaveManagementMode, typename SupportedDataTypes>
 struct spi_base
 {
 	static constexpr uint8_t index = SpiIndex;
@@ -240,15 +240,16 @@ struct spi_base
 	using sck_pin = SckPin;
 	using ss_pin = SsPin;
 	using default_slave_management_mode = DefaultSlaveManagementMode;
+	using supported_data_types = SupportedDataTypes;
 };
 
 template<uint8_t SpiIndex, typename Peripheral,
 	typename MisoPin, typename MosiPin, typename SckPin, typename SsPin,
-	typename DefaultSlaveManagementMode>
+	typename DefaultSlaveManagementMode, typename SupportedDataTypes>
 struct spi_traits<spi_base<SpiIndex, Peripheral, MisoPin, MosiPin, SckPin, SsPin,
-		DefaultSlaveManagementMode>>
+		DefaultSlaveManagementMode, SupportedDataTypes>>
 	: spi_base<SpiIndex, Peripheral, MisoPin, MosiPin, SckPin, SsPin,
-		DefaultSlaveManagementMode>
+		DefaultSlaveManagementMode, SupportedDataTypes>
 {
 };
 
@@ -267,8 +268,23 @@ using peripheral_type = typename detail::spi_traits<Spi>::peripheral;
 template<typename Spi>
 using default_slave_management_mode = typename detail::spi_traits<Spi>::default_slave_management_mode;
 
+template<typename Spi>
+using miso_pin = typename detail::spi_traits<Spi>::miso_pin;
+
+template<typename Spi>
+using mosi_pin = typename detail::spi_traits<Spi>::mosi_pin;
+
+template<typename Spi>
+using ss_pin = typename detail::spi_traits<Spi>::ss_pin;
+
+template<typename Spi>
+using sck_pin = typename detail::spi_traits<Spi>::sck_pin;
+
 template<typename Spi, typename Interrupt>
 using interrupt_type = typename detail::interrupt_type_helper<Spi, Interrupt>::type;
+
+template<typename Spi>
+using supported_data_types = typename detail::spi_traits<Spi>::supported_data_types;
 
 template<typename...>
 struct config {};

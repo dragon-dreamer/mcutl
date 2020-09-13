@@ -30,12 +30,14 @@ struct options : mcutl::spi::detail::options
 	bool priority_conflict = false;
 };
 
+using supported_data_types = types::list<uint8_t, int8_t, uint16_t, std::byte>;
+
 template<uint8_t SpiIndex, typename Peripheral, uint32_t Base,
 	typename MisoPin, typename MosiPin, typename SckPin, typename NssPin,
 	clock::device_source_id ClockId>
 struct spi_base : mcutl::spi::detail::spi_base<
 	SpiIndex, Peripheral, MisoPin, MosiPin, SckPin, NssPin,
-	mcutl::spi::slave_management::none>
+	mcutl::spi::slave_management::none, supported_data_types>
 {
 	static constexpr uint32_t base = Base;
 	static constexpr clock::device_source_id clock_id = ClockId;
@@ -409,9 +411,9 @@ private:
 		if constexpr (std::is_same_v<data_type, uint16_t>)
 			options.spi_cr1 |= SPI_CR1_DFF;
 		
-		static_assert(std::is_same_v<data_type, unsigned char> || std::is_same_v<data_type, signed char>
+		static_assert(std::is_same_v<data_type, uint8_t> || std::is_same_v<data_type, int8_t>
 			|| std::is_same_v<data_type, uint16_t>|| std::is_same_v<data_type, std::byte>,
-			"Unsupported SPI data type, only unsigned char, signed char, uint16_t and std::byte are supported");
+			"Unsupported SPI data type, only uint8_t, int8_t, uint16_t and std::byte are supported");
 		
 		if (!!options.slave_management_set_count)
 		{

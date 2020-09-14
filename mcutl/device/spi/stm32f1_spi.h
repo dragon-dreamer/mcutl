@@ -270,7 +270,7 @@ struct dma_transmit_mode
 	}
 	
 	template<typename Master, bool Enable>
-	static void enable_source_increment() MCUTL_NOEXCEPT
+	static void enable_source_pointer_increment() MCUTL_NOEXCEPT
 	{
 		dma::reconfigure_channel<channel<Master>,
 			dma::source<dma::data_size::byte, dma::address::memory,

@@ -326,10 +326,10 @@ struct empty_mode
 	}
 	
 	template<typename Master, bool Enable>
-	static void enable_source_increment() noexcept
+	static void enable_source_pointer_increment() noexcept
 	{
 		static_assert(types::always_false<Master>::value,
-			"Unable to enable_source_increment for absent SPI transmit mode");
+			"Unable to enable_source_pointer_increment for absent SPI transmit mode");
 	}
 };
 

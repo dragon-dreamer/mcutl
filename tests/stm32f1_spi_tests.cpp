@@ -581,7 +581,7 @@ TYPED_TEST(spi_list_test_fixture, EnableSourceIncrementTest)
 	this->expect_configure(spi_map<spi>::tx_dma, new_ccr, 0, 0, 0, initial_ccr);
 	
 	auto spi8 = this->create_dma_spi();
-	spi8.template enable_source_increment<true>();
+	spi8.template enable_source_pointer_increment<true>();
 }
 
 TYPED_TEST(spi_list_test_fixture, DisableSourceIncrementTest)
@@ -594,7 +594,7 @@ TYPED_TEST(spi_list_test_fixture, DisableSourceIncrementTest)
 	this->expect_configure(spi_map<spi>::tx_dma, new_ccr, 0, 0, 0, initial_ccr);
 	
 	auto spi8 = this->create_dma_spi();
-	spi8.template enable_source_increment<false>();
+	spi8.template enable_source_pointer_increment<false>();
 }
 
 TYPED_TEST(spi_list_test_fixture, ChangePrescalerTest)

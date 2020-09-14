@@ -187,9 +187,9 @@ public:
 	}
 	
 	template<bool Enable>
-	void enable_source_increment() MCUTL_NOEXCEPT
+	void enable_source_pointer_increment() MCUTL_NOEXCEPT
 	{
-		transmit_mode_.template enable_source_increment<master, Enable>();
+		transmit_mode_.template enable_source_pointer_increment<master, Enable>();
 	}
 	
 private:

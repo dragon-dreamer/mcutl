@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstddef>
+#include <tuple>
 #include <type_traits>
 
 namespace mcutl::types
@@ -340,5 +341,60 @@ struct type_by_index<Index, List<Type, Types...>>
 
 template<std::size_t Index, typename List>
 using type_by_index_t = typename detail::type_by_index<Index, List>::type;
+
+namespace detail
+{
+
+template<typename T, typename List>
+struct has_type
+{
+	static_assert(always_false<T>::value, "Invalid type list type");
+};
+
+template<typename T, template <typename...> typename List>
+struct has_type<T, List<>> : std::bool_constant<false> {};
+
+template<typename T, template <typename...> typename List, typename... Types>
+struct has_type<T, List<T, Types...>> : std::bool_constant<true> {};
+
+template<typename T, template <typename...> typename List, typename U, typename... Types>
+struct has_type<T, List<U, Types...>> : has_type<T, List<Types...>> {};
+
+} //namespace detail
+
+template<typename T, typename TypeList>
+[[maybe_unused]] constexpr bool has_type_v = detail::has_type<T, TypeList>::value;
+
+namespace detail
+{
+
+template<typename Base, typename Tuple, std::size_t I = 0>
+struct tuple_ref_index : std::integral_constant<int, -1>
+{
+};
+
+template<typename Base, typename Head, typename... Tail, std::size_t I>
+struct tuple_ref_index<Base, std::tuple<Head, Tail...>, I>  
+    : std::conditional<std::is_base_of_v<Base, std::decay_t<Head>>
+                     , std::integral_constant<std::size_t, I>
+                     , tuple_ref_index<Base, std::tuple<Tail...>, I + 1>
+                     >::type
+{
+};
+
+} //namespace detail
+
+template<typename Base, typename Tuple>
+[[nodiscard]] constexpr decltype(auto) get_tuple_element_by_base(Tuple&& tuple) noexcept
+{
+    return std::get<detail::tuple_ref_index<Base, std::decay_t<Tuple>>::value>(
+		std::forward<Tuple>(tuple));
+}
+
+template<typename Base, typename Tuple>
+[[nodiscard]] constexpr bool has_tuple_element_with_base() noexcept
+{
+	return detail::tuple_ref_index<Base, std::decay_t<Tuple>>::value != -1;
+}
 
 } //namespace mcutl::types

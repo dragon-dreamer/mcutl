@@ -31,6 +31,27 @@ struct priority_count {};
 namespace detail
 {
 
+template<typename Type>
+struct interrupt_type
+{
+	using type = Type;
+};
+
+template<typename Type, priority_t Priority, priority_t Subpriority>
+struct interrupt_type<interrupt<Type, Priority, Subpriority>>
+{
+	using type = Type;
+};
+
+template<typename Type>
+struct interrupt_type<disabled<Type>>
+{
+	using type = Type;
+};
+
+template<typename Type>
+using interrupt_type_t = typename interrupt_type<Type>::type;
+
 struct interrupt_info
 {
 	priority_t priority = default_priority;

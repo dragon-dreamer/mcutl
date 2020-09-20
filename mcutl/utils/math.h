@@ -5,6 +5,8 @@
 #include <stdint.h>
 #include <type_traits>
 
+#include "mcutl/utils/endian.h"
+
 namespace mcutl::math
 {
 
@@ -177,6 +179,31 @@ template<typename T, T Value1, T Value2, T Value3, T... Values>
 [[nodiscard]] constexpr T min_value() noexcept
 {
 	return min_value<T, min_value<T, Value1, Value2>(), Value3, Values...>();
+}
+
+[[nodiscard]] constexpr uint16_t reverse_bytes(uint16_t value) noexcept
+{
+	uint16_t low = value & 0xff;
+	uint16_t high = value >> 8;
+	return high | (low << 8);
+}
+
+[[nodiscard]] constexpr uint32_t reverse_bytes(uint32_t value) noexcept
+{
+	uint16_t octet1 = value & 0xff;
+	uint16_t octet2 = (value >> 8) & 0xff;
+	uint16_t octet3 = (value >> 16) & 0xff;
+	uint16_t octet4 = value >> 24;
+	return (octet1 << 24) | (octet2 << 16) | (octet3 << 8) | octet4;
+}
+
+template<typename Value>
+[[nodiscard]] constexpr auto reverse_bytes_if_le(Value value) noexcept
+{
+	if constexpr (types::endian::native == types::endian::little)
+		return reverse_bytes(value);
+	else
+		return static_cast<decltype(reverse_bytes(value))>(value);
 }
 
 } //namespace mcutl::math

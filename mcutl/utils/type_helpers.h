@@ -71,6 +71,7 @@ template<typename... T>
 struct list
 {
 	static constexpr auto length = sizeof...(T);
+	template<template <typename...> typename Container> using apply = Container<T...>;
 };
 
 template<typename T>

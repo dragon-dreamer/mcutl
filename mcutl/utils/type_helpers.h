@@ -72,6 +72,9 @@ struct list
 {
 	static constexpr auto length = sizeof...(T);
 	template<template <typename...> typename Container> using apply = Container<T...>;
+	
+	template<template <typename...> typename Container, template <typename...> typename Modifier>
+	using apply_with_modifier = Container<typename Modifier<T>::type...>;
 };
 
 template<typename T>
